@@ -31,19 +31,20 @@ export const {
 
       const existingUser = await getUserById(user.id!);
 
-      // Prevent sign in without email verification
-      if (!existingUser?.emailVerified) return false;
+      // Prevent sign in without email verification ANDREBBE MESSO A FALSE MA LO METTO A TRUE PER DISABILITARE IL DUE FATTORI, SO CHE FA SCHIFO 
+      if (!existingUser?.emailVerified) return true;
 
-	        if (existingUser.isTwoFactorEnabled) {
-        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
+      //DISABILITATO ESSENDO CHE DEVO DISABILITARTE A DUE FATTORI, SO CHE FA SCHIFO 
+	      //   if (existingUser.isTwoFactorEnabled) {
+        // const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id);
 
-        if (!twoFactorConfirmation) return false;
+      //   if (!twoFactorConfirmation) return false;
 
-        // Delete two factor confirmation for next sign in
-        await db.twoFactorConfirmation.delete({
-          where: { id: twoFactorConfirmation.id }
-        });
-      }
+      //   // Delete two factor confirmation for next sign in
+      //   await db.twoFactorConfirmation.delete({
+      //     where: { id: twoFactorConfirmation.id }
+      //   });
+      // }
 
       return true;
 

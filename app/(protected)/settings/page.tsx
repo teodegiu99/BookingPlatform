@@ -1,4 +1,5 @@
 import { auth, signOut } from "@/auth";
+import { CalendarDemo } from "@/components/protected/calendar";
 
 const SettingsPage= async () => {
 	const session = await auth();

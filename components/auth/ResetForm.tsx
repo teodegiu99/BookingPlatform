@@ -84,7 +84,7 @@ export const ResetForm = () => {
 			  type="submit"
 			  className="w-full"
 			>
-			  Send reset email
+			  Manda email di reset
 			</Button>
 		  </form>
 		</Form>

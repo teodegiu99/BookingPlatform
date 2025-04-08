@@ -30,8 +30,8 @@ await db.user.create({
 	},
 });
 
-const verificationToken = await generateVerificationToken(email)
+// const verificationToken = await generateVerificationToken(email)
 
-await sendVerificationEmail(verificationToken.email, verificationToken.token,);
-  return { success: "Confermation email sent!" };
+// await sendVerificationEmail(verificationToken.email, verificationToken.token,);
+//   return { success: "Confermation email sent!" };
 };
