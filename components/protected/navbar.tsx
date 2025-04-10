@@ -3,7 +3,10 @@ import { auth, signOut } from "@/auth";
 import Image from 'next/image';
 import SignOutButton from '../auth/SignoutBtn';
 
-const NavBar = () => {
+const NavBar  =  async () => {
+  const session = await auth();
+  console.log(session)
+  JSON.stringify(session)
   return (
     <div className='flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
       <div className='p-1'></div>

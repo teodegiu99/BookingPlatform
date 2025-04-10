@@ -1,4 +1,6 @@
 import { CalendarDemo } from "@/components/protected/calendar";
+import TimeSlotList from "@/components/protected/slots";
+
 // const Home= async () => {
 // 	const session = await auth();
 //   return (
@@ -21,8 +23,14 @@ import { CalendarDemo } from "@/components/protected/calendar";
 
 const Home= async () => {
   return (
-	<div>
-    <CalendarDemo />
+	<div className="grid grid-cols-5 h-full w-screen justify-center items-center ">
+    <div className="col-span-2 justify-center items-center">    
+      <CalendarDemo />
+    </div>
+    <div>
+    <TimeSlotList />
+
+    </div>
 	</div>
   )
 }

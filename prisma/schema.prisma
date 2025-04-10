@@ -12,7 +12,6 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url  	    = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL_UNPOOLED")
 }
 
 enum UserRole {
@@ -21,22 +20,17 @@ enum UserRole {
 }
 
 model User {
-	id String @id @default(cuid())
-	name String?
-	email String? @unique
-	emailVerified DateTime?
-	image String?
-	password String?
-    role UserRole @default(USER)
-	accounts Account[]
-	isTwoFactorEnabled Boolean @default(false)
-	twoFactorConfirmation TwoFactorConfirmation?
-	personal			 Personal? 
-	contact Contact?
-	skills Skills?
-	bio Bio?
-	workedu	Workedu?
-public Public?
+	id 							String @id @default(cuid())
+	name 						String?
+	email 						String? @unique
+	emailVerified 				DateTime?
+	image 						String?
+	password 					String?
+    role 						UserRole @default(USER)
+	accounts 					Account[]
+	isTwoFactorEnabled 			Boolean @default(false)
+	twoFactorConfirmation 		TwoFactorConfirmation?
+	color 						String?
 }
 
 model Account {
@@ -93,75 +87,21 @@ model TwoFactorConfirmation {
 	@@unique([userId])
 }
 
-model Personal {
-	id String @id @default(cuid())
-	userId String
-	name String
-	surname String
-	address String?
-	dateOfBirth String?
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
 
-}
-
-model Contact {
+model Cliente {
 	id String @id @default(cuid())
-	userId String
-	phone String?
+	nome String?
+	cognome String?
+	azienda String
+	ruolo String?
 	email String
-	linkedin String?
-	github String?
-	dribble String?
-	website String?
-
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
-
+	numero String?
+  @@unique([email])
 }
 
-model Skills {
+model Appuntamento {
 	id String @id @default(cuid())
-	userId String
-	hardSkills String[]
-	softSkills String[]
-	languages String[]
-
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
-
-}
-
-model Bio {
-	id String @id @default(cuid())
-	userId String
-	bio String?
-	desiredJob String
-	desiredRal Int
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
-}
-
-model Workedu {
-	id String @id @default(cuid())
-	userId String
-	experience String[]
-	experienceYears String[]
-	education String[]
-	educationYears String[]
-
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
-}
-
-model Public {
-	id String @id @default(cuid())
-	userId String
-	showImage Boolean @default(true)
-	showAddress Boolean @default(true)
-	showDateOfBirth Boolean @default(true)
-	showBio Boolean @default(true)
-	user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  @@unique([userId])
-
+	cliente String
+	commerciale String
+	orario DateTime[]
 }
