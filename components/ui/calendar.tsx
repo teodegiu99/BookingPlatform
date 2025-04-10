@@ -49,7 +49,7 @@ function Calendar({
         day_range_start: "day-range-start",
         day_range_end: "day-range-end",
         day_selected:
-          "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground",
+          "bg-primary text-white hover:bg-primary hover:text-primary-foreground focus:bg-primary focus:text-primary-foreground rounded-full",
         day_today: "bg-accent text-accent-foreground",
         day_outside:
           "day-outside text-muted-foreground aria-selected:bg-accent/50 aria-selected:text-muted-foreground",
@@ -60,10 +60,10 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        IconLeft: ({ className, ...props }) => (
+        IconLeft: ({ className, children, ...props }) => (
           <ChevronLeftIcon className={cn("h-4 w-4", className)} {...props} />
         ),
-        IconRight: ({ className, ...props }) => (
+        IconRight: ({ className, children, ...props }) => (
           <ChevronRightIcon className={cn("h-4 w-4", className)} {...props} />
         ),
       }}
@@ -71,6 +71,6 @@ function Calendar({
     />
   )
 }
-Calendar.displayName = "Calendar"
+Calendar.displayName = "Calendario"
 
 export { Calendar }

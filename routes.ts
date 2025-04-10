@@ -32,7 +32,7 @@ export const apiAuthPrefix = "/api/auth";
  * The default redirect path after logging in
  * @type {string}
  */
-export const DEFAULT_LOGIN_REDIRECT = "/settings";
+export const DEFAULT_LOGIN_REDIRECT = "/home";
 
 
 //TUTTE LE ROUTES SONO PROTETTE DI DEFAULT, QUINDI OGNI PAGINA CREIAMO CHE NON SIA DEFINITA QUA COME PUBBLICA, SARA PRIVATA 
