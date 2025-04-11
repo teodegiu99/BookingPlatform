@@ -1,5 +1,6 @@
 import { CalendarDemo } from "@/components/protected/calendar";
 import TimeSlotList from "@/components/protected/slots";
+import { DateProvider } from '@/context/DateContext'
 
 // const Home= async () => {
 // 	const session = await auth();
@@ -23,6 +24,7 @@ import TimeSlotList from "@/components/protected/slots";
 
 const Home= async () => {
   return (
+    <DateProvider>
 	<div className="grid grid-cols-5 h-full w-screen justify-center items-center ">
     <div className="col-span-2 justify-center items-center">    
       <CalendarDemo />
@@ -32,6 +34,7 @@ const Home= async () => {
 
     </div>
 	</div>
+  </DateProvider>
   )
 }
 

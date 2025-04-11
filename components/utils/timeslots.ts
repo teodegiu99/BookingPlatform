@@ -13,5 +13,18 @@ export function generateTimeSlotsForDay(dateStr: string): Date[] {
       current.setMinutes(current.getMinutes() + 30)
     }
   
+    // slots = filterBookedTimeSlots(slots, bookedSlots)
     return slots
   }
+
+  export function filterBookedTimeSlots(
+    allSlots: Date[],
+    bookedSlots: Date[]
+  ): Date[] {
+    return allSlots.filter(slot =>
+      !bookedSlots.some(booked =>
+        slot.getTime() === new Date(booked).getTime()
+      )
+    )
+  }
+  
