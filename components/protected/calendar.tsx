@@ -23,7 +23,7 @@ export function CalendarDemo() {
           mode="single"
           selected={selectedDate}
           onSelect={(date) => date && setSelectedDate(date)}
-          className="p-5 text-2xl"
+          className="p-5 text-2xl !rounded-full"
         />
       </div>
     </div>

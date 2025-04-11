@@ -1,32 +1,39 @@
 'use server'
 
 import { db } from '@/lib/db'
-import { generateTimeSlotsForDay, filterBookedTimeSlots } from '../components/utils/timeslots'
 
-export async function getAvailableSlotsByDay(dateStr: string, commercialeId: string) {
-  const [day, month, year] = dateStr.split("/").map(Number)
-  const startOfDay = new Date(year, month - 1, day, 0, 0, 0)
-  const endOfDay = new Date(year, month - 1, day, 23, 59, 59)
-
-  // Prendiamo tutti gli appuntamenti del commerciale
+export async function getAppuntamentiByCommerciale(commercialeId: string) {
   const appuntamenti = await db.appuntamento.findMany({
     where: {
       commercialeId,
     },
-    select: {
-      orario: true,
+    include: {
+      cliente: true,
     },
   })
 
-  // Convertiamo gli orari in Date e teniamo solo quelli del giorno selezionato
-  const bookedSlots = appuntamenti
-    .flatMap(app => app.orario)
-    .map(str => new Date(str))
-    .filter(date => date >= startOfDay && date <= endOfDay)
-
-  // Generiamo tutti gli slot e li filtriamo
-  const allSlots = generateTimeSlotsForDay(dateStr)
-  const availableSlots = filterBookedTimeSlots(allSlots, bookedSlots)
-
-  return availableSlots
+  return appuntamenti.map(app => ({
+    id: app.id,
+    orari: app.orario,
+    cliente: app.cliente,
+  }))
 }
+
+
+export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, date: Date) {
+    const all = await getAppuntamentiByCommerciale(commercialeId)
+    const formatted = date.toLocaleDateString('it-IT')
+  
+    return all
+      .filter(app =>
+        app.orari.some((orario: string) => {
+          const d = new Date(orario)
+          return d.toLocaleDateString('it-IT') === formatted
+        })
+      )
+      .map(app => ({
+        id: app.id, // 👈👈👈 AGGIUNGI QUESTO CAMPO!
+        orari: app.orari,
+        cliente: app.cliente,
+      }))
+  }
