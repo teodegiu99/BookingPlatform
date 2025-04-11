@@ -31,6 +31,7 @@ model User {
 	isTwoFactorEnabled 			Boolean @default(false)
 	twoFactorConfirmation 		TwoFactorConfirmation?
 	color 						String?
+	appuntamentiGestiti     Appuntamento[] @relation("AppuntamentiUtente")
 }
 
 model Account {
@@ -51,6 +52,31 @@ model Account {
 
   @@unique([provider, providerAccountId])
 }
+
+
+
+
+
+model Cliente {
+	id String @id @default(cuid())
+	nome String?
+	cognome String?
+	azienda String
+	ruolo String?
+	email String
+	numero String?
+  appuntamenti Appuntamento[] 
+  @@unique([email])
+}
+
+model Appuntamento {
+  id             String    @id @default(cuid())
+  orario         String[]
+  clienteId      String
+  cliente        Cliente   @relation(fields: [clienteId], references: [id])
+  commercialeId  String
+  commerciale    User      @relation("AppuntamentiUtente", fields: [commercialeId], references: [id])
+  }
 
 model VerificationToken {
   id String @id @default(cuid())
@@ -88,20 +114,3 @@ model TwoFactorConfirmation {
 }
 
 
-model Cliente {
-	id String @id @default(cuid())
-	nome String?
-	cognome String?
-	azienda String
-	ruolo String?
-	email String
-	numero String?
-  @@unique([email])
-}
-
-model Appuntamento {
-	id String @id @default(cuid())
-	cliente String
-	commerciale String
-	orario DateTime[]
-}

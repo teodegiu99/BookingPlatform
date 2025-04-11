@@ -1,21 +1,41 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect,useRef, useState } from 'react'
 import { generateTimeSlotsForDay } from '../utils/timeslots'
 import { useDate } from '@/context/DateContext'
+import { createAppuntamento } from '@/actions/createAppuntamento'
+import { getAvailableSlotsByDay } from '@/actions/getSlotPrenotati'
+import { useSession } from 'next-auth/react'
 
 export default function TimeSlotList() {
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
-
+  const formRef = useRef<HTMLFormElement>(null)
   const { selectedDate } = useDate()
+  const [loading, setLoading] = useState(true)
+  const [slots, setSlots] = useState<Date[]>([])
+  const { data: session } = useSession()
 
   const formatDate = (date: Date) => {
     return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1)
       .toString()
       .padStart(2, '0')}/${date.getFullYear()}`
   }
-  const slots = generateTimeSlotsForDay(formatDate(selectedDate))
+  useEffect(() => {
+      if (!session?.user?.id) return
+
+    const fetchSlots = async () => {
+      const formattedDate = selectedDate.toLocaleDateString('it-IT')
+      const available = await getAvailableSlotsByDay(formattedDate, session.user.id!)
+      setSlots(available.map((s: any) => new Date(s)))
+      setLoading(false) 
+    }
+
+    fetchSlots()
+  }, [selectedDate, session?.user?.id])
+
+
+  if (loading) return <p>Caricamento slot disponibili...</p>
 
   const handleSlotClick = (slot: Date) => {
     setSelectedSlots([slot])
@@ -60,20 +80,33 @@ export default function TimeSlotList() {
     })}`
   }
 
-  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData.entries())
 
-    console.log('Dati form:', data)
-    console.log('Slot selezionati:', selectedSlots)
-
-    closeModal()
+    try {
+      await createAppuntamento({
+        nome: data.nome as string,
+        cognome: data.cognome as string,
+        azienda: data.azienda as string,
+        ruolo: data.ruolo as string,
+        email: data.email as string,
+        numero: data.telefono as string,
+        orari: selectedSlots,
+      })
+      formRef.current?.reset()
+      alert('Appuntamento creato con successo!')
+      closeModal()
+    } catch (error) {
+      console.error('Errore durante la creazione:', error)
+      alert('Errore nella creazione dell\'appuntamento')
+    }
   }
 
   return (
     <div className="p-4">
-          {formatDate(selectedDate)}
+      {formatDate(selectedDate)}
       <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
       <ul className="grid grid-cols-2 gap-3">
         {slots.map((slot, index) => (
@@ -110,7 +143,7 @@ export default function TimeSlotList() {
               </button>
             </div>
 
-            <form onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
+            <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
               <div className="col-span-1">
                 <label htmlFor="nome">Nome</label>
                 <input
