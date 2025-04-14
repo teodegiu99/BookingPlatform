@@ -25,13 +25,12 @@ import { DateProvider } from '@/context/DateContext'
 const Home= async () => {
   return (
     <DateProvider>
-	<div className="grid grid-cols-5 h-full w-screen justify-center items-center ">
-    <div className="col-span-2 justify-center items-center">    
+	<div className="grid xl:grid-cols-5 grid-cols-3 h-full w-screen justify-center items-center ">
+    <div className="col-span-1 xl:col-span-2 justify-center items-center h-4/6">    
       <CalendarDemo />
     </div>
-    <div>
+    <div className="col-span-2 xl:col-span-3">
     <TimeSlotList />
-
     </div>
 	</div>
   </DateProvider>

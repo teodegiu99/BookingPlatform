@@ -138,21 +138,19 @@ export default function TimeSlotList() {
   }
 
   return (
-    <div className="p-4">
-      {formatDate(selectedDate)}
-      <div className="grid grid-cols-2 gap-8">
+    <div className="flex items-center justify-center xl:mb-[25%]">
+      <div className="grid grid-cols-2 gap-2 border p-10 rounded-xl shadow-[5px] overflow-auto">
         <div>
           <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
-          <ul className="grid grid-cols-2 gap-3">
+          <ul className="grid  grid-cols-2 gap-3">
             {slots.map((slot, index) => (
               <li
                 key={index}
                 onClick={() => handleSlotClick(slot)}
-                className={`cursor-pointer px-4 py-2 rounded-xl text-center shadow
+                className={`cursor-pointer px-4 py-2 font-semibold rounded-[5px] text-center text-primary border border-primary hover:border-secondary hover:text-secondary shadow hover:shadow-xl
                 hover:bg-blue-200 ${
                   selectedSlots.some(s => s.getTime() === slot.getTime())
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-blue-100'
+                    
                 }`}
               >
                 {slot.toLocaleTimeString('it-IT', {
@@ -171,7 +169,7 @@ export default function TimeSlotList() {
               <li
                 key={`${app.id}-${i}`}
                 onClick={() => handleBookedClick(app)}
-                className="cursor-pointer px-4 py-2 rounded-xl text-center bg-red-200 hover:bg-red-300 shadow"
+                className="cursor-pointer px-4 py-2 rounded-[5px] text-center text-primary border border-primary hover:border-secondary hover:text-secondary shadow hover:shadow-xl"
               >
                 {new Date(orario).toLocaleTimeString('it-IT', {
                   hour: '2-digit',
@@ -226,7 +224,7 @@ export default function TimeSlotList() {
 
               <div className="col-span-2 flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">Annulla</button>
-                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700">Invia</button>
+                <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">Invia</button>
               </div>
             </form>
           </div>
