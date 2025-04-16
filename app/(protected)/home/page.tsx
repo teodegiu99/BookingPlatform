@@ -1,33 +1,35 @@
 'use client'
 
-import { CalendarDemo } from "@/components/protected/calendar";
-import NextAppointment from "@/components/protected/NextAppointment";
-import TimeSlotList from "@/components/protected/slots";
+import { CalendarDemo } from "@/components/protected/calendar"
+import NextAppointment from "@/components/protected/NextAppointment"
+import TimeSlotList from "@/components/protected/slots"
 import { DateProvider } from '@/context/DateContext'
-import AppointmentSearch from "@/components/protected/AppointmentSearch";
+import AppointmentSearch from "@/components/protected/AppointmentSearch"
 
-
-const Home= async () => {
+const Home = async () => {
   return (
     <DateProvider>
-	<div className="grid xl:grid-cols-6 grid-cols-3 h-full w-screen justify-center items-center p-5">
-    <div className="flex col-span-1 xl:col-span-2 justify-center items-center h-4/6">    
-    <div
-    className='flex flex-col items-center justify-center w-full'>
+      <div className="grid grid-cols-3 xl:grid-cols-6 h-screen w-screen p-5 gap-2">
+        {/* Colonna sinistra */}
+        <div className="col-span-1 xl:col-span-2  flex flex-col justify-end items-center gap-2 h-[85vh]">
+          <div className="w-full">
+          <CalendarDemo />
+          </div>
+          <div className="w-full">
           <NextAppointment />
+          </div>
+        </div>
 
-      <CalendarDemo />
+        {/* Colonna destra */}
+        <div className="col-span-2 xl:col-span-4 flex flex-col justify-end items-center gap-2 h-[85vh]">
+          <div className="w-full">
+          <AppointmentSearch onSelect={(app) => console.log('Appuntamento selezionato:', app)} />          </div>
+          <div className="w-full">
+            <TimeSlotList />
+          </div>
+        </div>
       </div>
-    </div>
-    <div className="flex col-span-2 xl:col-span-4 h-4/6 items-center">
-    <div
-    className='flex flex-col items-center justify-center w-full'>
-      <AppointmentSearch onSelect={(app) => console.log('Appuntamento selezionato:', app)} />
-      <TimeSlotList />
-    </div>
-    </div>
-	</div>
-  </DateProvider>
+    </DateProvider>
   )
 }
 

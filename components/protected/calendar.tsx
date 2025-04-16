@@ -14,8 +14,8 @@ export function CalendarDemo() {
   }
 
   return (
-    <div className="flex items-center justify-center xl:mb-[25%] ">
-      <div className="flex border flex-col xl:p-10 p-5 rounded-xl shadow-[5px]">
+    <div className="w-full flex items-center justify-center xl:mb-[25%] ">
+      <div className="flex border flex-col xl:p-10 p-5 rounded-xl shadow-[5px] w-full justify-center items-center">
         <div className="p-5 text-4xl text-center text-secondary">
           {formatDate(selectedDate)}
         </div>
@@ -23,7 +23,7 @@ export function CalendarDemo() {
           mode="single"
           selected={selectedDate}
           onSelect={(date) => date && setSelectedDate(date)}
-          className="p-5 text-4xl !rounded-full"
+          className="p-5 text-4xl text-center !rounded-full"
         />
       </div>
     </div>

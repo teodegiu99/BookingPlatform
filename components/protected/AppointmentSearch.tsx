@@ -93,7 +93,8 @@ export default function AppointmentSearch({
   }
 
   return (
-    <div className=" max-w-xl">
+    <div className="w-full border shadow-md rounded-xl p-5 h-full   min-w-full">
+        <div className='flex justify-center items-center w-full'> 
       <Select
         options={options}
         isLoading={loading}
@@ -103,6 +104,7 @@ export default function AppointmentSearch({
         onInputChange={(value) => setInputValue(value)}
         noOptionsMessage={() => 'Nessun risultato trovato'}
       />
+      </div>
     </div>
   )
 }

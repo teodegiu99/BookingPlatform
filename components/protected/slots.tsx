@@ -138,8 +138,8 @@ export default function TimeSlotList() {
     }
   }
   return (
-    <div className="flex items-center justify-center h-[60vh]">
-      <div className="border p-10 rounded-xl shadow-[5px] w-full max-w-5xl space-y-10">
+    <div className="flex items-center justify-center ">
+      <div className="border p-10 rounded-xl shadow-[5px] space-y-10">
         <div>
           <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
           <div className="overflow-x-auto whitespace-nowrap max-h-[30vh]">
