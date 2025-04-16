@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { useSession } from 'next-auth/react'
-import { getAllAppuntamentiByCommerciale } from '@/actions/getgAllAppuntamenti'
+import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Loader2 } from 'lucide-react'
 
 export default function NextAppointment() {

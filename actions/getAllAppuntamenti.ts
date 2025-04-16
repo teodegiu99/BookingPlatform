@@ -9,3 +9,13 @@ export async function getAllAppuntamentiByCommerciale(userId: string) {
     include: { cliente: true },
   })
 }
+
+
+
+export const getAllAppuntamenti = async () => {
+  return db.appuntamento.findMany({
+    include: {
+      cliente: true,
+    },
+  })
+}
