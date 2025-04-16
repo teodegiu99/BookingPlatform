@@ -69,7 +69,7 @@ export default function NextAppointment() {
 
   return (
     <div className="border rounded-xl p-5 shadow-md w-full ">
-      <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {timeRange} {dateStr}</h2>
+      <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {dateStr} {timeRange} </h2>
       <div className="text-sm space-y-1">
         <p><strong>{cliente.nome} {cliente.cognome}</strong></p>
         <p>{cliente.azienda} {cliente.ruolo}</p>

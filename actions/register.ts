@@ -6,6 +6,8 @@ import { db } from "@/lib/db";
 import { getUserByEmail } from "@/data/user";
 import { generateVerificationToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/mail";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
+import { redirect } from "next/navigation" 
 
 export const register = async (values: z.infer<typeof RegisterSchema>) => {
   const validatedFields = RegisterSchema.safeParse(values);
@@ -29,6 +31,8 @@ await db.user.create({
 		password: hashedPassword,
 	},
 });
+
+redirect(DEFAULT_LOGIN_REDIRECT)
 
 // const verificationToken = await generateVerificationToken(email)
 

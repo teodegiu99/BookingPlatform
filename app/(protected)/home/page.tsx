@@ -11,7 +11,7 @@ const Home = async () => {
     <DateProvider>
       <div className="grid grid-cols-3 xl:grid-cols-6 h-screen w-screen p-5 gap-2">
         {/* Colonna sinistra */}
-        <div className="col-span-1 xl:col-span-2  flex flex-col justify-end items-center gap-2 h-[85vh]">
+        <div className="col-span-1 xl:col-span-2  flex flex-col justify-end items-center gap-2 h-[88vh]">
           <div className="w-full">
           <CalendarDemo />
           </div>
@@ -21,8 +21,8 @@ const Home = async () => {
         </div>
 
         {/* Colonna destra */}
-        <div className="col-span-2 xl:col-span-4 flex flex-col justify-end items-center gap-2 h-[85vh]">
-          <div className="w-full">
+        <div className="col-span-2 xl:col-span-4 flex flex-col justify-end items-center gap-2 h-[88vh]">
+          <div className="w-full mb-10">
           <AppointmentSearch onSelect={(app) => console.log('Appuntamento selezionato:', app)} />          </div>
           <div className="w-full">
             <TimeSlotList />
