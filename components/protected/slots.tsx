@@ -75,6 +75,7 @@ export default function TimeSlotList() {
         setSelectedSlots([...selectedSlots, nextSlot])
       }
     }
+    console.log(selectedSlots)
   }
 
   const formatTimeRange = () => {
@@ -136,57 +137,73 @@ export default function TimeSlotList() {
       alert("Errore nella cancellazione")
     }
   }
-
   return (
-    <div className="flex items-center justify-center xl:mb-[25%]">
-      <div className="grid grid-cols-2 gap-2 border p-10 rounded-xl shadow-[5px] overflow-auto">
+    <div className="flex items-center justify-center h-[60vh]">
+      <div className="border p-10 rounded-xl shadow-[5px] w-full max-w-5xl space-y-10">
         <div>
           <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
-          <ul className="grid  grid-cols-2 gap-3">
-            {slots.map((slot, index) => (
-              <li
-                key={index}
-                onClick={() => handleSlotClick(slot)}
-                className={`cursor-pointer px-4 py-2 font-semibold rounded-[5px] text-center text-primary border border-primary hover:border-secondary hover:text-secondary shadow hover:shadow-xl
-                hover:bg-blue-200 ${
-                  selectedSlots.some(s => s.getTime() === slot.getTime())
-                    
-                }`}
-              >
-                {slot.toLocaleTimeString('it-IT', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto whitespace-nowrap max-h-[30vh]">
+            <div className="flex flex-wrap gap-3">
+              {slots.map((slot, index) => (
+                <div
+                  key={index}
+                  onClick={() => handleSlotClick(slot)}
+                  className={`cursor-pointer px-4 py-2 font-semibold rounded-[5px] text-center text-primary border border-primary hover:border-secondary hover:text-secondary shadow hover:shadow-xl hover:bg-blue-200 ${
+                    selectedSlots.some(s => s.getTime() === slot.getTime()) ? "bg-blue-200" : ""
+                  }`}
+                >
+                  {slot.toLocaleTimeString('it-IT', {
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+  
+{/* Slot occupati */}
+<div>
+  <h2 className="text-xl font-semibold mb-4">Slot occupati</h2>
+  <div className="overflow-x-auto max-w-full space-y-4">
+    <div className="flex flex-wrap gap-3 w-max">
+      {booked.map((app) => {
+        if (app.orari.length === 0) return null
 
-        <div>
-          <h2 className="text-xl font-semibold mb-4">Slot occupati</h2>
-          <ul className="grid grid-cols-2 gap-3">
-            {booked.flatMap(app => app.orari.map((orario: string, i: number) => (
-              <li
-                key={`${app.id}-${i}`}
-                onClick={() => handleBookedClick(app)}
-                className="cursor-pointer px-4 py-2 rounded-[5px] text-center text-primary border border-primary hover:border-secondary hover:text-secondary shadow hover:shadow-xl"
-              >
-                {new Date(orario).toLocaleTimeString('it-IT', {
-                  hour: '2-digit',
-                  minute: '2-digit',
-                })}
-              </li>
-            )))}
-          </ul>
-        </div>
+        const start = new Date(app.orari[0])
+        const end = new Date(app.orari[app.orari.length - 1])
+        end.setMinutes(end.getMinutes() + 30)
+
+        const timeRange = `${start.toLocaleTimeString('it-IT', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })} - ${end.toLocaleTimeString('it-IT', {
+          hour: '2-digit',
+          minute: '2-digit',
+        })}`
+
+        return (
+          <div
+            key={app.id}
+            onClick={() => handleBookedClick(app)}
+            className="cursor-pointer px-4 py-2 rounded-[5px] text-center text-primary border border-primary bg-blue-100 shadow hover:shadow-xl hover:bg-blue-200 min-w-[120px]"
+          >
+            {timeRange}
+          </div>
+        )
+      })}
+    </div>
+  </div>
+</div>
       </div>
-
+  
+      {/* Modal gestione cliente */}
       {isModalOpen && selectedSlots.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-2xl w-full">
             <h3 className="text-lg font-bold mb-2">Slot selezionato</h3>
             <p className="mb-4">{formatTimeRange()}</p>
-
+  
             <div className="mb-4">
               <button
                 onClick={addNextSlot}
@@ -195,7 +212,7 @@ export default function TimeSlotList() {
                 Aggiungi slot successivo
               </button>
             </div>
-
+  
             <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
               <div className="col-span-1">
                 <label htmlFor="nome">Nome</label>
@@ -221,7 +238,7 @@ export default function TimeSlotList() {
                 <label htmlFor="ruolo">Ruolo</label>
                 <input type="text" name="ruolo" id="ruolo" className="w-full p-2 border rounded" />
               </div>
-
+  
               <div className="col-span-2 flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">Annulla</button>
                 <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">Invia</button>
@@ -230,7 +247,8 @@ export default function TimeSlotList() {
           </div>
         </div>
       )}
-
+  
+      {/* Modal dettagli appuntamento */}
       {selectedAppuntamento && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-xl w-full">
@@ -255,5 +273,6 @@ export default function TimeSlotList() {
         </div>
       )}
     </div>
-  )
+  );
+  
 }

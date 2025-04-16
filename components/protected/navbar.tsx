@@ -8,7 +8,7 @@ const NavBar  =  async () => {
   console.log(session)
   JSON.stringify(session)
   return (
-    <div className='flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
+    <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
       <div className='p-1'></div>
       <div className='flex justify-center items-center'>
         <Image src="/logo-black.svg"
