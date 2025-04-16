@@ -1,0 +1,79 @@
+'use client'
+
+import React, { useEffect, useState } from 'react'
+import { useSession } from 'next-auth/react'
+import { getAllAppuntamentiByCommerciale } from '@/actions/getgAllAppuntamenti'
+import { Loader2 } from 'lucide-react'
+
+export default function NextAppointment() {
+  const { data: session } = useSession()
+  const [nextApp, setNextApp] = useState<any | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchNext = async () => {
+      if (!session?.user?.id) return
+
+      const all = await getAllAppuntamentiByCommerciale(session.user.id)
+      const future = all
+        .filter(app => {
+          const first = new Date(app.orario[0])
+          return first > new Date()
+        })
+        .sort((a, b) => new Date(a.orario[0]).getTime() - new Date(b.orario[0]).getTime())
+
+      setNextApp(future[0] || null)
+      setLoading(false)
+    }
+
+    fetchNext()
+  }, [session?.user?.id])
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <Loader2 className="animate-spin h-4 w-4" />
+        Caricamento prossimo appuntamento...
+      </div>
+    )
+  }
+
+  if (!nextApp) {
+    return (
+      <div className="text-sm text-muted-foreground">
+        Nessun appuntamento futuro trovato.
+      </div>
+    )
+  }
+
+  const start = new Date(nextApp.orario[0])
+  const end = new Date(nextApp.orario[nextApp.orario.length - 1])
+  end.setMinutes(end.getMinutes() + 30)
+
+  const timeRange = `${start.toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })} - ${end.toLocaleTimeString('it-IT', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })}`
+
+  const dateStr = start.toLocaleDateString('it-IT', {
+    weekday: 'long',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })
+
+  const cliente = nextApp.cliente
+
+  return (
+    <div className="border rounded-xl p-5 shadow-md w-full ">
+      <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {timeRange} {dateStr}</h2>
+      <div className="text-sm space-y-1">
+        <p><strong>{cliente.nome} {cliente.cognome}</strong></p>
+        <p>{cliente.azienda} {cliente.ruolo}</p>
+      </div>
+    </div>
+  )
+}

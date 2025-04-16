@@ -1,25 +1,8 @@
 import { CalendarDemo } from "@/components/protected/calendar";
+import NextAppointment from "@/components/protected/NextAppointment";
 import TimeSlotList from "@/components/protected/slots";
 import { DateProvider } from '@/context/DateContext'
 
-// const Home= async () => {
-// 	const session = await auth();
-//   return (
-// 	<div>
-// 		{JSON.stringify(session)}
-// 		<form action={async () => {
-// 			"use server"
-// 			await signOut();
-// 		}}>
-// 			<button type="submit">
-// 				Sign out
-// 			</button>
-// 		</form>
-// 	</div>
-//   )
-// }
-
-// export default Home
 
 
 const Home= async () => {
@@ -30,7 +13,11 @@ const Home= async () => {
       <CalendarDemo />
     </div>
     <div className="flex col-span-2 xl:col-span-4 h-4/6 items-center">
+    <div
+    className='flex flex-col items-center justify-center w-full'>
+    <NextAppointment />
     <TimeSlotList />
+    </div>
     </div>
 	</div>
   </DateProvider>
