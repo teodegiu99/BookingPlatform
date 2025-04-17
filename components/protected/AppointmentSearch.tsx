@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
-import { getAllAppuntamenti } from '@/actions/getAllAppuntamenti'
+import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
 import { format } from 'date-fns'
 import { it } from 'date-fns/locale'
+import { auth } from "@/auth";
 
 type Appuntamento = {
   id: string
@@ -47,9 +48,9 @@ export default function AppointmentSearch({
   })
 
   const fetchAppuntamenti = async () => {
-    setLoading(true)
-    const data = await getAllAppuntamenti()
 
+    setLoading(true)
+    const data = await getAllAppuntamentiByCommerciale()                                                                                                                                                                                                                                                                                                                                                                                                                                                       
     setAllAppuntamenti(data)
     setOptions(data.map(formatOption))
 

@@ -14,7 +14,7 @@ export default function NextAppointment() {
     const fetchNext = async () => {
       if (!session?.user?.id) return
 
-      const all = await getAllAppuntamentiByCommerciale(session.user.id)
+      const all = await getAllAppuntamentiByCommerciale()
       const future = all
         .filter(app => {
           const first = new Date(app.orario[0])

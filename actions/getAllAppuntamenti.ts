@@ -1,9 +1,12 @@
 'use server'
 
 import { db } from '@/lib/db'
+import { auth } from "@/auth";
 
 
-export async function getAllAppuntamentiByCommerciale(userId: string) {
+export async function getAllAppuntamentiByCommerciale() {
+        const session = await auth();
+       const  userId = session?.user.id
   return await db.appuntamento.findMany({
     where: { commercialeId: userId },
     include: { cliente: true },

@@ -32,7 +32,7 @@ export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, 
         })
       )
       .map(app => ({
-        id: app.id, // 👈👈👈 AGGIUNGI QUESTO CAMPO!
+        id: app.id, 
         orari: app.orari,
         cliente: app.cliente,
       }))
