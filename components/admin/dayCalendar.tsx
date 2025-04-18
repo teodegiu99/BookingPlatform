@@ -1,10 +1,9 @@
-// components/DayCalendar.tsx
 'use client';
 
 import React from 'react';
 import Image from 'next/image';
 
-const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2); // dalle 9:00 alle 19:00 (9.0, 9.5, ..., 19.0)
+const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2); // dalle 9:00 alle 19:00
 const formatHour = (h: number) => {
   const hour = Math.floor(h);
   const minutes = h % 1 === 0 ? '00' : '30';
@@ -13,39 +12,34 @@ const formatHour = (h: number) => {
 
 type Appuntamento = {
   id: string;
+  orario: string[];
   cliente: {
     nome: string | null;
     cognome: string | null;
   };
   commerciale: {
     id: string;
-    name: string;
+    name: string | null;
     image: string | null;
   };
-  orario: string[];
 };
 
 type Props = {
-    commerciali: {
-      id: string;
-      name: string | null;
-      image: string | null;
-    }[];
-    appuntamenti: {
-      id: string;
-      orario: string[];
-      cliente: {
-        nome: string | null;
-        cognome: string | null;
-      };
-      commerciale: {
-        id: string;
-        name: string | null;
-        image: string | null;
-      };
-    }[];
-  };
-  
+  commerciali: {
+    id: string;
+    name: string | null;
+    image: string | null;
+  }[];
+  appuntamenti: Appuntamento[];
+};
+
+const formatAppointmentHour = (isoDate: string) => {
+  const date = new Date(isoDate);
+  const hour = date.getHours();
+  const minutes = date.getMinutes();
+  return `${hour}:${minutes < 10 ? '00' : '30'}`;
+};
+
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
   return (
     <div className="overflow-x-auto">
@@ -76,21 +70,26 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
             {/* Colonne slot orari */}
             {hours.map((h, i) => {
               const slotHour = formatHour(h);
+
               const slot = appuntamenti.find(
-                (a) => a.commerciale.id === com.id && a.orario.includes(slotHour)
-                          );
+                (a) =>
+                  a.commerciale.id === com.id &&
+                  a.orario.some((o) => formatAppointmentHour(o) === slotHour)
+              );
 
               return (
                 <div key={i} className="relative border-t border-r h-16">
-                  {slot && slot.orario[0] === slotHour && (
+                  {slot && (
                     <div className="absolute inset-1 bg-blue-600 text-white text-xs rounded p-1">
                       {slot.cliente.nome} {slot.cliente.cognome}
                       <br />
                       {slot.orario.length > 1
-                        ? `${slot.orario[0]} → ${slot.orario[slot.orario.length - 1]}`
-                        : slot.orario[0]}
+                        ? `${formatAppointmentHour(slot.orario[0])} → ${formatAppointmentHour(
+                            slot.orario[slot.orario.length - 1]
+                          )}`
+                        : formatAppointmentHour(slot.orario[0])}
                     </div>
-                  )} 
+                  )}
                 </div>
               );
             })}
