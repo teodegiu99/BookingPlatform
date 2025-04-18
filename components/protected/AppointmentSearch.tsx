@@ -72,7 +72,7 @@ export default function AppointmentSearch() {
 
   return (
     <>
-      <div className="w-full border shadow-md rounded-xl p-10 h-full min-w-full">
+      <div className="w-full border shadow-md rounded-xl p-10 min-w-full grow">
         <h3 className="text-xl font-bold mb-2">Cerca</h3>
         <div className="flex justify-center items-center w-full">
           <Select

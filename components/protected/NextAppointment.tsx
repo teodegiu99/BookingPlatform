@@ -18,9 +18,8 @@ export default function NextAppointment() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Loader2 className="animate-spin h-4 w-4" />
-        Caricamento prossimo appuntamento...
+      <div className="flex items-center gap-2 text-sm text-muted-foreground grow">
+   
       </div>
     )
   }
@@ -61,7 +60,7 @@ export default function NextAppointment() {
   const cliente = nextApp.cliente
 
   return (
-    <div className="border rounded-xl p-5 shadow-md w-full">
+    <div className="border rounded-xl p-5 shadow-md w-full grow">
       <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {dateStr} {timeRange}</h2>
       <div className="text-sm space-y-1">
         <p><strong>{cliente.nome} {cliente.cognome}</strong></p>

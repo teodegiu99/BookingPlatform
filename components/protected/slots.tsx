@@ -133,7 +133,7 @@ export default function TimeSlotList() {
   }
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex items-center justify-center grow">
       <div className="border p-10 rounded-xl shadow-[5px] space-y-10">
         {/* Slot disponibili */}
         <div>
