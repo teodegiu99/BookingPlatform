@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect,useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
 import { useDate } from '@/context/DateContext'
 import { createAppuntamento } from '@/actions/createAppuntamento'
 import { getAvailableSlotsByDay } from '@/actions/getSlotLiberi'
@@ -8,47 +8,43 @@ import { useSession } from 'next-auth/react'
 import { getAppuntamentiByDayAndCommerciale } from '@/actions/getSlotPrenotati'
 import { FiTrash2 } from 'react-icons/fi'
 import { deleteAppuntamento } from '@/actions/deleteSlot'
+import useSWR from 'swr'
 
 export default function TimeSlotList() {
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
   const { selectedDate } = useDate()
-  const [loading, setLoading] = useState(true)
-  const [slots, setSlots] = useState<Date[]>([])
   const { data: session } = useSession()
-  const [booked, setBooked] = useState<{ orari: string[]; cliente: any, id: string }[]>([])
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<any | null>(null)
 
-  const formatDate = (date: Date) => {
-    return `${date.getDate().toString().padStart(2, '0')}/${(date.getMonth() + 1).toString().padStart(2, '0')}/${date.getFullYear()}`
-  }
+  const fetchSlotsData = async (date: Date, userId: string) => {
+    const formattedDate = date.toLocaleDateString('it-IT')
+    const available = await getAvailableSlotsByDay(formattedDate, userId)
+    const allApp = await getAppuntamentiByDayAndCommerciale(userId, date)
 
-  const fetchData = async () => {
-    if (!session?.user?.id) return
-
-    const formattedDate = selectedDate.toLocaleDateString('it-IT')
-
-    const available = await getAvailableSlotsByDay(formattedDate, session.user.id!)
-    setSlots(available.map((s: any) => new Date(s)))
-
-    const allApp = await getAppuntamentiByDayAndCommerciale(session.user.id!, selectedDate)
     const ofThatDay = allApp.filter(app =>
       app.orari.some((str: string) => {
-        const date = new Date(str)
-        return date.toLocaleDateString('it-IT') === formattedDate
+        const slotDate = new Date(str)
+        return slotDate.toLocaleDateString('it-IT') === formattedDate
       })
     )
-    setBooked(ofThatDay)
 
-    setLoading(false)
+    return {
+      slots: available.map((s: any) => new Date(s)),
+      booked: ofThatDay,
+    }
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [selectedDate, session?.user?.id])
+  const { data, isLoading, mutate } = useSWR(
+    session?.user?.id ? [`slots`, selectedDate.toISOString(), session.user.id] : null,
+    () => fetchSlotsData(selectedDate, session!.user.id!)
+  )
 
-  if (loading) return <p>Caricamento slot disponibili...</p>
+  const slots = data?.slots ?? []
+  const booked = data?.booked ?? []
+
+  // if (isLoading) return <p>Caricamento slot disponibili...</p>
 
   const handleSlotClick = (slot: Date) => {
     setSelectedSlots([slot])
@@ -75,7 +71,6 @@ export default function TimeSlotList() {
         setSelectedSlots([...selectedSlots, nextSlot])
       }
     }
-    console.log(selectedSlots)
   }
 
   const formatTimeRange = () => {
@@ -112,7 +107,7 @@ export default function TimeSlotList() {
       formRef.current?.reset()
       alert('Appuntamento creato con successo!')
       closeModal()
-      fetchData()
+      mutate()
     } catch (error) {
       console.error('Errore durante la creazione:', error)
       alert('Errore nella creazione dell\'appuntamento')
@@ -126,20 +121,21 @@ export default function TimeSlotList() {
   const handleDeleteAppuntamento = async () => {
     if (!selectedAppuntamento) return
     const confirmDelete = confirm("Sei sicuro di voler cancellare questo appuntamento?")
-
+    if (!confirmDelete) return
 
     const res = await deleteAppuntamento(selectedAppuntamento.id)
     if (res.success) {
-      // alert("Appuntamento cancellato con successo")
       setSelectedAppuntamento(null)
-      fetchData()
+      mutate()
     } else {
       alert("Errore nella cancellazione")
     }
   }
+
   return (
-    <div className="flex items-center justify-center ">
+    <div className="flex items-center justify-center">
       <div className="border p-10 rounded-xl shadow-[5px] space-y-10">
+        {/* Slot disponibili */}
         <div>
           <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
           <div className="overflow-x-auto whitespace-nowrap max-h-[30vh]">
@@ -161,49 +157,49 @@ export default function TimeSlotList() {
             </div>
           </div>
         </div>
-  
-{/* Slot occupati */}
-<div>
-  <h2 className="text-xl font-semibold mb-4">Slot occupati</h2>
-  <div className="overflow-x-auto max-w-full space-y-4">
-    <div className="flex flex-wrap gap-3 w-max">
-      {booked.map((app) => {
-        if (app.orari.length === 0) return null
 
-        const start = new Date(app.orari[0])
-        const end = new Date(app.orari[app.orari.length - 1])
-        end.setMinutes(end.getMinutes() + 30)
+        {/* Slot occupati */}
+        <div>
+          <h2 className="text-xl font-semibold mb-4">Slot occupati</h2>
+          <div className="overflow-x-auto max-w-full space-y-4">
+            <div className="flex flex-wrap gap-3 w-max">
+              {booked.map((app) => {
+                if (app.orari.length === 0) return null
 
-        const timeRange = `${start.toLocaleTimeString('it-IT', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })} - ${end.toLocaleTimeString('it-IT', {
-          hour: '2-digit',
-          minute: '2-digit',
-        })}`
+                const start = new Date(app.orari[0])
+                const end = new Date(app.orari[app.orari.length - 1])
+                end.setMinutes(end.getMinutes() + 30)
 
-        return (
-          <div
-            key={app.id}
-            onClick={() => handleBookedClick(app)}
-            className="cursor-pointer px-4 py-2 rounded-[5px] text-center text-primary border border-primary bg-blue-100 shadow hover:shadow-xl hover:bg-blue-200 min-w-[120px]"
-          >
-            {timeRange}
+                const timeRange = `${start.toLocaleTimeString('it-IT', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })} - ${end.toLocaleTimeString('it-IT', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}`
+
+                return (
+                  <div
+                    key={app.id}
+                    onClick={() => handleBookedClick(app)}
+                    className="cursor-pointer px-4 py-2 rounded-[5px] text-center text-primary border border-primary bg-blue-100 shadow hover:shadow-xl hover:bg-blue-200 min-w-[120px]"
+                  >
+                    {timeRange}
+                  </div>
+                )
+              })}
+            </div>
           </div>
-        )
-      })}
-    </div>
-  </div>
-</div>
+        </div>
       </div>
-  
-      {/* Modal gestione cliente */}
+
+      {/* Modal nuovo appuntamento */}
       {isModalOpen && selectedSlots.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-2xl w-full">
             <h3 className="text-lg font-bold mb-2">Slot selezionato</h3>
             <p className="mb-4">{formatTimeRange()}</p>
-  
+
             <div className="mb-4">
               <button
                 onClick={addNextSlot}
@@ -212,33 +208,14 @@ export default function TimeSlotList() {
                 Aggiungi slot successivo
               </button>
             </div>
-  
+
             <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
-              <div className="col-span-1">
-                <label htmlFor="nome">Nome</label>
-                <input type="text" name="nome" id="nome" className="w-full p-2 border rounded" />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="cognome">Cognome</label>
-                <input type="text" name="cognome" id="cognome" className="w-full p-2 border rounded" />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="telefono">Numero di Telefono</label>
-                <input type="tel" name="telefono" id="telefono" className="w-full p-2 border rounded" />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="email">Email *</label>
-                <input type="email" name="email" id="email" required className="w-full p-2 border rounded" />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="azienda">Azienda *</label>
-                <input type="text" name="azienda" id="azienda" required className="w-full p-2 border rounded" />
-              </div>
-              <div className="col-span-1">
-                <label htmlFor="ruolo">Ruolo</label>
-                <input type="text" name="ruolo" id="ruolo" className="w-full p-2 border rounded" />
-              </div>
-  
+              <input type="text" name="nome" placeholder="Nome" className="w-full p-2 border rounded" />
+              <input type="text" name="cognome" placeholder="Cognome" className="w-full p-2 border rounded" />
+              <input type="tel" name="telefono" placeholder="Numero di Telefono" className="w-full p-2 border rounded" />
+              <input type="email" name="email" placeholder="Email *" required className="w-full p-2 border rounded" />
+              <input type="text" name="azienda" placeholder="Azienda *" required className="w-full p-2 border rounded" />
+              <input type="text" name="ruolo" placeholder="Ruolo" className="w-full p-2 border rounded" />
               <div className="col-span-2 flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">Annulla</button>
                 <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">Invia</button>
@@ -247,7 +224,7 @@ export default function TimeSlotList() {
           </div>
         </div>
       )}
-  
+
       {/* Modal dettagli appuntamento */}
       {selectedAppuntamento && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
@@ -273,6 +250,5 @@ export default function TimeSlotList() {
         </div>
       )}
     </div>
-  );
-  
+  )
 }

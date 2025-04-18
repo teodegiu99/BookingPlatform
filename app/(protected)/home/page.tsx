@@ -1,4 +1,3 @@
-'use client'
 
 import { CalendarDemo } from "@/components/protected/calendar"
 import NextAppointment from "@/components/protected/NextAppointment"
@@ -23,7 +22,8 @@ const Home = async () => {
         {/* Colonna destra */}
         <div className="col-span-2 xl:col-span-4 flex flex-col justify-end items-center gap-2 h-[88vh]">
           <div className="w-full mb-10">
-          <AppointmentSearch onSelect={(app) => console.log('Appuntamento selezionato:', app)} />          </div>
+          <AppointmentSearch />      
+                </div>
           <div className="w-full">
             <TimeSlotList />
           </div>

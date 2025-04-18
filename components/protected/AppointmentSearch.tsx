@@ -1,12 +1,9 @@
 'use client'
-
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useId, useState } from 'react'
 import Select from 'react-select'
 import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
-import { format } from 'date-fns'
-import { it } from 'date-fns/locale'
-import { auth } from "@/auth";
+import useSWR from 'swr'
 
 type Appuntamento = {
   id: string
@@ -27,54 +24,25 @@ type Option = {
   appuntamento: Appuntamento
 }
 
-const CACHE_KEY = 'cached_appointments'
-const CACHE_TIME = 5 * 60 * 1000 // 5 minuti
-
-export default function AppointmentSearch({
-  onSelect,
-}: {
-  onSelect: (app: Appuntamento) => void
-}) {
-  const [allAppuntamenti, setAllAppuntamenti] = useState<Appuntamento[]>([])
-  const [options, setOptions] = useState<Option[]>([])
+export default function AppointmentSearch() {
   const [inputValue, setInputValue] = useState('')
-  const [loading, setLoading] = useState(false)
+  const [options, setOptions] = useState<Option[]>([])
   const [selectedApp, setSelectedApp] = useState<Appuntamento | null>(null)
+
+  // SWR fetcher
+  const fetcher = async (): Promise<Appuntamento[]> => {
+    return await getAllAppuntamentiByCommerciale()
+  }
+
+  const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
+    refreshInterval: 5 * 60 * 1000, // 5 minuti
+  })
 
   const formatOption = (app: Appuntamento): Option => ({
     value: app.id,
     label: `${app.orario?.[0] ?? ''} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.cliente.azienda} - ${app.cliente.email}`,
     appuntamento: app,
   })
-
-  const fetchAppuntamenti = async () => {
-
-    setLoading(true)
-    const data = await getAllAppuntamentiByCommerciale()                                                                                                                                                                                                                                                                                                                                                                                                                                                       
-    setAllAppuntamenti(data)
-    setOptions(data.map(formatOption))
-
-    localStorage.setItem(CACHE_KEY, JSON.stringify({
-      timestamp: Date.now(),
-      data,
-    }))
-
-    setLoading(false)
-  }
-
-  useEffect(() => {
-    const cache = localStorage.getItem(CACHE_KEY)
-    if (cache) {
-      const { timestamp, data } = JSON.parse(cache)
-      if (Date.now() - timestamp < CACHE_TIME) {
-        setAllAppuntamenti(data)
-        setOptions(data.map(formatOption))
-        return
-      }
-    }
-
-    fetchAppuntamenti()
-  }, [])
 
   useEffect(() => {
     if (!inputValue) {
@@ -98,8 +66,7 @@ export default function AppointmentSearch({
 
   const handleChange = (selected: Option | null) => {
     if (selected) {
-      onSelect(selected.appuntamento)
-      setSelectedApp(selected.appuntamento)
+      setSelectedApp(selected.appuntamento) // Aggiorna lo stato dell'appuntamento selezionato
     }
   }
 
@@ -107,11 +74,12 @@ export default function AppointmentSearch({
     <>
       <div className="w-full border shadow-md rounded-xl p-10 h-full min-w-full">
         <h3 className="text-xl font-bold mb-2">Cerca</h3>
-        <div className='flex justify-center items-center w-full'> 
+        <div className="flex justify-center items-center w-full">
           <Select
             className="w-full"
             options={options}
-            isLoading={loading}
+            isLoading={isLoading}
+            instanceId={useId()}
             onChange={handleChange}
             placeholder="Cerca appuntamento per nome, cognome, azienda o email..."
             isClearable
