@@ -1,27 +1,28 @@
-// app/(dashboard)/calendario/page.tsx
-import { db } from '@/lib/db';
+'use client';
+
 import { DayCalendar } from './dayCalendar';
+import useSWR from 'swr';
 
-const CalendarioPage = async () => {
-  const commerciali = await db.user.findMany({
-    select: {
-      id: true,
-      name: true,
-      image: true,
-    },
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+const CalendarioPage = () => {
+
+  const { data, isLoading } = useSWR(`/api/calendario`, fetcher, {
+    refreshInterval: 1000 * 60 * 0.25, // ogni 5 minuti
   });
 
-    const appuntamenti = await db.appuntamento.findMany({
-        include: {
-          cliente: true,       // <- include i dati del cliente
-          commerciale: true,   // <- include i dati del commerciale
-        },
-  });
+  
+  if (isLoading || !data) return <div>Caricamento...</div>;
 
   return (
     <div className="p-4">
-      <h1 className="text-xl font-bold mb-4">Calendario Giornaliero</h1>
-      <DayCalendar commerciali={commerciali} appuntamenti={appuntamenti} />
+ 
+      <div className=' items-center mb-4 mt-12 '>
+      <DayCalendar
+        commerciali={data.commerciali}
+        appuntamenti={data.appuntamenti}
+      />
+      </div>
     </div>
   );
 };

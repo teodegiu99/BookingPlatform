@@ -1,14 +1,13 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Image from 'next/image';
+import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
+import { AppuntamentoModal } from './appuntamentoModale';
+import { CreaAppuntamentoModal } from './creaAppuntamento';
 
-const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2); // dalle 9:00 alle 19:00
-const formatHour = (h: number) => {
-  const hour = Math.floor(h);
-  const minutes = h % 1 === 0 ? '00' : '30';
-  return `${hour}:${minutes}`;
-};
+const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
+const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}`;
 
 type Appuntamento = {
   id: string;
@@ -16,6 +15,10 @@ type Appuntamento = {
   cliente: {
     nome: string | null;
     cognome: string | null;
+    email?: string | null;
+    azienda?: string | null;
+    ruolo?: string | null;
+    telefono?: string | null;
   };
   commerciale: {
     id: string;
@@ -24,41 +27,111 @@ type Appuntamento = {
   };
 };
 
+type Commerciale = {
+  id: string;
+  name: string | null;
+  image: string | null;
+};
+
 type Props = {
-  commerciali: {
-    id: string;
-    name: string | null;
-    image: string | null;
-  }[];
+  commerciali: Commerciale[];
   appuntamenti: Appuntamento[];
 };
 
-const formatAppointmentHour = (isoDate: string) => {
-  const date = new Date(isoDate);
-  const hour = date.getHours();
-  const minutes = date.getMinutes();
-  return `${hour}:${minutes < 10 ? '00' : '30'}`;
+const isSameDay = (date1: Date, date2: Date) =>
+  date1.getFullYear() === date2.getFullYear() &&
+  date1.getMonth() === date2.getMonth() &&
+  date1.getDate() === date2.getDate();
+
+const formatAppointmentHour = (iso: string) => {
+  const d = new Date(iso);
+  return `${d.getHours()}:${d.getMinutes() === 0 ? '00' : '30'}`;
 };
 
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
-  return (
-    <div className="overflow-x-auto">
-      <div className="min-w-[1500px] grid grid-cols-[200px_repeat(20,_1fr)] border">
-        {/* Header ore */}
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedAppuntamento, setSelectedAppuntamento] = useState<Appuntamento | null>(null);
+  const [showCreaModal, setShowCreaModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<{
+    commercialeId: string;
+    startTime: string;
+  } | null>(null);
+  const [slotToCreate, setSlotToCreate] = useState<{
+    commercialeId: string;
+    startHour: string;
+  } | null>(null);
+
+
+  const filtered = appuntamenti.filter((a) =>
+    a.orario.some((slot) => isSameDay(new Date(slot), selectedDate))
+  );
+
+  const changeDay = (days: number) => {
+    setSelectedDate((prev) => {
+      const newDate = new Date(prev);
+      newDate.setDate(prev.getDate() + days);
+      return newDate;
+    });
+  };
+
+  const isSlotOccupied = (commercialeId: string, hour: string) => {
+    return filtered.some(
+      (a) =>
+        a.commerciale.id === commercialeId &&
+        a.orario.some(
+          (o) =>
+            isSameDay(new Date(o), selectedDate) &&
+            formatAppointmentHour(o) === hour
+        )
+    );
+  };
+
+ return (
+  <>
+    {/* Header con navigazione giorno */}
+    <div className="flex items-center justify-between mb-4 px-2">
+      <button
+        onClick={() => changeDay(-1)}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+      >
+        <FaArrowLeft />
+      </button>
+
+      <h2 className="text-lg font-semibold">
+        {selectedDate.toLocaleDateString('it-IT', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+      </h2>
+
+      <button
+        onClick={() => changeDay(1)}
+        className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
+      >
+        <FaArrowRight />
+      </button>
+    </div>
+
+    {/* Calendario orizzontale */}
+    <div className="overflow-x-auto ">
+      <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border">
+        {/* Colonna fissa Commerciale */}
         <div className="border-r bg-gray-100 p-2 font-bold text-sm">Commerciale</div>
         {hours.map((h, i) => (
-          <div key={i} className="border-r text-xs text-center bg-gray-50 py-2">
+          <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
             {formatHour(h)}
           </div>
         ))}
 
-        {/* Riga per ogni commerciale */}
+        {/* Righe per ogni commerciale */}
         {commerciali.map((com) => (
           <React.Fragment key={com.id}>
-            {/* Colonna commerciale */}
-            <div className="flex items-center gap-2 border-t border-r p-2">
+            {/* Cellona profilo commerciale */}
+            <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
               <Image
-                src={com.image || '/placeholder.jpg'}
+                src={com.image || '/placeholder.png'}
                 alt={com.name || 'Commerciale'}
                 width={40}
                 height={40}
@@ -67,27 +140,40 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
               <span className="text-sm font-medium">{com.name}</span>
             </div>
 
-            {/* Colonne slot orari */}
+            {/* Celle orarie */}
             {hours.map((h, i) => {
-              const slotHour = formatHour(h);
-
-              const slot = appuntamenti.find(
+              const hourStr = formatHour(h);
+              const occupied = filtered.find(
                 (a) =>
                   a.commerciale.id === com.id &&
-                  a.orario.some((o) => formatAppointmentHour(o) === slotHour)
+                  a.orario.some(
+                    (o) =>
+                      isSameDay(new Date(o), selectedDate) &&
+                      formatAppointmentHour(o) === hourStr
+                  )
               );
 
               return (
-                <div key={i} className="relative border-t border-r h-16">
-                  {slot && (
-                    <div className="absolute inset-1 bg-blue-600 text-white text-xs rounded p-1">
-                      {slot.cliente.nome} {slot.cliente.cognome}
+                <div
+                  key={i}
+                  className="relative border-t border-r h-16 cursor-pointer hover:bg-gray-100"
+                  onClick={() => {
+                    if (occupied) {
+                      setSelectedAppuntamento(occupied);
+                    } else {
+                      setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
+                    }
+                  }}
+                >
+                  {occupied && (
+                    <div className="absolute inset-1 bg-blue-600 text-white text-xs rounded p-1 overflow-hidden">
+                      {occupied.cliente.nome} {occupied.cliente.cognome}
                       <br />
-                      {slot.orario.length > 1
-                        ? `${formatAppointmentHour(slot.orario[0])} → ${formatAppointmentHour(
-                            slot.orario[slot.orario.length - 1]
+                      {occupied.orario.length > 1
+                        ? `${formatAppointmentHour(occupied.orario[0])} → ${formatAppointmentHour(
+                            occupied.orario[occupied.orario.length - 1]
                           )}`
-                        : formatAppointmentHour(slot.orario[0])}
+                        : formatAppointmentHour(occupied.orario[0])}
                     </div>
                   )}
                 </div>
@@ -97,5 +183,26 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
         ))}
       </div>
     </div>
-  );
+
+    {/* Modale dettaglio esistente */}
+    {selectedAppuntamento && (
+      <AppuntamentoModal
+        // open={true}
+        appuntamento={selectedAppuntamento}
+        onClose={() => setSelectedAppuntamento(null)}
+      />
+    )}
+
+    {/* Modale creazione nuovo slot */}
+    {slotToCreate && (
+      <CreaAppuntamentoModal
+        open={true}
+        onClose={() => setSlotToCreate(null)}
+        commercialeId={slotToCreate.commercialeId}
+        selectedDate={selectedDate}
+        startHour={slotToCreate.startHour}
+      />
+    )}
+  </>
+);
 };
