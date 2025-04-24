@@ -25,7 +25,7 @@ export default function NextAppointment() {
   }
 
   if (!all || all.length === 0) {
-    return <div className="text-sm text-muted-foreground">Nessun appuntamento futuro trovato.</div>
+    return <div className="border rounded-xl p-5 shadow-md w-full grow h-full">Nessun appuntamento futuro trovato.</div>
   }
 
   const future = all
@@ -35,7 +35,7 @@ export default function NextAppointment() {
   const nextApp = future[0]
 
   if (!nextApp) {
-    return <div className="text-sm text-muted-foreground">Nessun appuntamento futuro trovato.</div>
+    return <div className="border rounded-xl p-5 shadow-md w-full grow ">Nessun appuntamento futuro trovato.</div>
   }
 
   const start = new Date(nextApp.orario[0])
@@ -60,7 +60,7 @@ export default function NextAppointment() {
   const cliente = nextApp.cliente
 
   return (
-    <div className="border rounded-xl p-5 shadow-md w-full grow">
+    <div className="border rounded-xl p-5 shadow-md w-full ">
       <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {dateStr} {timeRange}</h2>
       <div className="text-sm space-y-1">
         <p><strong>{cliente.nome} {cliente.cognome}</strong></p>

@@ -7,20 +7,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 
+type Appuntamento = {
+  orario: string[];
+  commerciale: {
+    id: string;
+  };
+};
+
 type Props = {
   open: boolean;
   onClose: () => void;
   commercialeId: string;
   selectedDate: Date;
   startHour: string;
+  appuntamenti: Appuntamento[]; 
 };
-
 export const CreaAppuntamentoModal: React.FC<Props> = ({
   open,
   onClose,
   commercialeId,
   selectedDate,
   startHour,
+  appuntamenti,
 }) => {
   const [form, setForm] = useState({
     nome: '',
@@ -41,13 +49,51 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     setForm((prev) => ({ ...prev, durata: parseInt(e.target.value, 10) }));
   };
 
+  const isSlotOccupied = (commercialeId: string, slotTime: number) => {
+    if (!appuntamenti || appuntamenti.length === 0) return false; // Se non ci sono appuntamenti, ritorna false
+    return appuntamenti.some((a) =>
+      a.commerciale.id === commercialeId &&
+      a.orario.some((o) => new Date(o).getTime() === slotTime)
+    );
+  };
+  
+
+  
+  const addNextSlot = () => {
+    const start = new Date(selectedDate);
+    const [hour, minute] = startHour.split(':').map(Number);
+    start.setHours(hour, minute, 0, 0);
+  
+    const currentDuration = form.durata;
+    const nextSlot = new Date(start);
+    nextSlot.setMinutes(nextSlot.getMinutes() + currentDuration);
+  
+    // Normalizza il nextSlot per il confronto (rimuove secondi e millisecondi)
+    const normalizedNextSlot = new Date(nextSlot);
+    normalizedNextSlot.setSeconds(0, 0);
+    let normalizedNextSlotTime = normalizedNextSlot.getTime();
+  
+    // Verifica se il prossimo slot è occupato
+    if (isSlotOccupied(commercialeId, normalizedNextSlotTime)) {
+      toast.warning('Lo slot successivo non è disponibile');
+    } else {
+      // Se non è occupato, aggiungi 30 minuti e aggiorna la durata
+      toast.info('Slot successivo aggiunto');
+      setForm((prev) => ({
+        ...prev,
+        durata: prev.durata + 30, // Aggiungi 30 minuti
+      }));
+    }
+  };
+  
+
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const start = new Date(selectedDate);
       const [hour, minute] = startHour.split(':').map(Number);
       start.setHours(hour, minute, 0, 0);
-
+  
       const slots: string[] = [];
       const slotCount = form.durata / 30;
       for (let i = 0; i < slotCount; i++) {
@@ -55,7 +101,20 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
         slot.setMinutes(slot.getMinutes() + i * 30);
         slots.push(slot.toISOString());
       }
-
+  
+      console.log('Dati da inviare:', {
+        cliente: {
+          nome: form.nome,
+          cognome: form.cognome,
+          azienda: form.azienda,
+          ruolo: form.ruolo,
+          email: form.email,
+          telefono: form.telefono,
+        },
+        orario: slots,
+        commercialeId,
+      });
+  
       const res = await fetch('/api/appuntamenti', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -72,17 +131,19 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           commercialeId,
         }),
       });
-
+  
       if (!res.ok) throw new Error('Errore nel salvataggio');
-
+  
       toast.success('Appuntamento creato');
       onClose();
     } catch (err) {
       toast.error('Errore nella creazione');
+      console.error(err); // Aggiungi un log per catturare l'errore
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <Dialog open={open} onOpenChange={onClose} >
@@ -110,6 +171,12 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           <Input name="telefono" value={form.telefono} onChange={handleChange} />
 
           <Label>Durata (minuti)</Label>
+               <button
+                onClick={addNextSlot}
+                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200"
+              >
+                Aggiungi slot successivo
+              </button>
           <Input
             type="number"
             name="durata"

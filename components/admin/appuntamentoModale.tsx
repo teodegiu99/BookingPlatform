@@ -4,7 +4,6 @@
 import React from 'react';
 import { Dialog } from '@headlessui/react';
 import { FiTrash2 } from 'react-icons/fi'
-import { deleteAppuntamento } from '@/actions/deleteSlot';
 
 type Props = {
 
@@ -32,10 +31,18 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
     return `${d.toLocaleDateString()} ${d.getHours()}:${d.getMinutes() === 0 ? '00' : '30'}`;
   };
 
-    const handleDeleteAppuntamento = async () => {
-       const res = await deleteAppuntamento(appuntamento.id)
-   
+  const handleDeleteAppuntamento = async () => {
+    const res = await fetch(`/api/appuntamenti/${appuntamento.id}`, {
+      method: 'DELETE',
+    });
+  
+    if (res.ok) {
+      onClose(); // chiude il modale
+      // opzionale: triggera un refresh del calendario
+    } else {
+      console.error('Errore nella cancellazione');
     }
+  };
   
 
   return (
@@ -45,7 +52,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
           <Dialog.Title className="text-lg font-bold">Dettagli Appuntamento</Dialog.Title>
-<button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
+              <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
                 <FiTrash2 className="w-5 h-5" />
               </button>
           <div>

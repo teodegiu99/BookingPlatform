@@ -165,17 +165,24 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                     }
                   }}
                 >
-                  {occupied && (
-                    <div className="absolute inset-1 bg-blue-600 text-white text-xs rounded p-1 overflow-hidden">
-                      {occupied.cliente.nome} {occupied.cliente.cognome}
-                      <br />
-                      {occupied.orario.length > 1
-                        ? `${formatAppointmentHour(occupied.orario[0])} → ${formatAppointmentHour(
-                            occupied.orario[occupied.orario.length - 1]
-                          )}`
-                        : formatAppointmentHour(occupied.orario[0])}
-                    </div>
-                  )}
+{occupied && (
+  <div className="absolute bg-blue-600 text-white text-xs p-1 h-full w-full overflow-hidden rounded">
+    <div className="font-semibold truncate">
+      {occupied.cliente.nome} {occupied.cliente.cognome}
+    </div>
+    <div>
+      {formatAppointmentHour(occupied.orario[0])}–{
+        // calcolo orario di fine aggiungendo 30 minuti all’ultimo slot
+        (() => {
+          const last = new Date(occupied.orario[occupied.orario.length - 1]);
+          last.setMinutes(last.getMinutes() + 30);
+          return `${last.getHours()}:${last.getMinutes() === 0 ? '00' : '30'}`;
+        })()
+      }
+    </div>
+  </div>
+)}
+
                 </div>
               );
             })}
@@ -201,6 +208,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
         commercialeId={slotToCreate.commercialeId}
         selectedDate={selectedDate}
         startHour={slotToCreate.startHour}
+        appuntamenti={filtered} 
       />
     )}
   </>
