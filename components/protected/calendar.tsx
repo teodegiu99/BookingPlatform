@@ -14,7 +14,7 @@ export function CalendarDemo() {
   }
 
   return (
-    <div className="w-full flex items-center justify-center xl:mb-[25%] ">
+    <div className="w-full flex items-center justify-center ">
       <div className="flex border flex-col xl:p-10 p-5 rounded-xl shadow-[5px] w-full justify-center items-center">
         <div className="p-5 text-4xl text-center text-secondary">
           {formatDate(selectedDate)}

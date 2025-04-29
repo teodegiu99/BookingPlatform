@@ -158,13 +158,13 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           <Label>Cognome</Label>
           <Input name="cognome" value={form.cognome} onChange={handleChange} />
 
-          <Label>Azienda</Label>
+          <Label>Azienda *</Label>
           <Input name="azienda" value={form.azienda} onChange={handleChange} />
 
           <Label>Ruolo</Label>
           <Input name="ruolo" value={form.ruolo} onChange={handleChange} />
 
-          <Label>Email</Label>
+          <Label>Email *</Label>
           <Input name="email" value={form.email} onChange={handleChange} type="email" />
 
           <Label>Telefono</Label>

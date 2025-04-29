@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { AppuntamentoModal } from './appuntamentoModale';
 import { CreaAppuntamentoModal } from './creaAppuntamento';
+import { ColoreSelezioneModal } from './coloreModal';
 
 const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
 const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}`;
@@ -31,6 +32,7 @@ type Commerciale = {
   id: string;
   name: string | null;
   image: string | null;
+  color: string | null;
 };
 
 type Props = {
@@ -51,6 +53,9 @@ const formatAppointmentHour = (iso: string) => {
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<Appuntamento | null>(null);
+  const [colorModalOpen, setColorModalOpen] = useState(false);
+const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
   const [showCreaModal, setShowCreaModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     commercialeId: string;
@@ -137,7 +142,24 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                 height={40}
                 className="rounded-full object-cover"
               />
-              <span className="text-sm font-medium">{com.name}</span>
+              <button
+  onClick={() => {
+    setSelectedUserId(com.id);
+    setColorModalOpen(true);
+  }
+}
+  className="text-sm font-medium hover:underline focus:outline-none"
+>
+  {com.color}
+  {com.name}
+</button>
+{selectedUserId && (
+  <ColoreSelezioneModal
+    open={colorModalOpen}
+    onClose={() => setColorModalOpen(false)}
+    userId={selectedUserId}
+  />
+)}
             </div>
 
             {/* Celle orarie */}
@@ -166,7 +188,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                   }}
                 >
 {occupied && (
-  <div className="absolute bg-blue-600 text-white text-xs p-1 h-full w-full overflow-hidden rounded">
+  <div className="absolute bg-blue-600 text-white text-xs p-1 h-full w-full overflow-hidden rounded" style={{ backgroundColor: com.color || '#3B82F6' }}>
     <div className="font-semibold truncate">
       {occupied.cliente.nome} {occupied.cliente.cognome}
     </div>

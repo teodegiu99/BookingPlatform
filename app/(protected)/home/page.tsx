@@ -15,29 +15,30 @@ const Home = async () => {
   } else {
     return (
       <DateProvider>
-        <div className="w-screen h-screen  flex justify-center items-center">
-        <div className="grid grid-cols-3 xl:grid-cols-6 gap-2 p-5 max-h-[85vh] lg:max-h-[10vh]">
+        <div className="w-full h-full flex justify-center items-center">
+        <div className="grid grid-cols-3 xl:grid-cols-6 xl:gap-x-8 max-w-[1280px] p-8 gap-x-4">
           {/* Colonna sinistra */}
-          <div className="col-span-1 xl:col-span-2 flex flex-col justify-between ">
-            <div className="flex-grow">
+          <div className="col-span-1 xl:col-span-2 ">
+            <div className="mb-8">
               <CalendarDemo />
             </div>
-            <div className="flex-grow">
+            <div className="">
               <NextAppointment />
             </div>
           </div>
 
           {/* Colonna destra */}
-          <div className="col-span-2 xl:col-span-4 flex flex-col justify-between">
-            <div className="flex-grow">
+          <div className="col-span-2 xl:col-span-4 ">
+            <div className="mb-8">
               <AppointmentSearch />
             </div>
-            <div className="flex-grow">
+            <div className="">
               <TimeSlotList />
             </div>
           </div>
         </div>
         </div>
+
       </DateProvider>
     );
   }

@@ -8,7 +8,7 @@ const fetcher = (url: string) => fetch(url).then(res => res.json());
 const CalendarioPage = () => {
 
   const { data, isLoading } = useSWR(`/api/calendario`, fetcher, {
-    refreshInterval: 1000 * 60 * 0.04, // ogni 5 minuti
+    refreshInterval: 1000 * 60 * 0.04, 
   });
 
   
@@ -17,7 +17,7 @@ const CalendarioPage = () => {
   return (
     <div className="p-4">
  
-      <div className=' items-center mb-4 mt-12 '>
+      <div className=' items-center mb-4 mt-20 '>
       <DayCalendar
         commerciali={data.commerciali}
         appuntamenti={data.appuntamenti}
