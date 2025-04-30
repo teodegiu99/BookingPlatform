@@ -66,7 +66,6 @@ model Cliente {
 	email String
 	numero String?
   appuntamenti Appuntamento[] 
-  @@unique([email])
 }
 
 model Appuntamento {
