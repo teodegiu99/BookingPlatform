@@ -17,7 +17,7 @@ const CalendarioPage = () => {
   return (
     <div className="p-4">
  
-      <div className=' items-center mb-4 mt-20 '>
+      <div className=' items-center mb-4  '>
       <DayCalendar
         commerciali={data.commerciali}
         appuntamenti={data.appuntamenti}

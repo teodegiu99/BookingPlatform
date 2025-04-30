@@ -6,12 +6,20 @@ import { DateProvider } from '@/context/DateContext'
 import AppointmentSearch from "@/components/protected/AppointmentSearch"
 import { auth, signOut } from "@/auth";
 import CalendarioPage from "@/components/admin/calendarioFetch"
+import Search from "@/components/admin/search"
 
 const Home = async () => {
   const session = await auth();
 
   if (session?.user.role === 'ADMIN') {
-    return <CalendarioPage />;
+    return (
+    <div className="w-full flex flex-col">     
+    <div className="w-full  flex justify-end items-end mt-20  "> 
+    <Search />
+</div>
+      <CalendarioPage />;
+</div>
+    )
   } else {
     return (
       <DateProvider>

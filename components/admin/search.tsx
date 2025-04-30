@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useId, useState } from 'react'
 import Select from 'react-select'
-import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
+import { getAllAppuntamenti } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
 import useSWR from 'swr'
 
@@ -24,14 +24,14 @@ type Option = {
   appuntamento: Appuntamento
 }
 
-export default function AppointmentSearch() {
+export default function Search() {
   const [inputValue, setInputValue] = useState('')
   const [options, setOptions] = useState<Option[]>([])
   const [selectedApp, setSelectedApp] = useState<Appuntamento | null>(null)
 
   // SWR fetcher
   const fetcher = async (): Promise<Appuntamento[]> => {
-    return await getAllAppuntamentiByCommerciale()
+    return await getAllAppuntamenti()
   }
 
   const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
@@ -72,9 +72,7 @@ export default function AppointmentSearch() {
 
   return (
     <>
-      <div className="w-full border shadow-md rounded-xl p-10 min-w-full grow"> 
-        <h3 className="text-xl font-bold mb-2">Cerca</h3>
-        <div className="flex justify-center items-center w-full">
+        <div className="flex justify-center items-center xl:w-[40%]  p-5">
           <Select
             className="w-full"
             options={options}
@@ -87,7 +85,6 @@ export default function AppointmentSearch() {
             noOptionsMessage={() => 'Nessun risultato trovato'}
           />
         </div>
-      </div>
 
       {/* MODALE DETTAGLI */}
       <Dialog open={!!selectedApp} onClose={() => setSelectedApp(null)} className="relative z-50">
