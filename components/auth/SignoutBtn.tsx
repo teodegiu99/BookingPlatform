@@ -1,23 +1,4 @@
 
-// import { auth, signOut } from "@/auth";
-// const signoutbtn= async () => {
-// 	// const session = await auth();
-//   return (
-// 	<div>
-// 		{/* {JSON.stringify(session)} */}
-// 		<form action={async () => {
-// 			"use server"
-// 			await signOut();
-// 		}}>
-// 			<button type="submit" className="bg-secondary p-5">
-// 				Sign out
-// 			</button>
-// 		</form>
-// 	</div>
-//   )
-// }
-
-// export default signoutbtn
 'use client'
 import { signOut } from "next-auth/react";
 import { PiSignOut } from "react-icons/pi";

@@ -6,6 +6,9 @@ import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { AppuntamentoModal } from './appuntamentoModale';
 import { CreaAppuntamentoModal } from './creaAppuntamento';
 import { ColoreSelezioneModal } from './coloreModal';
+import 'react-datepicker/dist/react-datepicker.css';
+import { FaCalendarAlt } from 'react-icons/fa';
+import DatePicker from 'react-datepicker';
 
 const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
 const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}`;
@@ -85,14 +88,30 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
         >
           <FaArrowLeft />
         </button>
-        <h2 className="text-lg font-semibold">
-          {selectedDate.toLocaleDateString('it-IT', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </h2>
+        <div className="flex items-center gap-2">
+  <h2 className="text-lg font-semibold">
+    {selectedDate.toLocaleDateString('it-IT', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    })}
+  </h2>
+  <DatePicker
+    selected={selectedDate}
+    onChange={(date: Date | null) => {
+      if (date !== null) {
+        setSelectedDate(date);
+      }
+    }}    customInput={
+      <button className="text-gray-600 hover:text-gray-800 focus:outline-none">
+        <FaCalendarAlt size={18} />
+      </button>
+    }
+    popperPlacement="bottom"
+    dateFormat="dd/MM/yyyy"
+  />
+</div>
         <button
           onClick={() => changeDay(1)}
           className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"

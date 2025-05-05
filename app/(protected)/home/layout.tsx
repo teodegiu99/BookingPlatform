@@ -1,4 +1,4 @@
-import NavBar from "@/components/protected/navbar";
+import NavBar from "@/components/ui/navbar";
 
 const HomeLayout = ({children}: {children: React.ReactNode}) => {
     return ( 

@@ -72,9 +72,9 @@ export default function Search() {
 
   return (
     <>
-        <div className="flex justify-center items-center xl:w-[40%]  p-5">
+        <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%]">
           <Select
-            className="w-full"
+            className="w-full min-w-[40%]"
             options={options}
             isLoading={isLoading}
             instanceId={useId()}
