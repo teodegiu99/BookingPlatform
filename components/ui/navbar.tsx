@@ -1,100 +1,20 @@
-'use client' 
 import Image from 'next/image';
 import SignOutButton from '../auth/SignoutBtn';
-import { Dialog, Transition, Disclosure } from '@headlessui/react';
-import { Fragment, useState } from 'react';
-import { ChevronUpIcon } from '@heroicons/react/20/solid';
+import Help from './help';
+import Helpcom from './helpcom';
 import LanguageSwitcher from './langSwitch';
-import { IoIosHelpCircleOutline } from "react-icons/io";
+import { auth, signOut } from "@/auth";
 
 
 
-const items = [
-  { title: 'Domanda 1', content: 'Risposta alla domanda 1' },
-  { title: 'Domanda 2', content: 'Risposta alla domanda 2' },
-  { title: 'Domanda 3', content: 'Risposta alla domanda 3' },
-];
+const NavBar = async () => {
+  const session = await auth();
+  if (session?.user.role === 'ADMIN') {
 
-
-const NavBar =  () => {
-  // const session = await auth();
-  // console.log(session);
-  // JSON.stringify(session);
-  const [isOpen, setIsOpen] = useState(false);
   return (
     <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
-      <div className='p-4'>
-        <button
-                onClick={() => setIsOpen(true)}
-                className="px-4 py-2 text-primary text-3xl rounded"
-              >
-                <IoIosHelpCircleOutline />
-              </button>
-        
-              <Transition appear show={isOpen} as={Fragment}>
-                <Dialog as="div" className="relative z-10" onClose={() => setIsOpen(false)}>
-                  <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                  >
-                    <div className="fixed inset-0 bg-black bg-opacity-25" />
-                  </Transition.Child>
-        
-                  <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                      <Transition.Child
-                        as={Fragment}
-                        enter="ease-out duration-300"
-                        enterFrom="opacity-0 scale-95"
-                        enterTo="opacity-100 scale-100"
-                        leave="ease-in duration-200"
-                        leaveFrom="opacity-100 scale-100"
-                        leaveTo="opacity-0 scale-95"
-                      >
-                        <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                          <Dialog.Title className="text-lg font-medium text-gray-900">
-                            Guida
-                          </Dialog.Title>
-        
-                          <div className="mt-4 space-y-2">
-  {items.map((item, idx) => (
-    <Disclosure key={idx}>
-      {({ open }) => (
-        <>
-          <Disclosure.Button className="flex w-full justify-between rounded-lg bg-blue-100 px-4 py-2 text-left text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring focus-visible:ring-blue-500/75">
-            <span>{item.title}</span>
-            <ChevronUpIcon
-              className={`${open ? 'rotate-180 transform' : ''} h-5 w-5 text-blue-500`}
-            />
-          </Disclosure.Button>
-          <Disclosure.Panel className="px-4 pt-2 pb-2 text-sm text-gray-500">
-            {item.content}
-          </Disclosure.Panel>
-        </>
-      )}
-    </Disclosure>
-  ))}
-</div>
-                          <div className="mt-6 flex justify-end">
-                            <button
-                              onClick={() => setIsOpen(false)}
-                              className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                            >
-                              Chiudi
-                            </button>
-                          </div>
-                        </Dialog.Panel>
-                      </Transition.Child>
-                    </div>
-                  </div>
-                </Dialog>
-              </Transition>
-      </div>
+      <div className='p-4'><Help /></div>
+      
       <div className='flex justify-center items-center'>
         <Image src="/logo-black.svg"
              width={50}
@@ -108,7 +28,26 @@ const NavBar =  () => {
       <SignOutButton />
       </div>
     </div>
-  );
+   
+  )}else{
+    return (
+      <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
+        <div className='p-4'><Helpcom /></div>
+        
+        <div className='flex justify-center items-center'>
+          <Image src="/logo-black.svg"
+               width={50}
+               height={50}
+               alt="Logo esteso nero"
+               className="object-contain"
+               />
+        </div>
+        <div className='flex justify-center items-center'>
+        <LanguageSwitcher /> 
+        <SignOutButton />
+        </div>
+      </div>
+  )}
 };
 
 export default NavBar;
