@@ -3,13 +3,14 @@
 import React from 'react'
 import useSWR from 'swr'
 import { useSession } from 'next-auth/react'
-import { Loader2 } from 'lucide-react'
+import { useTranslation } from "@/lib/useTranslation";
 
 // Serve un endpoint API per usare SWR — lo creiamo dopo se non esiste
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export default function NextAppointment() {
   const { data: session } = useSession()
+  const { t } = useTranslation();
 
   const { data: all, isLoading } = useSWR(
     session?.user?.id ? `/api/appuntamenti` : null,
@@ -25,7 +26,7 @@ export default function NextAppointment() {
   }
 
   if (!all || all.length === 0) {
-    return <div className="border rounded-xl p-5 shadow-md w-full grow h-full">Nessun appuntamento futuro trovato.</div>
+    return <div className="border rounded-xl p-5 shadow-md w-full grow h-full">{t('noappuntamento')}</div>
   }
 
   const future = all
@@ -35,7 +36,7 @@ export default function NextAppointment() {
   const nextApp = future[0]
 
   if (!nextApp) {
-    return <div className="border rounded-xl p-5 shadow-md w-full grow ">Nessun appuntamento futuro trovato.</div>
+    return <div className="border rounded-xl p-5 shadow-md w-full grow ">{t('noappuntamento')}</div>
   }
 
   const start = new Date(nextApp.orario[0])
@@ -61,7 +62,7 @@ export default function NextAppointment() {
 
   return (
     <div className="border rounded-xl p-5 shadow-md w-full ">
-      <h2 className="text-lg font-bold mb-2">Prossimo appuntamento: {dateStr} {timeRange}</h2>
+      <h2 className="text-lg font-bold mb-2">{t('proxappuntamento')} {dateStr} {timeRange}</h2>
       <div className="text-sm space-y-1">
         <p><strong>{cliente.nome} {cliente.cognome}</strong></p>
         <p>{cliente.azienda} {cliente.ruolo}</p>

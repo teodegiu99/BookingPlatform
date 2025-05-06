@@ -18,7 +18,6 @@ export async function GET() {
   return NextResponse.json(appuntamenti)
 }
 
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();
@@ -34,8 +33,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dati mancanti o invalidi' }, { status: 400 });
     }
 
-  
-      let Cliente = await db.cliente.create({
+    // Verifica se il cliente esiste già tramite l'email
+    let existingCliente = await db.cliente.findUnique({
+      where: { email: cliente.email },
+    });
+
+    // Se non esiste, crealo
+    if (!existingCliente) {
+      existingCliente = await db.cliente.create({
         data: {
           nome: cliente.nome,
           cognome: cliente.cognome,
@@ -45,20 +50,32 @@ export async function POST(req: Request) {
           numero: cliente.telefono,
         },
       });
+    } else {
+      existingCliente = await db.cliente.update({
+        where: { email: cliente.email },
+        data: {
+          nome: cliente.nome,
+          cognome: cliente.cognome,
+          azienda: cliente.azienda,
+          ruolo: cliente.ruolo,
+          numero: cliente.telefono,
+        },
+      });
+    }
     
 
-    // Crea l'appuntamento
+    // Crea l'appuntamento collegandolo al cliente trovato/creato
     const appuntamento = await db.appuntamento.create({
       data: {
         orario,
-        clienteId: Cliente.id,
         commercialeId,
+        clienteId: existingCliente.id,
       },
     });
 
     return NextResponse.json(appuntamento, { status: 201 });
   } catch (error) {
-    console.error('Errore nella creazione dell\'appuntamento:', error);
+    console.error("Errore nella creazione dell'appuntamento:", error);
     return NextResponse.json({ error: 'Errore interno del server' }, { status: 500 });
   }
 }

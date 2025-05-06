@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { useTranslation } from "@/lib/useTranslation";
 
 type Appuntamento = {
   orario: string[];
@@ -30,6 +31,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   startHour,
   appuntamenti,
 }) => {
+  
   const [form, setForm] = useState({
     nome: '',
     cognome: '',
@@ -48,6 +50,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   const handleDurataChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm((prev) => ({ ...prev, durata: parseInt(e.target.value, 10) }));
   };
+  const { t } = useTranslation();
 
   const isSlotOccupied = (commercialeId: string, slotTime: number) => {
     if (!appuntamenti || appuntamenti.length === 0) return false; // Se non ci sono appuntamenti, ritorna false
@@ -75,10 +78,10 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   
     // Verifica se il prossimo slot è occupato
     if (isSlotOccupied(commercialeId, normalizedNextSlotTime)) {
-      toast.warning('Lo slot successivo non è disponibile');
+      toast.warning(t('proxslotnodisp'));
     } else {
       // Se non è occupato, aggiungi 30 minuti e aggiorna la durata
-      toast.info('Slot successivo aggiunto');
+      toast.info(t('proxslotadd'));
       setForm((prev) => ({
         ...prev,
         durata: prev.durata + 30, // Aggiungi 30 minuti
@@ -134,7 +137,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   
       if (!res.ok) throw new Error('Errore nel salvataggio');
   
-      toast.success('Appuntamento creato');
+      toast.success(t('appsucc'));
 
 await fetch('/api/sendMail', {
   method: 'POST',
@@ -145,7 +148,7 @@ await fetch('/api/sendMail', {
     html: `
       <p>Ciao ${form.nome},</p>
       <p>il tuo appuntamento è stato confermato per il giorno <strong>${selectedDate.toLocaleDateString()}</strong> alle <strong>${startHour}</strong> con durata di <strong>${form.durata} minuti</strong>.</p>
-      <p>Grazie,<br/>Il team</p>
+      <p>Grazie,<br/></p>
     `,
   }),
 });
@@ -163,37 +166,37 @@ await fetch('/api/sendMail', {
     <Dialog open={open} onOpenChange={onClose} >
       <DialogContent className='bg-neutral'>
         <DialogHeader>
-          <DialogTitle>Nuovo Appuntamento</DialogTitle>
+          <DialogTitle>{t('nuovoappuntamento')}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-2">
-          <Label>Nome</Label>
+          <Label>{t('nome')}</Label>
           <Input name="nome" value={form.nome} onChange={handleChange} />
 
-          <Label>Cognome</Label>
+          <Label>{t('cognome')}</Label>
           <Input name="cognome" value={form.cognome} onChange={handleChange} />
 
-          <Label>Azienda *</Label>
+          <Label>{t('azienda')} *</Label>
           <Input name="azienda" value={form.azienda} onChange={handleChange} />
 
-          <Label>Ruolo</Label>
+          <Label>{t('ruolo')}</Label>
           <Input name="ruolo" value={form.ruolo} onChange={handleChange} />
 
           <Label>Email *</Label>
           <Input name="email" value={form.email} onChange={handleChange} type="email" />
 
-          <Label>Telefono</Label>
+          <Label>{t('telefono')}</Label>
           <Input name="telefono" value={form.telefono} onChange={handleChange} />
 
-          <Label>Durata (minuti)</Label>
+          <Label>{t('durata')} (minuti)</Label>
                <button
                 onClick={addNextSlot}
                 className="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200"
               >
-                Aggiungi slot successivo
+                {t('aggiungislot')}
               </button>
           <Input
             type="number"
-            name="durata"
+            name={t('durata')}
             value={form.durata}
             onChange={handleDurataChange}
             min={30}
@@ -202,10 +205,10 @@ await fetch('/api/sendMail', {
         </div>
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="outline" onClick={onClose} disabled={loading}>
-            Annulla
+          {t('annulla')}
           </Button>
           <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Salvataggio...' : 'Salva'}
+            {loading ? t('salv') : t('salva')}
           </Button>
         </div>
       </DialogContent>

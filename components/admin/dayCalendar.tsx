@@ -9,6 +9,7 @@ import { ColoreSelezioneModal } from './coloreModal';
 import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendarAlt } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
+import { useTranslation } from "@/lib/useTranslation";
 
 const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
 const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}`;
@@ -55,6 +56,8 @@ const formatAppointmentHour = (iso: string) => {
 };
 
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
+  const { t } = useTranslation();
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<Appuntamento | null>(null);
   const [slotToCreate, setSlotToCreate] = useState<{
@@ -124,7 +127,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
       <div className="overflow-x-auto">
         <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border">
           {/* Header orari */}
-          <div className="border-r bg-gray-100 p-2 font-bold text-sm">Commerciale</div>
+          <div className="border-r bg-gray-100 p-2 font-bold text-sm">{t('commerciale')}</div>
           {hours.map((h, i) => (
             <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
               {formatHour(h)}

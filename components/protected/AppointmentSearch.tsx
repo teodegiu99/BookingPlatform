@@ -4,6 +4,7 @@ import Select from 'react-select'
 import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
 import useSWR from 'swr'
+import { useTranslation } from "@/lib/useTranslation";
 
 type Appuntamento = {
   id: string
@@ -25,6 +26,8 @@ type Option = {
 }
 
 export default function AppointmentSearch() {
+      const { t } = useTranslation();
+  
   const [inputValue, setInputValue] = useState('')
   const [options, setOptions] = useState<Option[]>([])
   const [selectedApp, setSelectedApp] = useState<Appuntamento | null>(null)
@@ -73,7 +76,7 @@ export default function AppointmentSearch() {
   return (
     <>
       <div className="w-full border shadow-md rounded-xl p-10 min-w-full grow"> 
-        <h3 className="text-xl font-bold mb-2">Cerca</h3>
+        <h3 className="text-xl font-bold mb-2">{t('cerca')}</h3>
         <div className="flex justify-center items-center w-full">
           <Select
             className="w-full"
@@ -81,10 +84,10 @@ export default function AppointmentSearch() {
             isLoading={isLoading}
             instanceId={useId()}
             onChange={handleChange}
-            placeholder="Cerca appuntamento per nome, cognome, azienda o email..."
+            placeholder={t('cercaper')}
             isClearable
             onInputChange={(value) => setInputValue(value)}
-            noOptionsMessage={() => 'Nessun risultato trovato'}
+            noOptionsMessage={() => t('noresult')}
           />
         </div>
       </div>
@@ -95,19 +98,19 @@ export default function AppointmentSearch() {
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
             <Dialog.Title className="text-xl font-semibold mb-4">
-              Dettagli Appuntamento
+              {t('dettapp')}
             </Dialog.Title>
             {selectedApp && (
               <div className="space-y-2">
-                <p><strong>Nome:</strong> {selectedApp.cliente.nome} {selectedApp.cliente.cognome}</p>
-                <p><strong>Azienda:</strong> {selectedApp.cliente.azienda}</p>
+                <p><strong>  {t('nome')}:</strong> {selectedApp.cliente.nome} {selectedApp.cliente.cognome}</p>
+                <p><strong>  {t('azienda')}:</strong> {selectedApp.cliente.azienda}</p>
                 <p><strong>Email:</strong> {selectedApp.cliente.email}</p>
                 {selectedApp.cliente.numero && (
-                  <p><strong>Telefono:</strong> {selectedApp.cliente.numero}</p>
+                  <p><strong>  {t('telefono')}:</strong> {selectedApp.cliente.numero}</p>
                 )}
                 {selectedApp.orario && (
                   <p>
-                    <strong>Orario:</strong>{' '}
+                    <strong>  {t('orario')}:</strong>{' '}
                     {selectedApp.orario.length > 1
                       ? `${selectedApp.orario[0]} → ${selectedApp.orario[selectedApp.orario.length - 1]}`
                       : selectedApp.orario[0]}
@@ -120,7 +123,7 @@ export default function AppointmentSearch() {
                 onClick={() => setSelectedApp(null)}
                 className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
               >
-                Chiudi
+                  {t('chiudi')}
               </button>
             </div>
           </Dialog.Panel>

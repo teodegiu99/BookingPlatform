@@ -61,9 +61,9 @@ model Cliente {
 	id String @id @default(cuid())
 	nome String?
 	cognome String?
-	azienda String
+	azienda String 
 	ruolo String?
-	email String
+	email String @unique
 	numero String?
   appuntamenti Appuntamento[] 
 }

@@ -1,16 +1,28 @@
+// context/LanguageContext.tsx
 'use client'
 
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, ReactNode , useEffect} from 'react';
+import { dictionary, TranslationKey } from '../dictionary';
 
-type Lang = 'it' | 'en';
+export type Lang = 'it' | 'en';
 
 const LangContext = createContext<{
   lang: Lang;
   setLang: (lang: Lang) => void;
 }>({ lang: 'it', setLang: () => {} });
 
-export const LangProvider = ({ children }: { children: React.ReactNode }) => {
+export const LangProvider = ({ children }: { children: ReactNode }) => {
   const [lang, setLang] = useState<Lang>('it');
+  // dentro LangProvider
+useEffect(() => {
+  const stored = localStorage.getItem('lang') as Lang;
+  if (stored) setLang(stored);
+}, []);
+
+useEffect(() => {
+  localStorage.setItem('lang', lang);
+}, [lang]);
+
 
   return (
     <LangContext.Provider value={{ lang, setLang }}>
@@ -20,3 +32,5 @@ export const LangProvider = ({ children }: { children: React.ReactNode }) => {
 };
 
 export const useLang = () => useContext(LangContext);
+
+

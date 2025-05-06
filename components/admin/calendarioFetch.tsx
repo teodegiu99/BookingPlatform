@@ -2,17 +2,19 @@
 
 import { DayCalendar } from './dayCalendar';
 import useSWR from 'swr';
+import { useTranslation } from "@/lib/useTranslation";
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 const CalendarioPage = () => {
-
+  
   const { data, isLoading } = useSWR(`/api/calendario`, fetcher, {
     refreshInterval: 1000 * 60 * 0.04, 
   });
 
+ const { t } = useTranslation();
   
-  if (isLoading || !data) return <div>Caricamento...</div>;
+  if (isLoading || !data) return <div>{t('caricamento')}</div>;
 
   return (
     <div className="p-4">

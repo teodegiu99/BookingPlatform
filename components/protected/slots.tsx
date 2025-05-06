@@ -9,8 +9,11 @@ import { getAppuntamentiByDayAndCommerciale } from '@/actions/getSlotPrenotati'
 import { FiTrash2 } from 'react-icons/fi'
 import { deleteAppuntamento } from '@/actions/deleteSlot'
 import useSWR from 'swr'
+import { useTranslation } from "@/lib/useTranslation";
 
 export default function TimeSlotList() {
+    const { t } = useTranslation();
+  
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const formRef = useRef<HTMLFormElement>(null)
@@ -105,12 +108,13 @@ export default function TimeSlotList() {
         orari: selectedSlots,
       })
       formRef.current?.reset()
-      alert('Appuntamento creato con successo!')
+      alert(t('appsucc'))
       closeModal()
       mutate()
     } catch (error) {
       console.error('Errore durante la creazione:', error)
-      alert('Errore nella creazione dell\'appuntamento')
+      alert((t('apperr'))
+    )
     }
   }
 
@@ -120,7 +124,7 @@ export default function TimeSlotList() {
 
   const handleDeleteAppuntamento = async () => {
     if (!selectedAppuntamento) return
-    const confirmDelete = confirm("Sei sicuro di voler cancellare questo appuntamento?")
+    const confirmDelete = confirm(t('confdel'))
     if (!confirmDelete) return
 
     const res = await deleteAppuntamento(selectedAppuntamento.id)
@@ -128,7 +132,7 @@ export default function TimeSlotList() {
       setSelectedAppuntamento(null)
       mutate()
     } else {
-      alert("Errore nella cancellazione")
+      alert(t('errdel'))
     }
   }
 
@@ -137,7 +141,7 @@ export default function TimeSlotList() {
       <div className="border p-10 rounded-xl shadow-[5px] space-y-10">
         {/* Slot disponibili */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Slot disponibili</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('slotdisponibili')}</h2>
           <div className="overflow-x-auto whitespace-nowrap max-h-[30vh]">
             <div className="flex flex-wrap gap-3">
               {slots.map((slot, index) => (
@@ -160,7 +164,7 @@ export default function TimeSlotList() {
 
         {/* Slot occupati */}
         <div>
-          <h2 className="text-xl font-semibold mb-4">Slot occupati</h2>
+          <h2 className="text-xl font-semibold mb-4">{t('slotoccupati')}</h2>
           <div className="overflow-x-auto max-w-full space-y-4">
             <div className="flex flex-wrap gap-3 w-max">
               {booked.map((app) => {
@@ -197,7 +201,7 @@ export default function TimeSlotList() {
       {isModalOpen && selectedSlots.length > 0 && (
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-2xl w-full">
-            <h3 className="text-lg font-bold mb-2">Slot selezionato</h3>
+            <h3 className="text-lg font-bold mb-2">{t('slotsel')}</h3>
             <p className="mb-4">{formatTimeRange()}</p>
 
             <div className="mb-4">
@@ -205,20 +209,20 @@ export default function TimeSlotList() {
                 onClick={addNextSlot}
                 className="px-4 py-2 bg-blue-100 text-blue-700 rounded-xl hover:bg-blue-200"
               >
-                Aggiungi slot successivo
+                {t('aggiungislot')}
               </button>
             </div>
 
             <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
-              <input type="text" name="nome" placeholder="Nome" className="w-full p-2 border rounded" />
-              <input type="text" name="cognome" placeholder="Cognome" className="w-full p-2 border rounded" />
-              <input type="tel" name="telefono" placeholder="Numero di Telefono" className="w-full p-2 border rounded" />
+              <input type="text" name="nome" placeholder={t('nome')} className="w-full p-2 border rounded" />
+              <input type="text" name="cognome" placeholder={t('cognome')}className="w-full p-2 border rounded" />
+              <input type="tel" name="telefono" placeholder={t('telefono')} className="w-full p-2 border rounded" />
               <input type="email" name="email" placeholder="Email *" required className="w-full p-2 border rounded" />
-              <input type="text" name="azienda" placeholder="Azienda *" required className="w-full p-2 border rounded" />
-              <input type="text" name="ruolo" placeholder="Ruolo" className="w-full p-2 border rounded" />
+              <input type="text" name="azienda" placeholder={t('aziendaast')} required className="w-full p-2 border rounded" />
+              <input type="text" name="ruolo" placeholder={t('ruolo')} className="w-full p-2 border rounded" />
               <div className="col-span-2 flex justify-end gap-2 mt-4">
-                <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">Annulla</button>
-                <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">Invia</button>
+                <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">{t('annulla')}</button>
+                <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">{t('invia')}</button>
               </div>
             </form>
           </div>
@@ -230,21 +234,21 @@ export default function TimeSlotList() {
         <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl p-6 shadow-lg max-w-xl w-full">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-bold">Dettagli appuntamento</h3>
+              <h3 className="text-lg font-bold">{t('dettapp')}</h3>
               <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
                 <FiTrash2 className="w-5 h-5" />
               </button>
             </div>
             <ul className="mb-4">
-              <li><strong>Nome:</strong> {selectedAppuntamento.cliente.nome} {selectedAppuntamento.cliente.cognome}</li>
+              <li><strong>{t('nome')}:</strong> {selectedAppuntamento.cliente.nome} {selectedAppuntamento.cliente.cognome}</li>
               <li><strong>Email:</strong> {selectedAppuntamento.cliente.email}</li>
-              <li><strong>Azienda:</strong> {selectedAppuntamento.cliente.azienda}</li>
-              <li><strong>Ruolo:</strong> {selectedAppuntamento.cliente.ruolo}</li>
-              <li><strong>Telefono:</strong> {selectedAppuntamento.cliente.numero}</li>
+              <li><strong>{t('azienda')}:</strong> {selectedAppuntamento.cliente.azienda}</li>
+              <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>
+              <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>
               <li><strong>Orari:</strong> {selectedAppuntamento.orari.map((o: string) => new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })).join(', ')}</li>
             </ul>
             <div className="flex justify-end">
-              <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">Chiudi</button>
+              <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">{t('chiudi')}</button>
             </div>
           </div>
         </div>

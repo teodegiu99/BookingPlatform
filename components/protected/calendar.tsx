@@ -3,9 +3,11 @@
 import { Calendar } from "@/components/ui/calendar"
 import React from 'react'
 import { useDate } from "@/context/DateContext"
+import { useTranslation } from "@/lib/useTranslation";
 
 export function CalendarDemo() {
   const { selectedDate, setSelectedDate } = useDate()
+  const { t } = useTranslation();
 
   function formatDate(date: Date) {
     return `${date.getDate().toString().padStart(2, "0")}/${(date.getMonth() + 1)
