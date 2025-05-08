@@ -13,7 +13,7 @@ export default function SignOutButton() {
       className= "px-3 flex flex-col items-center gap-[2px] justify-center object-contain"
     >
 	<PiSignOut className="text-3xl text-primary" />
-	<span className="text-[8px]">{t('disconnetti')}</span>
+	<span className="text-[8px] text-semibold">{t('disconnetti')}</span>
     </button>
   );
 }

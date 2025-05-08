@@ -12,6 +12,6 @@ body,
 @layer base {
 
   body {
-    @apply bg-white;
+    @apply bg-[#f9f9f9];
   }
 }
