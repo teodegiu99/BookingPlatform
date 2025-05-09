@@ -173,8 +173,8 @@ import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
 import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation"
-import { PiBuildingsLight, PiBriefcaseLight, PiUserLight, PiClockLight, PiCalendarDotsLight } from "react-icons/pi";
-
+import { PiBuildingsLight, PiBriefcaseLight, PiUserLight, PiDeviceMobileLight, PiCalendarDotsLight } from "react-icons/pi";
+import { CiMail } from "react-icons/ci";
 const customStyles = {
   control: (base: any, state: any) => ({
     ...base,
@@ -324,23 +324,41 @@ export default function AppointmentSearch() {
               {t('dettapp')}
             </Dialog.Title>
             {selectedApp && (
-              <div className="space-y-2">
-                 {selectedApp.orario && (
-                  <p><strong>{t('orario')}:</strong> {formatOrario(selectedApp.orario)}</p>
-                )}
-                <p><strong>{t('nome')}:</strong> {selectedApp.cliente.nome} {selectedApp.cliente.cognome}</p>
-                <p><strong>{t('azienda')}:</strong> {selectedApp.cliente.azienda}</p>
-                <p><strong>Email:</strong> {selectedApp.cliente.email}</p>
-                {selectedApp.cliente.numero && (
-                  <p><strong>{t('telefono')}:</strong> {selectedApp.cliente.numero}</p>
-                )}
-               
-              </div>
+          <div className="space-y-2">
+          {selectedApp.orario && (
+            <p className="flex items-center gap-2">
+              <PiCalendarDotsLight className="text-primary" />
+              <span>{t('orario')}: {formatOrario(selectedApp.orario)}</span>
+            </p>
+          )}
+          <p className="flex items-center gap-2">
+            <PiUserLight className="text-primary" />
+            <span>{t('nome')}: {selectedApp.cliente.nome} {selectedApp.cliente.cognome}</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <PiBuildingsLight className="text-primary" />
+            <span>{t('azienda')}: {selectedApp.cliente.azienda}</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <PiBuildingsLight className="text-primary" />
+            <span>{t('ruolo')}: {selectedApp.cliente.ruolo}</span>
+          </p>
+          <p className="flex items-center gap-2">
+            <CiMail className="text-primary" />
+            <span>Email: {selectedApp.cliente.email}</span>
+          </p>
+          {selectedApp.cliente.numero && (
+            <p className="flex items-center gap-2">
+              <PiDeviceMobileLight className="text-primary" />
+              <span>{t('telefono')}: {selectedApp.cliente.numero}</span>
+            </p>
+          )}
+        </div>
             )}
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedApp(null)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 bg-secondary text-white rounded hover:bg-secondary/80"
               >
                 {t('chiudi')}
               </button>

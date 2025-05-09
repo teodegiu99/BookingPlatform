@@ -17,7 +17,7 @@ const Home = async () => {
     <div className="w-full  flex justify-end items-end mt-20  "> 
     <Search />
 </div>
-      <CalendarioPage />;
+      <CalendarioPage />
 </div>
     )
   } else {

@@ -20,18 +20,21 @@ enum UserRole {
 }
 
 model User {
-	id 							String @id @default(cuid())
-	name 						String?
-	email 						String? @unique
-	emailVerified 				DateTime?
-	image 						String?
-	password 					String?
-    role 						UserRole @default(USER)
-	accounts 					Account[]
-	isTwoFactorEnabled 			Boolean @default(false)
+	id 							          String @id @default(cuid())
+	name 						          String?
+  cognome                   String?
+  societa                   String?
+	email 						        String? @unique
+	emailVerified 		     		DateTime?
+	image 						        String?
+	password 					        String?
+    role 						        UserRole @default(USER)
+	accounts 					        Account[]
+	isTwoFactorEnabled 			  Boolean @default(false)
 	twoFactorConfirmation 		TwoFactorConfirmation?
-	color 						String?
-	appuntamentiGestiti     Appuntamento[] @relation("AppuntamentiUtente")
+	color 						        String?
+	appuntamentiGestiti       Appuntamento[] @relation("AppuntamentiUtente")
+  mostracommerciale         Boolean @default(true)
 }
 
 model Account {

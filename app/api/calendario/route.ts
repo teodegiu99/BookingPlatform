@@ -8,10 +8,15 @@ export async function GET() {
       role: {
         not: 'ADMIN',
       },
+      mostracommerciale: {
+        not: false,
+      }
     },
     select: {
       id: true,
       name: true,
+      cognome: true,
+      societa: true,
       image: true,
       color: true,
     },
