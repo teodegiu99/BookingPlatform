@@ -5,7 +5,9 @@ import useSWR from 'swr'
 import { useSession } from 'next-auth/react'
 import { useTranslation } from "@/lib/useTranslation";
 
-// Serve un endpoint API per usare SWR — lo creiamo dopo se non esiste
+import { PiBuildingsLight, PiBriefcaseLight, PiUserLight, PiClockLight, PiCalendarDotsLight } from "react-icons/pi";
+
+
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
 export default function NextAppointment() {
@@ -14,14 +16,15 @@ export default function NextAppointment() {
 
   const { data: all, isLoading } = useSWR(
     session?.user?.id ? `/api/appuntamenti` : null,
-    fetcher
+    fetcher,
+    {
+      refreshInterval: 5000, // <-- aggiorna ogni 5 secondi
+    }
   )
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-sm text-muted-foreground grow">
-   
-      </div>
+      <div className="flex items-center gap-2 text-sm text-muted-foreground grow" />
     )
   }
 
@@ -36,7 +39,7 @@ export default function NextAppointment() {
   const nextApp = future[0]
 
   if (!nextApp) {
-    return <div className="border rounded-xl p-5 shadow-md w-full grow ">{t('noappuntamento')}</div>
+    return <div className="border rounded-xl p-5 shadow-md w-full grow">{t('noappuntamento')}</div>
   }
 
   const start = new Date(nextApp.orario[0])
@@ -61,11 +64,50 @@ export default function NextAppointment() {
   const cliente = nextApp.cliente
 
   return (
-    <div className="border rounded-xl p-5 shadow-md w-full ">
-      <h2 className="text-lg font-bold mb-2">{t('proxappuntamento')} {dateStr} {timeRange}</h2>
-      <div className="text-sm space-y-1">
-        <p><strong>{cliente.nome} {cliente.cognome}</strong></p>
-        <p>{cliente.azienda} {cliente.ruolo}</p>
+    <div className="border rounded-xl p-5 shadow-md w-full">
+      <h2 className="text-lg font-semibold mb-2">{t('proxappuntamento')}</h2>
+
+      {(dateStr || timeRange) && (
+        <div className="flex items-center gap-x-2 mb-3">
+          {dateStr && (
+            <>
+              <PiCalendarDotsLight className="text-primary text-lg"/>
+              <span>{dateStr}</span>
+            </>
+          )}
+          {timeRange && (
+            <>
+              <PiClockLight className="text-primary text-lg" />
+              <span>{timeRange}</span>
+            </>
+          )}
+        </div>
+      )}
+
+      <div className="text-sm">
+        {(cliente.nome || cliente.cognome) && (
+          <p className="flex items-center  gap-x-2 mb-3">
+            <PiUserLight className="text-primary text-lg" />
+            <span>{cliente.nome} {cliente.cognome}</span>
+          </p>
+        )}
+
+        {(cliente.azienda || cliente.ruolo) && (
+          <p className="flex items-center  gap-x-2 mb-3">
+            {cliente.azienda && (
+              <>
+                <PiBuildingsLight className="text-primary text-lg" />
+                <span>{cliente.azienda}</span>
+              </>
+            )}
+            {cliente.ruolo && (
+              <>
+                <PiBriefcaseLight  className="text-primary text-lg"/>
+                <span>{cliente.ruolo}</span>
+              </>
+            )}
+          </p>
+        )}
       </div>
     </div>
   )

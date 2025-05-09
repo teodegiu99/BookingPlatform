@@ -1,5 +1,6 @@
+
 'use client'
-import React, { useEffect, useId, useState } from 'react'
+import React, { useEffect, useId, useState, useCallback } from 'react'
 import Select from 'react-select'
 import { getAllAppuntamentiByCommerciale } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
@@ -37,20 +38,20 @@ export default function AppointmentSearch() {
   }
 
   const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
-    refreshInterval: 5 * 60 * 1000, // 5 minuti
+    refreshInterval: 0.2 * 60 * 1000,
   })
 
-  const formatOption = (app: Appuntamento): Option => ({
+  const formatOption = useCallback((app: Appuntamento): Option => ({
     value: app.id,
     label: `${app.orario?.[0] ?? ''} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.cliente.azienda} - ${app.cliente.email}`,
     appuntamento: app,
-  })
+  }), [])
 
   useEffect(() => {
+    const search = inputValue.toLowerCase()
     const filtered = inputValue
       ? allAppuntamenti.filter(app => {
           const { nome, cognome, azienda, email } = app.cliente
-          const search = inputValue.toLowerCase()
           return (
             nome?.toLowerCase().includes(search) ||
             cognome?.toLowerCase().includes(search) ||
@@ -60,8 +61,13 @@ export default function AppointmentSearch() {
         })
       : allAppuntamenti
 
-    setOptions(filtered.map(formatOption))
-  }, [inputValue, allAppuntamenti])
+    const newOptions = filtered.map(formatOption)
+    const isEqual = JSON.stringify(newOptions) === JSON.stringify(options)
+
+    if (!isEqual) {
+      setOptions(newOptions)
+    }
+  }, [inputValue, allAppuntamenti, formatOption])
 
   const handleChange = (selected: Option | null) => {
     setSelectedApp(selected?.appuntamento ?? null)
@@ -69,11 +75,11 @@ export default function AppointmentSearch() {
 
   return (
     <>
-      <div className="w-full border shadow-md rounded-xl p-10 grow">
-        <h3 className="text-xl font-bold mb-2">{t('cerca')}</h3>
+      <div className="w-full border shadow-md rounded-xl p-6 grow">
+        <h3 className="text-xl font-semibold mb-2 text-secondary">{t('cerca')}</h3>
         <div className="flex justify-center items-center w-full">
           <Select
-            className="w-full"
+            className="w-full "
             options={options}
             isLoading={isLoading}
             instanceId={selectInstanceId}
