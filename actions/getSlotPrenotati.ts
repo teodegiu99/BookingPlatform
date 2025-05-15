@@ -16,6 +16,7 @@ export async function getAppuntamentiByCommerciale(commercialeId: string) {
     id: app.id,
     orari: app.orario,
     cliente: app.cliente,
+    note: app.note,
   }))
 }
 
@@ -35,5 +36,6 @@ export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, 
         id: app.id, 
         orari: app.orari,
         cliente: app.cliente,
+        note: app.note,
       }))
   }

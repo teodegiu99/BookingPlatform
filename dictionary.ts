@@ -48,6 +48,7 @@ export const dictionary = {
       proxslotadd: 'Slot successivo aggiunto',
       salv: 'Salvataggio...',
       accedi: 'Accedi',
+      note: 'Note',
     },
     en: {
       calendario: 'Calendar',
@@ -96,6 +97,7 @@ export const dictionary = {
       proxslotadd: 'Next slot added',
       salv: 'Saving...',
       accedi: 'Log in',
+      note: 'Notes',
     },
     
   } as const;

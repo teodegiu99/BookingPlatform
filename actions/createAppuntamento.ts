@@ -11,6 +11,7 @@ interface FormData {
   ruolo: string
   email: string
   numero: string
+  note: string
   orari: Date[] // passati dallo slot selezionato
 }
 
@@ -43,6 +44,7 @@ export async function createAppuntamento(data: FormData) {
     data: {
       clienteId: cliente.id,
       commercialeId: session.user.id,
+      note: data.note,
       orario: data.orari.map(date => date.toISOString()),
     },
   })

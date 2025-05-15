@@ -104,6 +104,7 @@ export default function TimeSlotList() {
         azienda: data.azienda as string,
         ruolo: data.ruolo as string,
         email: data.email as string,
+        note: data.note as string,
         numero: data.telefono as string,
         orari: selectedSlots,
       })
@@ -220,6 +221,7 @@ export default function TimeSlotList() {
               <input type="email" name="email" placeholder="Email *" required className="w-full p-2 border rounded" />
               <input type="text" name="azienda" placeholder={t('aziendaast')} required className="w-full p-2 border rounded" />
               <input type="text" name="ruolo" placeholder={t('ruolo')} className="w-full p-2 border rounded" />
+              <textarea name="note" placeholder={t('note')} className="w-full p-2 border rounded col-span-2" />
               <div className="col-span-2 flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">{t('annulla')}</button>
                 <button type="submit" className="px-4 py-2 bg-secondary text-white rounded-xl hover:bg-blue-700">{t('invia')}</button>
@@ -246,6 +248,7 @@ export default function TimeSlotList() {
               <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>
               <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>
               <li><strong>Orari:</strong> {selectedAppuntamento.orari.map((o: string) => new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })).join(', ')}</li>
+              <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end">
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">{t('chiudi')}</button>
