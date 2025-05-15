@@ -28,8 +28,10 @@ type Appuntamento = {
   commerciale: {
     id: string;
     name: string | null;
+    cognome: string | null;
     image: string | null;
     color: string | null;
+    societa: string | null;
   };
 };
 
@@ -38,6 +40,8 @@ type Commerciale = {
   name: string | null;
   image: string | null;
   color: string | null;
+  societa: string | null;
+  cognome: string | null;
 };
 
 type Props = {
@@ -92,29 +96,30 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           <FaArrowLeft />
         </button>
         <div className="flex items-center gap-2">
-  <h2 className="text-lg font-semibold">
-    {selectedDate.toLocaleDateString('it-IT', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    })}
-  </h2>
-  <DatePicker
-    selected={selectedDate}
-    onChange={(date: Date | null) => {
-      if (date !== null) {
-        setSelectedDate(date);
-      }
-    }}    customInput={
-      <button className="text-gray-600 hover:text-gray-800 focus:outline-none">
-        <FaCalendarAlt size={18} />
-      </button>
-    }
-    popperPlacement="bottom"
-    dateFormat="dd/MM/yyyy"
-  />
-</div>
+          <h2 className="text-lg font-semibold">
+            {selectedDate.toLocaleDateString('it-IT', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </h2>
+          <DatePicker
+            selected={selectedDate}
+            onChange={(date: Date | null) => {
+              if (date !== null) {
+                setSelectedDate(date);
+              }
+            }}
+            customInput={
+              <button className="text-gray-600 hover:text-gray-800 focus:outline-none">
+                <FaCalendarAlt size={18} />
+              </button>
+            }
+            popperPlacement="bottom"
+            dateFormat="dd/MM/yyyy"
+          />
+        </div>
         <button
           onClick={() => changeDay(1)}
           className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
@@ -135,76 +140,88 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           ))}
 
           {/* Riga per ogni commerciale */}
-          {commercialiState.map((com) => (
-            <React.Fragment key={com.id}>
-              {/* Colonna info commerciale */}
-              <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
-                <Image
-                  src={com.image || '/placeholder.png'}
-                  alt={com.name || 'Commerciale'}
-                  width={40}
-                  height={40}
-                  className="rounded-full object-cover"
-                />
-                <button
-                  onClick={() => {
-                    setSelectedUserId(com.id);
-                    setColorModalOpen(true);
-                  }}
-                  className="text-sm font-medium hover:underline focus:outline-none flex items-center gap-1"
-                >
-                  {com.name}
-                </button>
-              </div>
-
-              {/* Celle orarie */}
-              {hours.map((h, i) => {
-                const hourStr = formatHour(h);
-                const occupied = filtered.find(
-                  (a) =>
-                    a.commerciale.id === com.id &&
-                    a.orario.some(
-                      (o) =>
-                        isSameDay(new Date(o), selectedDate) &&
-                        formatAppointmentHour(o) === hourStr
-                    )
-                );
-
-                return (
-                  <div
-                    key={i}
-                    className="relative border-t border-r h-16 cursor-pointer hover:bg-gray-100"
-                    onClick={() => {
-                      if (occupied) {
-                        setSelectedAppuntamento(occupied);
-                      } else {
-                        setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
-                      }
-                    }}
-                  >
-                    {occupied && (
-                      <div
-                        className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
-                        style={{ backgroundColor: com.color || '#3B82F6' }}
-                      >
-                        <div className="font-semibold truncate">
-                          {occupied.cliente.nome} {occupied.cliente.cognome}
-                        </div>
-                        <div>
-                          {formatAppointmentHour(occupied.orario[0])}–
-                          {(() => {
-                            const last = new Date(occupied.orario[occupied.orario.length - 1]);
-                            last.setMinutes(last.getMinutes() + 30);
-                            return `${last.getHours()}:${last.getMinutes() === 0 ? '00' : '30'}`;
-                          })()}
-                        </div>
-                      </div>
-                    )}
+          {[...commercialiState]
+            .sort((a, b) => {
+              const aVal = (a.cognome || a.name || '').toLowerCase();
+              const bVal = (b.cognome || b.name || '').toLowerCase();
+              return aVal.localeCompare(bVal);
+            })
+            .map((com) => {
+              const displayName = com.cognome
+                ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
+                : (com.name ? com.name.charAt(0).toUpperCase() + com.name.slice(1).toLowerCase() : '');
+              return (
+                <React.Fragment key={com.id}>
+                  {/* Colonna info commerciale */}
+                  <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
+                    <Image
+                      src={com.image || '/placeholder.png'}
+                      alt={com.name || 'Commerciale'}
+                      width={40}
+                      height={40}
+                      className="rounded-full object-cover"
+                    />
+                    <button
+                      onClick={() => {
+                        setSelectedUserId(com.id);
+                        setColorModalOpen(true);
+                      }}
+                      className="text-sm font-medium hover:underline focus:outline-none flex flex-col items-start"
+                    >
+                      {displayName}
+                      {com.societa && <span>{com.societa}</span>}
+                    </button>
                   </div>
-                );
-              })}
-            </React.Fragment>
-          ))}
+
+                  {/* Celle orarie */}
+                  {hours.map((h, i) => {
+                    const hourStr = formatHour(h);
+                    const occupied = filtered.find(
+                      (a) =>
+                        a.commerciale.id === com.id &&
+                        a.orario.some(
+                          (o) =>
+                            isSameDay(new Date(o), selectedDate) &&
+                            formatAppointmentHour(o) === hourStr
+                        )
+                    );
+
+                    return (
+                      <div
+                        key={i}
+                        className="relative border-t border-r h-16 cursor-pointer hover:bg-gray-100"
+                        onClick={() => {
+                          if (occupied) {
+                            setSelectedAppuntamento(occupied);
+                          } else {
+                            setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
+                          }
+                        }}
+                      >
+                        {occupied && (
+                          <div
+                            className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
+                            style={{ backgroundColor: com.color || '#3B82F6' }}
+                          >
+                            <div className="font-semibold truncate">
+                              {occupied.cliente.nome} {occupied.cliente.cognome}
+                            </div>
+                            <div>
+                              {formatAppointmentHour(occupied.orario[0])}–
+                              {(() => {
+                                const last = new Date(occupied.orario[occupied.orario.length - 1]);
+                                last.setMinutes(last.getMinutes() + 30);
+                                return `${last.getHours()}:${last.getMinutes() === 0 ? '00' : '30'}`;
+                              })()}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
         </div>
       </div>
 

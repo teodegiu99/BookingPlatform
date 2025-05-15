@@ -48,7 +48,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     return { error: "Campi non validi." };
   }
 
-  const { email, password, name } = validatedFields.data;
+  const { email, password, name, cognome, societa } = validatedFields.data;
 
   const existingUser = await getUserByEmail(email);
   if (existingUser) {
@@ -62,6 +62,8 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
       name,
       email,
       password: hashedPassword,
+      cognome,
+      societa,
     },
   });
 

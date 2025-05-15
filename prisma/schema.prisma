@@ -28,7 +28,7 @@ model User {
 	emailVerified 		     		DateTime?
 	image 						        String?
 	password 					        String?
-    role 						        UserRole @default(USER)
+  role 						          UserRole @default(USER)
 	accounts 					        Account[]
 	isTwoFactorEnabled 			  Boolean @default(false)
 	twoFactorConfirmation 		TwoFactorConfirmation?
@@ -78,6 +78,7 @@ model Appuntamento {
   cliente        Cliente   @relation(fields: [clienteId], references: [id])
   commercialeId  String
   commerciale    User      @relation("AppuntamentiUtente", fields: [commercialeId], references: [id])
+  note           String?
   }
 
 model VerificationToken {

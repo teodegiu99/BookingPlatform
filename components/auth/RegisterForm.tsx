@@ -158,6 +158,8 @@ export const RegisterForm = () => {
       email: "",
       password: "",
       name: "",
+      cognome: "",
+      societa: "",
     },
   });
 
@@ -217,6 +219,23 @@ export const RegisterForm = () => {
             />
             <FormField
               control={form.control}
+              name="cognome"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Cognome</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="De Giuseppe"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="email"
               render={({ field }) => (
                 <FormItem>
@@ -245,6 +264,23 @@ export const RegisterForm = () => {
                       disabled={isPending}
                       placeholder="********"
                       type="password"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="societa"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Societa</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      disabled={isPending}
+                      placeholder="Solo per dipendendi esterni"
                     />
                   </FormControl>
                   <FormMessage />

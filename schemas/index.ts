@@ -19,7 +19,11 @@ export const RegisterSchema = z.object({
     }),
     name: z.string().min(1, {
         message: "Name is required"
-    })
+    }),
+    cognome: z.string().min(1, {
+        message: "surname is required"
+    }),
+    societa: z.optional(z.string()),
 });
 
 export const ResetSchema = z.object({
