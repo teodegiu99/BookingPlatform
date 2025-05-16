@@ -97,7 +97,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           <FaArrowLeft />
         </button>
         <div className="flex items-center gap-2">
-          <h2 className="text-lg font-semibold">
+          <h2 className="text-lg font-medium">
             {selectedDate.toLocaleDateString('it-IT', {
               weekday: 'long',
               year: 'numeric',
@@ -133,7 +133,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
       <div className="overflow-x-auto">
         <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border">
           {/* Header orari */}
-          <div className="border-r bg-gray-100 p-2 font-bold text-sm">{t('commerciale')}</div>
+          <div className="border-r bg-gray-100 p-2 font-semibold text-sm">{t('commerciale')}</div>
           {hours.map((h, i) => (
             <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
               {formatHour(h)}
@@ -167,7 +167,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                         setSelectedUserId(com.id);
                         setColorModalOpen(true);
                       }}
-                      className="text-sm font-medium hover:underline focus:outline-none flex flex-col items-start"
+                      className="text-sm font-regular hover:underline focus:outline-none flex flex-col items-start"
                     >
                       {displayName}
                       {com.societa && <span>{com.societa}</span>}
@@ -204,8 +204,9 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                             className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
                             style={{ backgroundColor: com.color || '#3B82F6' }}
                           >
-                            <div className="font-semibold truncate">
-                              {occupied.cliente.nome} {occupied.cliente.cognome}
+                            <div className="font-medium truncate">
+                              {occupied.commerciale.societa}<br className='gap-y-1'/>
+                              {occupied.cliente.cognome}
                             </div>
                             <div>
                               {formatAppointmentHour(occupied.orario[0])}–

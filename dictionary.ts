@@ -50,6 +50,9 @@ export const dictionary = {
       accedi: 'Accedi',
       note: 'Note',
       societa: 'Società',
+      quando: 'Quando',
+      to: 'alle',
+      dalle: 'Dalle',
     },
     en: {
       calendario: 'Calendar',
@@ -100,6 +103,9 @@ export const dictionary = {
       accedi: 'Log in',
       note: 'Notes',
       societa: 'Agency',
+      quando: 'When',
+      to: 'to',
+      dalle: 'From',
     },
     
   } as const;

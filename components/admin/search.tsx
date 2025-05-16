@@ -8,6 +8,38 @@ import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation"
 import { FiTrash2 } from 'react-icons/fi'
 
+
+const customStyles = {
+  control: (base: any, state: any) => ({
+    ...base,
+    borderWidth: '2px',
+    borderRadius: '0.75rem',
+    padding: '0.25rem 0.5rem',
+    borderColor: state.isFocused ? '#e62c33' : '#d1d5db',
+    boxShadow: state.isFocused ? '0 0 0 2px rgba(255, 255, 255, 0.5)' : 'none',
+    '&:hover': {
+      borderColor: '#e62c33',
+    },
+  }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isSelected
+      ? 'rgba(230, 44, 51, 0)'
+      : state.isFocused
+      ? 'rgba(230, 44, 51, 0.25)'
+      : 'white',
+    color: state.isSelected ? 'black' : 'black',
+    padding: '0.5rem 1rem',
+    cursor: 'pointer',
+  }),
+  menu: (base: any) => ({
+    ...base,
+    borderRadius: '0.75rem',
+    boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
+    zIndex: 20,
+  }),
+}
+
 type Appuntamento = {
   id: string
   cliente: {
@@ -117,8 +149,6 @@ export default function Search() {
   }
   
 
-
-
   return (
     <>
       <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%]">
@@ -132,6 +162,7 @@ export default function Search() {
           isClearable
           onInputChange={value => setInputValue(value)}
           noOptionsMessage={() => t('noresult')}
+          styles={customStyles}
         />
       </div>
 
