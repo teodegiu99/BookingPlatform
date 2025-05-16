@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { cliente, orario, commercialeId } = body;
+    const { cliente, orario, commercialeId, note } = body;
 
     if (
       !cliente?.email ||
@@ -70,6 +70,8 @@ export async function POST(req: Request) {
         orario,
         commercialeId,
         clienteId: existingCliente.id,
+        note,
+
       },
     });
 

@@ -19,6 +19,7 @@ export const getAllAppuntamenti = async () => {
   return db.appuntamento.findMany({
     include: {
       cliente: true,
+      commerciale: true,
     },
   })
 }

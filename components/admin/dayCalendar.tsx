@@ -17,6 +17,7 @@ const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}
 type Appuntamento = {
   id: string;
   orario: string[];
+  note: string;
   cliente: {
     nome: string | null;
     cognome: string | null;

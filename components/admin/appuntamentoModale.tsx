@@ -18,8 +18,11 @@ type Props = {
     };
     commerciale: {
       name: string | null;
+      cognome: string | null;
+      societa: string | null;
     };
     orario: string[];
+    note: string;
   };
   onClose: () => void;
 };
@@ -54,15 +57,18 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+          <div className='flex  justify-between items-center'>
           <Dialog.Title className="text-lg font-bold">{t('dettapp')}</Dialog.Title>
               <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
                 <FiTrash2 className="w-5 h-5" />
               </button>
+              </div>
           <div>
             <p><strong>{t('cliente')}:</strong> {cliente.nome} {cliente.cognome}</p>
             {cliente.email && <p><strong>Email:</strong> {cliente.email}</p>}
             {cliente.azienda && <p><strong>{t('azienda')}:</strong> {cliente.azienda}</p>}
-            <p><strong>{t('commerciale')}:</strong> {commerciale.name}</p>
+            <p><strong>{t('commerciale')}:</strong> {commerciale.name} {commerciale.cognome}</p>
+            <p><strong>{t('note')}:</strong> {appuntamento.note}</p>
             <p><strong>{t('orario')}:</strong></p>
             <ul className="list-disc list-inside text-sm text-gray-700">
               {orario.map((o, i) => (

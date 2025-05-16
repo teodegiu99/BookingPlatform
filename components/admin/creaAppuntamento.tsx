@@ -10,6 +10,7 @@ import { useTranslation } from "@/lib/useTranslation";
 
 type Appuntamento = {
   orario: string[];
+  note: string;
   commerciale: {
     id: string;
   };
@@ -39,11 +40,14 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     ruolo: '',
     email: '',
     telefono: '',
+    note: '',
     durata: 30, // minuti
   });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
@@ -116,6 +120,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
         },
         orario: slots,
         commercialeId,
+        note: form.note,
       });
   
       const res = await fetch('/api/appuntamenti', {
@@ -132,6 +137,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           },
           orario: slots,
           commercialeId,
+          note: form.note,
         }),
       });
   
@@ -186,6 +192,8 @@ await fetch('/api/sendMail', {
 
           <Label>{t('telefono')}</Label>
           <Input name="telefono" value={form.telefono} onChange={handleChange} />
+          <Label>{t('note')}</Label>
+          <textarea name="note" value={form.note} onChange={handleChange} />
 
           <Label>{t('durata')} (minuti)</Label>
                <button

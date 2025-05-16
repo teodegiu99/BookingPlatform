@@ -49,6 +49,7 @@ export const dictionary = {
       salv: 'Salvataggio...',
       accedi: 'Accedi',
       note: 'Note',
+      societa: 'Società',
     },
     en: {
       calendario: 'Calendar',
@@ -98,6 +99,7 @@ export const dictionary = {
       salv: 'Saving...',
       accedi: 'Log in',
       note: 'Notes',
+      societa: 'Agency',
     },
     
   } as const;

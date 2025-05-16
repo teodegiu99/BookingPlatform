@@ -17,7 +17,13 @@ type Appuntamento = {
     ruolo?: string | null
     numero?: string | null
   }
+  commerciale: {
+    name?: string | null
+    cognome?: string | null
+    societa?: string | null
+  }
   orario?: string[]
+  note?: string | null
 }
 
 type Option = {
@@ -53,13 +59,19 @@ export default function Search() {
   useEffect(() => {
     const search = inputValue.toLowerCase()
     const filtered = inputValue
-      ? allAppuntamenti.filter(({ cliente }) =>
-          cliente.nome?.toLowerCase().includes(search) ||
-          cliente.cognome?.toLowerCase().includes(search) ||
-          cliente.azienda.toLowerCase().includes(search) ||
-          cliente.email.toLowerCase().includes(search)
-        )
-      : allAppuntamenti
+  ? allAppuntamenti.filter(({ cliente, commerciale }) => {
+      return (
+        cliente.nome?.toLowerCase().includes(search) ||
+        cliente.cognome?.toLowerCase().includes(search) ||
+        cliente.azienda.toLowerCase().includes(search) ||
+        cliente.email.toLowerCase().includes(search) ||
+        cliente.numero?.includes(search) ||
+        commerciale.name?.toLowerCase().includes(search) ||
+        commerciale.cognome?.toLowerCase().includes(search) ||
+        commerciale.societa?.toLowerCase().includes(search)
+      )
+    })
+  : allAppuntamenti
 
     setOptions(filtered.map(formatOption))
   }, [inputValue, allAppuntamenti])
@@ -96,10 +108,21 @@ export default function Search() {
               <div className="space-y-2">
                 <p><strong>{t('nome')}:</strong> {selectedApp.cliente.nome} {selectedApp.cliente.cognome}</p>
                 <p><strong>{t('azienda')}:</strong> {selectedApp.cliente.azienda}</p>
+                {selectedApp.cliente.ruolo && (
+                  <p><strong>{t('ruolo')}:</strong> {selectedApp.cliente.ruolo}</p>
+                )}
                 <p><strong>Email:</strong> {selectedApp.cliente.email}</p>
+
                 {selectedApp.cliente.numero && (
                   <p><strong>{t('telefono')}:</strong> {selectedApp.cliente.numero}</p>
                 )}
+                     {selectedApp.commerciale.cognome && (
+                  <p><strong>{t('commerciale')}:</strong> {selectedApp.commerciale.cognome}</p>
+                )}
+                     {selectedApp.commerciale.societa && (
+                  <p><strong>{t('societa')}:</strong> {selectedApp.commerciale.societa}</p>
+                )}
+             
                 {selectedApp.orario && (
                   <p>
                     <strong>{t('orario')}:</strong>{' '}
