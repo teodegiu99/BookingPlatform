@@ -16,10 +16,15 @@ type Props = {
   onColorChange?: (color: string) => void; 
 };
 
-const COLORS = [
-  '#F87171', '#FBBF24', '#34D399', '#60A5FA', '#A78BFA',
-  '#F472B6', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6',
-];
+  const COLORS = [
+    '#DC2626', '#E11D48', '#BE185D', '#DB2777', '#D946EF',
+    '#C026D3', '#9333EA', '#7C3AED', '#4C1D95', '#A78BFA', 
+    '#8B5CF6', '#1D4ED8', '#2563EB', '#60A5FA', '#3B82F6',
+    '#0EA5E9', '#0F766E', '#14B8A6', '#34D399', '#10B981',
+    '#059669', '#15803D', '#65A30D', '#CA8A04', '#D97706',
+    '#F59E0B', '#EA580C', '#FBBF24', '#F87171', '#F472B6'
+  ];
+  
 
 export const ColoreSelezioneModal: React.FC<Props> = ({
   open,
