@@ -8,6 +8,10 @@ import {
 } from "./routes";
 
 const { auth } = NextAuth(authConfig);
+//Middleware allows you to run code before a request is completed.
+//Then, based on the incoming request, you can modify the response
+//by rewriting, redirecting, modifying the request or response headers,
+//or responding directly.
 
 export default auth((req) => {
   const { nextUrl } = req;
@@ -17,29 +21,26 @@ export default auth((req) => {
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
-  // ✅ Usa NEXTAUTH_URL come base (fallback su nextUrl.origin)
-  const baseUrl = process.env.NEXTAUTH_URL || nextUrl.origin;
-
-  // Non gestiamo le route delle API di autenticazione
   if (isApiAuthRoute) {
-    return;
+    return ;
   }
 
-  // Se l'utente è loggato e sta cercando di accedere a una pagina di login/signup → redirect alla dashboard
-  if (isAuthRoute && isLoggedIn) {
-    return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, baseUrl));
+  if (isAuthRoute) {
+    if (isLoggedIn) {
+      return Response.redirect(new URL(DEFAULT_LOGIN_REDIRECT, nextUrl));
+    }
+    return ;
   }
 
-  // Se non è loggato e cerca di accedere a una route privata → redirect al login
   if (!isLoggedIn && !isPublicRoute) {
-    return Response.redirect(new URL("/auth/login", baseUrl));
+    return Response.redirect(new URL("/auth/login", nextUrl));
   }
 
-  // Altrimenti lascia passare
-  return;
+  return ;
 });
 
-// Applica il middleware a tutte le route tranne asset statici e _next
+// Optionally, don't invoke Middleware on some paths
 export const config = {
+  //tutto quello che metto qua dentro va ad invocare la funzione auth
   matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
-};
+}; //con questo middleware vado a invocare il middleware ovunque

@@ -1,21 +1,16 @@
 /**
- * Le route accessibili al pubblico.
- * Non richiedono autenticazione.
+ * An array of routes that are accessible to the public
+ * These routes do not require authentication
  * @type {string[]}
  */
 export const publicRoutes = [
 	"/",
-	"/auth/login",             // ✅ accessibile anche se non autenticato
-	"/auth/register",          // (opzionale, se vuoi accesso libero alla registrazione)
-	"/auth/error",
-	"/auth/reset",
-	"/auth/new-password",
 	"/auth/new-verification"
   ];
   
   /**
-   * Le route usate per l'autenticazione (login, registrazione, ecc.).
-   * Se un utente è già autenticato e accede a una di queste, verrà reindirizzato a /home.
+   * An array of routes that are used for authentication
+   * These routes will redirect logged in users to /settings
    * @type {string[]}
    */
   export const authRoutes = [
@@ -27,15 +22,17 @@ export const publicRoutes = [
   ];
   
   /**
-   * Prefisso delle route API di autenticazione di NextAuth.
-   * Le route che iniziano con questo prefisso vengono ignorate dal middleware.
+   * The prefix for API authentication routes
+   * Routes that start with this prefix are used for API authentication purposes
    * @type {string}
    */
   export const apiAuthPrefix = "/api/auth";
   
   /**
-   * La route predefinita dopo il login (o redirect di default).
+   * The default redirect path after logging in
    * @type {string}
    */
   export const DEFAULT_LOGIN_REDIRECT = "/home";
   
+  
+  //TUTTE LE ROUTES SONO PROTETTE DI DEFAULT, QUINDI OGNI PAGINA CREIAMO CHE NON SIA DEFINITA QUA COME PUBBLICA, SARA PRIVATA 
