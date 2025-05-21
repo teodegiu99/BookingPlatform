@@ -10,6 +10,7 @@ import { FiTrash2 } from 'react-icons/fi'
 import { deleteAppuntamento } from '@/actions/deleteSlot'
 import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation";
+export const dynamic = 'force-dynamic'; // 👈 disabilita cache
 
 export default function TimeSlotList() {
     const { t } = useTranslation();

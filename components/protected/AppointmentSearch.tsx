@@ -175,6 +175,9 @@ import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation"
 import { PiBuildingsLight, PiBriefcaseLight, PiUserLight, PiDeviceMobileLight, PiCalendarDotsLight } from "react-icons/pi";
 import { CiMail } from "react-icons/ci";
+
+export const dynamic = 'force-dynamic'; // 👈 disabilita cache
+
 const customStyles = {
   control: (base: any, state: any) => ({
     ...base,
@@ -261,7 +264,7 @@ export default function AppointmentSearch() {
   }
 
   const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
-    refreshInterval: 0.2 * 60 * 1000,
+    refreshInterval: 2400,
   })
 
   const formatOption = useCallback((app: Appuntamento): Option => ({

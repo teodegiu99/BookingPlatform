@@ -6,6 +6,7 @@ import { useSession } from 'next-auth/react'
 import { useTranslation } from "@/lib/useTranslation";
 
 import { PiBuildingsLight, PiBriefcaseLight, PiUserLight, PiClockLight, PiCalendarDotsLight } from "react-icons/pi";
+export const dynamic = 'force-dynamic'; // 👈 disabilita cache
 
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())

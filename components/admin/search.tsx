@@ -8,6 +8,7 @@ import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation"
 import { FiTrash2 } from 'react-icons/fi'
 
+export const dynamic = 'force-dynamic'; // 👈 disabilita cache
 
 const customStyles = {
   control: (base: any, state: any) => ({
@@ -101,7 +102,7 @@ export default function Search() {
   }
 
   const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
-    refreshInterval: 0.2 * 60 * 1000,
+    refreshInterval: 2400,
   })
 
   useEffect(() => {
