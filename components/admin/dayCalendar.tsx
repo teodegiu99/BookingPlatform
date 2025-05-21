@@ -205,7 +205,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                             style={{ backgroundColor: com.color || '#3B82F6' }}
                           >
                             <div className="font-medium truncate">
-                              {occupied.commerciale.societa}<br className='gap-y-1'/>
+                              {occupied.cliente.azienda}<br className='gap-y-1'/>
                               {occupied.cliente.cognome}
                             </div>
                             <div>
