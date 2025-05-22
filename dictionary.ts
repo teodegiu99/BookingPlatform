@@ -53,6 +53,10 @@ export const dictionary = {
       quando: 'Quando',
       to: 'alle',
       dalle: 'Dalle',
+      confermaEliminazione: "Conferma eliminazione",
+      seiSicuroEliminare: "Sei sicuro di voler eliminare questo appuntamento?",
+      conferma: "Conferma",
+      eliminazioneInCorso: "Eliminazione..."
     },
     en: {
       calendario: 'Calendar',
@@ -106,6 +110,10 @@ export const dictionary = {
       quando: 'When',
       to: 'to',
       dalle: 'From',
+      confermaEliminazione: "Conferma eliminazione",
+      seiSicuroEliminare: "Sei sicuro di voler eliminare questo appuntamento?",
+      conferma: "Conferma",
+      eliminazioneInCorso: "Eliminazione..."
     },
     
   } as const;
