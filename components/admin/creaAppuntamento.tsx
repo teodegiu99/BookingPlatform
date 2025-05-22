@@ -145,19 +145,19 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   
       toast.success(t('appsucc'));
 
-// await fetch('/api/sendMail', {
-//   method: 'POST',
-//   headers: { 'Content-Type': 'application/json' },
-//   body: JSON.stringify({
-//     to: form.email,
-//     subject: 'Conferma appuntamento test',
-//     html: `
-//       <p>Ciao ${form.nome},</p>
-//       <p>il tuo appuntamento è stato confermato per il giorno <strong>${selectedDate.toLocaleDateString()}</strong> alle <strong>${startHour}</strong> con durata di <strong>${form.durata} minuti</strong>.</p>
-//       <p>Grazie,<br/></p>
-//     `,
-//   }),
-// });
+await fetch('/api/sendMail', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    to: form.email,
+    subject: 'Conferma appuntamento test',
+    html: `
+      <p>Ciao ${form.nome},</p>
+      <p>il tuo appuntamento è stato confermato per il giorno <strong>${selectedDate.toLocaleDateString()}</strong> alle <strong>${startHour}</strong> con durata di <strong>${form.durata} minuti</strong>.</p>
+      <p>Grazie,<br/></p>
+    `,
+  }),
+});
       onClose();
     } catch (err) {
       toast.error('Errore nella creazione');
