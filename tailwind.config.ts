@@ -9,6 +9,9 @@ const config = {
     './src/**/*.{ts,tsx}',
 	],
   prefix: "",
+  safelist: [
+    'has-appuntamento',
+  ],
   theme: {
     container: {
       center: true,
