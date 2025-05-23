@@ -31,7 +31,7 @@ const Home = async () => {
               <CalendarDemo />
             </div>
             <div className="">
-              <NextAppointment />
+              <NextAppointment userId={session!.user.id!} />
             </div>
           </div>
 

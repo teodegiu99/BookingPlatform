@@ -11,12 +11,11 @@ export const dynamic = 'force-dynamic'; // 👈 disabilita cache
 
 const fetcher = (url: string) => fetch(url).then(res => res.json())
 
-export default function NextAppointment() {
-  const { data: session } = useSession()
-  const { t } = useTranslation();
+  const NextAppointment = ({ userId }: { userId: string }) => {    const { t } = useTranslation();
+  // const { data: session } = useSession()
 
   const { data: all, isLoading } = useSWR(
-    session?.user?.id ? `/api/appuntamenti` : null,
+    userId ? `/api/appuntamenti` : null,
     fetcher,
     {
       refreshInterval: 5000, // <-- aggiorna ogni 5 secondi
@@ -113,3 +112,4 @@ export default function NextAppointment() {
     </div>
   )
 }
+export default NextAppointment
