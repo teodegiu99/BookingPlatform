@@ -41,7 +41,9 @@ const Home = async () => {
               <AppointmentSearch />
             </div>
             <div className="">
+            {session && 
               <TimeSlotList />
+            }
             </div>
           </div>
         </div>
