@@ -7,6 +7,8 @@ import AppointmentSearch from "@/components/protected/AppointmentSearch"
 import { auth, signOut } from "@/auth";
 import CalendarioPage from "@/components/admin/calendarioFetch"
 import Search from "@/components/admin/search"
+import Footer from "@/components/ui/footer"
+
 
 const Home = async () => {
   const session = await auth();
@@ -46,8 +48,9 @@ const Home = async () => {
             </div>
           </div>
         </div>
+       
         </div>
-
+        {/* <Footer /> */}
       </DateProvider>
     );
   }
