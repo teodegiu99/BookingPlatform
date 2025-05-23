@@ -12,8 +12,8 @@ import useSWR from 'swr'
 import { useTranslation } from "@/lib/useTranslation";
 export const dynamic = 'force-dynamic'; // 👈 disabilita cache
 
-export default function TimeSlotList() {
-    const { t } = useTranslation();
+
+const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useTranslation();
   
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -41,8 +41,8 @@ export default function TimeSlotList() {
   }
 
   const { data, isLoading, mutate } = useSWR(
-    session?.user?.id ? [`slots`, selectedDate.toISOString(), session.user.id] : null,
-    () => fetchSlotsData(selectedDate, session!.user.id!)
+    userId ? [`slots`, selectedDate.toISOString(), userId] : null,
+    () => fetchSlotsData(selectedDate, userId)
   )
 
   const slots = data?.slots ?? []
@@ -260,3 +260,4 @@ export default function TimeSlotList() {
     </div>
   )
 }
+export default TimeSlotList

@@ -41,9 +41,8 @@ const Home = async () => {
               <AppointmentSearch />
             </div>
             <div className="">
-            {session && 
-              <TimeSlotList />
-            }
+            
+              <TimeSlotList userId={session!.user.id!} />            
             </div>
           </div>
         </div>
