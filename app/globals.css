@@ -30,3 +30,20 @@ body,
   border-radius: 50%;
   background-color: #e62c33;
 }
+
+@utility scrollbar-hidden {  &::-webkit-scrollbar {    display: none;  }}
+
+
+.scroll-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* For IE and Edge */
+.scroll-hidden {
+  -ms-overflow-style: none;
+}
+
+/* For Firefox */
+.scroll-hidden {
+  scrollbar-width: none;
+}
