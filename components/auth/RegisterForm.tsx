@@ -276,7 +276,7 @@ export const RegisterForm = () => {
               name="societa"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Societa</FormLabel>
+                  <FormLabel>Società</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
