@@ -7,10 +7,8 @@ import { IoIosHelpCircleOutline } from "react-icons/io";
 
 
 const items = [
-  { title: 'Creare un appuntamento', content: 'Risposta alla domanda 1' },
-  { title: 'Domanda 2', content: 'Risposta alla domanda 2' },
-  { title: 'Domanda 3', content: 'Risposta alla domanda 3' },
-];
+  { title: 'Creare un appuntamento', content: 'Seleziona il giorno sul calendario, e scegli uno degli slot disponibili. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia sulla mail aziendale che al cliente' },
+  { title: 'Trovare un appuntamento prenotato', content: 'Per vedere i dettagli si un appuntamento clicca sugli slot occupati oppure cercalo nella barra di ricerca filtrando per azienda, nome cliente, email o data.' },];
 
 
 const Help = () => {
