@@ -227,7 +227,7 @@ export default function Search() {
             <div className="mt-6 flex justify-end">
               <button
                 onClick={() => setSelectedApp(null)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                className="px-4 py-2 bg-secondary text-white rounded hover:bg-secondary/80"
               >
                 {t('chiudi')}
               </button>
