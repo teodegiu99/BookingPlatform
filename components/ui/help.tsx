@@ -7,7 +7,7 @@ import { IoIosHelpCircleOutline } from "react-icons/io";
 
 
 const items = [
-  { title: 'Domanda 1', content: 'Risposta alla domanda 1' },
+  { title: 'Creare un appuntamento', content: 'Risposta alla domanda 1' },
   { title: 'Domanda 2', content: 'Risposta alla domanda 2' },
   { title: 'Domanda 3', content: 'Risposta alla domanda 3' },
 ];

@@ -7,9 +7,9 @@ import { IoIosHelpCircleOutline } from "react-icons/io";
 
 
 const items = [
-  { title: 'Domanda 1', content: 'Risposta alla domanda 1' },
-  { title: 'Domanda 2', content: 'Risposta alla domanda 2' },
-  { title: 'Domanda 3', content: 'Risposta alla domanda 3' },
+  { title: 'Creare un appuntamento', content: 'Scegli la riga del commerciale e clicca sul riquadro in cui vorresti piazzare l\' appuntamento. Compila i campi richiesti \(Solo la mail e l\'azienda sono obbligatori\) e clicca su invia. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia al commerciale che al cliente' },
+  { title: 'Impostare il colore di un commerciale', content: 'Clicca sul nome del commerciale e seleziona il colore. Una volta assegnato il colore al commerciale, non sarà più neccessario riperterlo per ogni appuntamento.' },
+  { title: 'Come trovo un appuntamento', content: 'Clicca sulla barra di ricerca, e cerca in base al nome del commerciale, per azienda, nome del cliente o email.' },
 ];
 
 

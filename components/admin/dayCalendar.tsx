@@ -169,8 +169,8 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                       }}
                       className="text-sm font-regular hover:underline focus:outline-none flex flex-col items-start"
                     >
-                      {displayName}
                       {com.societa && <span>{com.societa}</span>}
+                      {displayName}
                     </button>
                   </div>
 
