@@ -53,3 +53,5 @@ export const newPassword = async (
   
 	return { success: "Password updated!" };
   };
+
+  

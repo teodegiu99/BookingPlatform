@@ -34,7 +34,11 @@ model User {
 	twoFactorConfirmation 		TwoFactorConfirmation?
 	color 						        String?
 	appuntamentiGestiti       Appuntamento[] @relation("AppuntamentiUtente")
-  mostracommerciale         Boolean @default(true)
+  mostracommerciale         Boolean @default(false)
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt  @default(now())
+  approvato              Boolean @default(false)
+  lastLogin              DateTime?
 }
 
 model Account {
