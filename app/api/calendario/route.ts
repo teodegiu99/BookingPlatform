@@ -11,7 +11,10 @@ export async function GET() {
       },
       mostracommerciale: {
         not: false,
-      }
+      },
+      approvato: {
+        not: false,
+      },
     },
     select: {
       id: true,
