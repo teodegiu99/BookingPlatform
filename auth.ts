@@ -31,6 +31,10 @@ export const {
 
       const existingUser = await getUserById(user.id!);
 
+      if (!existingUser?.approvato) {
+        throw new Error("UserNotApproved");
+      }
+
       // Prevent sign in without email verification ANDREBBE MESSO A FALSE MA LO METTO A TRUE PER DISABILITARE IL DUE FATTORI, SO CHE FA SCHIFO 
       if (!existingUser?.emailVerified) return true;
 
