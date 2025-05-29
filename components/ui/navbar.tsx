@@ -5,11 +5,12 @@ import Helpcom from './helpcom';
 import LanguageSwitcher from './langSwitch';
 import { auth, signOut } from "@/auth";
 import Link from 'next/link';
-
+import { headers } from 'next/headers';
 
 
 const NavBar = async () => {
   const session = await auth();
+  const pathname = headers().get('x-invoke-path') || '';
   if (session?.user.role === 'ADMIN') {
 
   return (
@@ -48,7 +49,7 @@ const NavBar = async () => {
         <SignOutButton />
         </div>
       </div>
-  )}else{
+  )}else if (session?.user.role === 'SUSER'){
     return (
       <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
         <div className='p-4'><Help /></div>
@@ -62,12 +63,19 @@ const NavBar = async () => {
                />
         </div>
         <div className='flex justify-center items-center'>
-        <Link href='/dashboard' className='text-black font-thin text-sm'>Dashboard</Link>
-        <LanguageSwitcher /> 
+        {pathname.includes('/dashboard') ? (
+    <Link href="/profilo" className='text-black font-thin text-sm'>Profilo</Link>
+  ) : (
+    <Link href="/dashboard" className='text-black font-thin text-sm'>Dashboard</Link>
+  )}        <LanguageSwitcher /> 
         <SignOutButton />
         </div>
       </div>
-  )}
+  )
+  } else {  
+    return (
+      <div className='hidden'></div>
+    )
 
 };
 
