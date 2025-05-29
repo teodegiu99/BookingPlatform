@@ -43,6 +43,10 @@ const NavBar = async () => {
                />
         </div>
         <div className='flex justify-center items-center'>
+        {session?.user.role === 'SUSER' && (
+          <div className='text-white font-semibold'>Super User</div>
+          
+        )}
         <LanguageSwitcher /> 
         <SignOutButton />
         </div>

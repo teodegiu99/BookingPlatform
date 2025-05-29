@@ -17,6 +17,7 @@ datasource db {
 enum UserRole {
   ADMIN
   USER
+  SUSER
 }
 
 model User {
@@ -83,6 +84,9 @@ model Appuntamento {
   commercialeId  String
   commerciale    User      @relation("AppuntamentiUtente", fields: [commercialeId], references: [id])
   note           String?
+  invitati        String[]
+  ownerId       Boolean @default(true)
+
   }
 
 model VerificationToken {
