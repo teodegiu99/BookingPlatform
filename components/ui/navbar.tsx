@@ -77,6 +77,7 @@ const NavBar = async () => {
       <div className='hidden'></div>
     )
 
-};
+  }
+}
 
 export default NavBar;
