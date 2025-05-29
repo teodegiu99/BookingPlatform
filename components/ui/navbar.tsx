@@ -64,7 +64,7 @@ const NavBar = async () => {
         </div>
         <div className='flex justify-center items-center'>
         {pathname.includes('/dashboard') ? (
-    <Link href="/profilo" className='text-black font-thin text-sm'>Profilo</Link>
+    <Link href="/calendar" className='text-black font-thin text-sm'>Calendar</Link>
   ) : (
     <Link href="/dashboard" className='text-black font-thin text-sm'>Dashboard</Link>
   )}        <LanguageSwitcher /> 

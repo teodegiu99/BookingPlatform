@@ -6,7 +6,7 @@ import { DateProvider } from '@/context/DateContext'
 import AppointmentSearch from "@/components/protected/AppointmentSearch"
 import { auth, signOut } from "@/auth";
 import DashboardPage from "@/app/dashboard/page"
-import Calendar from "@/app/Calendar/page"
+import Calendar from "@/app/calendar/page"
 const Home = async () => {
   const session = await auth();
 
