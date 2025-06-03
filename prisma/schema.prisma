@@ -85,7 +85,7 @@ model Appuntamento {
   commerciale    User      @relation("AppuntamentiUtente", fields: [commercialeId], references: [id])
   note           String?
   invitati        String[]
-  ownerId       Boolean @default(true)
+  ownerId       String 
 
   }
 

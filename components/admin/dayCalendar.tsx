@@ -241,7 +241,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           open={true}
           onClose={() => setSlotToCreate(null)}
           commercialeId={slotToCreate.commercialeId}
-          selectedDate={selectedDate}
+          selectedDate={selectedDate.toISOString().split('T')[0]} // ✅ stringa: "2025-05-27"
           startHour={slotToCreate.startHour}
           appuntamenti={filtered}
         />

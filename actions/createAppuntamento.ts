@@ -44,8 +44,10 @@ export async function createAppuntamento(data: FormData) {
     data: {
       clienteId: cliente.id,
       commercialeId: session.user.id,
+      ownerId: session.user.id, 
       note: data.note,
       orario: data.orari.map(date => date.toISOString()),
+      invitati: [],
     },
   })
 
