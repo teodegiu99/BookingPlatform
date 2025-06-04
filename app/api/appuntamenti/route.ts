@@ -104,6 +104,24 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ error: 'Dati mancanti o invalidi' }, { status: 400 });
     }
+    // Verifica che gli invitati siano liberi in quegli orari
+    for (const invitatoId of body.invitati) {
+      const overlapping = await db.appuntamento.findFirst({
+        where: {
+          commercialeId: invitatoId,
+          orario: {
+            hasSome: body.orario, // slot sovrapposti
+          },
+        },
+      });
+
+      if (overlapping) {
+        return NextResponse.json(
+          { error: `Il commerciale con ID ${invitatoId} ha già un appuntamento in uno degli orari selezionati.` },
+          { status: 400 }
+        );
+      }
+    }
 
     // Cerca o crea cliente
     let existingCliente = await db.cliente.findUnique({

@@ -20,6 +20,11 @@ enum UserRole {
   SUSER
 }
 
+enum Personale {
+  INTERNO
+  ESTERNO
+}
+
 model User {
 	id 							          String @id @default(cuid())
 	name 						          String?
@@ -40,6 +45,7 @@ model User {
   updatedAt                DateTime @updatedAt  @default(now())
   approvato              Boolean @default(false)
   lastLogin              DateTime?
+  personale            Personale @default(INTERNO)  
 }
 
 model Account {

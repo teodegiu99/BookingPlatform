@@ -497,29 +497,37 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     const slotCount = durata / 30;
     for (let i = 0; i < slotCount; i++) {
       const slot = new Date(start);
-      slot.setMinutes(slot.getMinutes() + i * 30);
+      slot.setMinutes(slot.getMinutes() + i * 30); 
       slots.push(slot.toISOString());
     }
 
-    const res = await fetch('/api/appuntamenti', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        cliente: { nome, cognome, azienda, ruolo, email, telefono },
-        orario: slots,
-        commercialeId,
-        note,
-        invitati: selectedInvitati.map((i) => i.value),
-      }),
-    });
-
-    if (res.ok) {
+    try {
+      
+   await fetch('/api/appuntamenti', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      cliente: { nome, cognome, azienda, ruolo, email, telefono },
+      orario: slots,
+      commercialeId,
+      note,
+      invitati: selectedInvitati.map((i) => i.value),
+    }),
+  });
       toast.success('Appuntamento creato con successo.');
-      onClose();
-    } else {
-      toast.error('Errore nella creazione dell’appuntamento.');
+  onClose();
+    } catch (err: any) {
+      alert(err.message); // oppure toast, dialog, ecc.
     }
-  };
+  }
+    
+  //   if (res.ok) {
+  //     toast.success('Appuntamento creato con successo.');
+  //     onClose();
+  //   } else {
+  //     toast.error('Errore nella creazione dell’appuntamento.');
+  //   }
+  // };
 
   if (!open) return null;
 
