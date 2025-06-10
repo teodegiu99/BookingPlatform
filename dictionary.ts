@@ -56,7 +56,13 @@ export const dictionary = {
       confermaEliminazione: "Conferma eliminazione",
       seiSicuroEliminare: "Sei sicuro di voler eliminare questo appuntamento?",
       conferma: "Conferma",
-      eliminazioneInCorso: "Eliminazione..."
+      eliminazioneInCorso: "Eliminazione...",
+      inviaEmail: "Invia email",
+      invioInCorso: "Invio in corso...",
+      emailInviata: "Email inviata con successo!",
+      errInvioEmail: "Errore durante l'invio dell'email.",
+      emailNonDisponibile: "Email cliente non disponibile.",
+      
     },
     en: {
       calendario: 'Calendar',

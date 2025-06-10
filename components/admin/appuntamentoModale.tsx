@@ -1,9 +1,149 @@
 
+// 'use client';
+
+// import React, { useState } from 'react';
+// import { Dialog } from '@headlessui/react';
+// import { FiTrash2 } from 'react-icons/fi'
+// import { useTranslation } from "@/lib/useTranslation";
+// import {
+//   PiBuildingsLight,
+//   PiBriefcaseLight,
+//   PiUserLight,
+//   PiClockLight,
+//   PiNoteBlankLight,
+// } from "react-icons/pi";
+// import { TfiEmail } from "react-icons/tfi";
+// import { FaBuildingUser } from "react-icons/fa6";
+
+// type Props = {
+//   appuntamento: {
+//     id: string;
+//     cliente: {
+//       nome: string | null;
+//       cognome: string | null;
+//       email?: string | null;
+//       azienda?: string | null;
+//       ruolo?: string | null;
+//     };
+//     commerciale: {
+//       name: string | null;
+//       cognome: string | null;
+//       societa: string | null;
+//     };
+//     orario: string[];
+//     note: string;
+//   };
+//   onClose: () => void;
+// };
+
+// export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) => {
+//   const { cliente, commerciale, orario } = appuntamento;
+//   const { t } = useTranslation();
+
+//   const [showConfirm, setShowConfirm] = useState(false);
+//   const [isDeleting, setIsDeleting] = useState(false);
+
+//   const handleDeleteAppuntamento = async () => {
+//     setIsDeleting(true);
+//     const res = await fetch(`/api/appuntamenti/${appuntamento.id}`, {
+//       method: 'DELETE',
+//     });
+
+//     if (res.ok) {
+//       setShowConfirm(false);
+//       onClose(); // chiude il modale principale
+//     } else {
+//       console.error(t('errdel'));
+//     }
+
+//     setIsDeleting(false);
+//   };
+
+//   return (
+//     <>
+//       {/* Modale dettagli appuntamento */}
+//       <Dialog open={true} onClose={onClose} className="relative z-50">
+//         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+//         <div className="fixed inset-0 flex items-center justify-center p-4">
+//           <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+//             <div className='flex justify-between items-center'>
+//               <Dialog.Title className="text-lg font-semibold">{t('dettapp')}</Dialog.Title>
+//               <button onClick={() => setShowConfirm(true)} className="text-red-600 hover:text-red-800">
+//                 <FiTrash2 className="w-5 h-5" />
+//               </button>
+//             </div>
+//             <div className='text-sm'>
+//               <p className='flex gap-x-2 mb-3 items-center'><PiUserLight className="text-primary text-lg" /><span className='font-semibold'>{t('cliente')}:</span> {cliente.nome} {cliente.cognome}</p>
+//               {cliente.email && <p className='flex gap-x-2 mb-3 items-center'><TfiEmail className="text-primary text-lg" /><span className='font-semibold'>Email:</span> {cliente.email}</p>}
+//               {cliente.azienda && <p className='flex gap-x-2 mb-3 items-center'><PiBuildingsLight className="text-primary text-lg" /><span className='font-semibold'>{t('azienda')}:</span> {cliente.azienda}</p>}
+//               {cliente.ruolo && <p className='flex gap-x-2 mb-3 items-center'><PiBriefcaseLight className="text-primary text-lg" /><span className='font-semibold'>{t('ruolo')}:</span> {cliente.ruolo}</p>}
+//               <p className='flex gap-x-2 mb-3 items-center'><FaBuildingUser className="text-primary text-lg" /><span className='font-semibold'>{t('commerciale')}:</span> {commerciale.name} {commerciale.cognome}</p>
+//               <p className='flex gap-x-2 mb-3 items-center'>
+//                 <PiClockLight className="text-primary text-lg" />
+//                 <span className='font-semibold'>{t('quando')}:</span>
+//                 <span className="ml-1">
+//                   {(() => {
+//                     const start = new Date(orario[0]);
+//                     const end = new Date(orario[orario.length - 1]);
+//                     end.setMinutes(end.getMinutes() + 30);
+//                     const pad = (n: number) => n.toString().padStart(2, '0');
+//                     const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} ${t('to')} ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+//                     const formattedDate = start.toLocaleDateString('it-IT');
+//                     return `${formattedDate} ${t('dalle')} ${formattedTime}`;
+//                   })()}
+//                 </span>
+//               </p>
+//               <p className='flex gap-x-2 mb-3 items-center'><PiNoteBlankLight className="text-primary text-lg" /><span className='font-semibold'>{t('note')}:</span></p>
+//               <p><span className='block p-2 border border-1 rounded-xl mb-3'>{appuntamento.note}</span></p>
+//             </div>
+
+//             <div className="flex justify-end">
+//               <button
+//                 onClick={onClose}
+//                 className="px-4 py-2 bg-secondary text-white rounded hover:bg-blue-700"
+//               >
+//                 {t('chiudi')}
+//               </button>
+//             </div>
+//           </Dialog.Panel>
+//         </div>
+//       </Dialog>
+
+//       {/* Modale conferma eliminazione */}
+//       {showConfirm && (
+//         <Dialog open={true} onClose={() => setShowConfirm(false)} className="relative z-50">
+//           <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+//           <div className="fixed inset-0 flex items-center justify-center p-4">
+//             <Dialog.Panel className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl space-y-4">
+//               <Dialog.Title className="text-lg font-semibold">{t('confermaEliminazione')}</Dialog.Title>
+//               <p>{t('seiSicuroEliminare')}</p>
+//               <div className="flex justify-end space-x-2 pt-4">
+//                 <button
+//                   onClick={() => setShowConfirm(false)}
+//                   className="px-4 py-2 border rounded"
+//                 >
+//                   {t('annulla')}
+//                 </button>
+//                 <button
+//                   onClick={handleDeleteAppuntamento}
+//                   disabled={isDeleting}
+//                   className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
+//                 >
+//                   {isDeleting ? t('eliminazioneInCorso') : t('conferma')}
+//                 </button>
+//               </div>
+//             </Dialog.Panel>
+//           </div>
+//         </Dialog>
+//       )}
+//     </>
+//   );
+// };
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog } from '@headlessui/react';
-import { FiTrash2 } from 'react-icons/fi'
+import { FiTrash2 } from 'react-icons/fi';
 import { useTranslation } from "@/lib/useTranslation";
 import {
   PiBuildingsLight,
@@ -43,6 +183,11 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [isSending, setIsSending] = useState(false);
+
+  // Stato toast
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
   const handleDeleteAppuntamento = async () => {
     setIsDeleting(true);
     const res = await fetch(`/api/appuntamenti/${appuntamento.id}`, {
@@ -54,10 +199,69 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       onClose(); // chiude il modale principale
     } else {
       console.error(t('errdel'));
+      setToast({ message: t('errdel'), type: 'error' });
     }
 
     setIsDeleting(false);
   };
+
+  const handleSendEmail = async () => {
+    if (!cliente.email) {
+      setToast({ message: t('emailNonDisponibile'), type: 'error' });
+      return;
+    }
+
+    setIsSending(true);
+
+    const start = new Date(orario[0]);
+    const end = new Date(orario[orario.length - 1]);
+    end.setMinutes(end.getMinutes() + 30);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+    const formattedDate = start.toLocaleDateString('it-IT');
+
+    const html = `
+      <h2>Dettagli appuntamento</h2>
+      <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
+      <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
+      <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
+      <p><strong>Data:</strong> ${formattedDate}</p>
+      <p><strong>Orario:</strong> ${formattedTime}</p>
+      <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
+      <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
+    `;
+
+    try {
+      const res = await fetch('/api/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: cliente.email,
+          subject: 'Dettagli Appuntamento',
+          html,
+        }),
+      });
+
+      if (res.ok) {
+        setToast({ message: t('emailInviata'), type: 'success' });
+      } else {
+        throw new Error('Errore invio email');
+      }
+    } catch (error) {
+      console.error(error);
+      setToast({ message: t('errInvioEmail'), type: 'error' });
+    }
+
+    setIsSending(false);
+  };
+
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   return (
     <>
@@ -73,11 +277,32 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
               </button>
             </div>
             <div className='text-sm'>
-              <p className='flex gap-x-2 mb-3 items-center'><PiUserLight className="text-primary text-lg" /><span className='font-semibold'>{t('cliente')}:</span> {cliente.nome} {cliente.cognome}</p>
-              {cliente.email && <p className='flex gap-x-2 mb-3 items-center'><TfiEmail className="text-primary text-lg" /><span className='font-semibold'>Email:</span> {cliente.email}</p>}
-              {cliente.azienda && <p className='flex gap-x-2 mb-3 items-center'><PiBuildingsLight className="text-primary text-lg" /><span className='font-semibold'>{t('azienda')}:</span> {cliente.azienda}</p>}
-              {cliente.ruolo && <p className='flex gap-x-2 mb-3 items-center'><PiBriefcaseLight className="text-primary text-lg" /><span className='font-semibold'>{t('ruolo')}:</span> {cliente.ruolo}</p>}
-              <p className='flex gap-x-2 mb-3 items-center'><FaBuildingUser className="text-primary text-lg" /><span className='font-semibold'>{t('commerciale')}:</span> {commerciale.name} {commerciale.cognome}</p>
+              <p className='flex gap-x-2 mb-3 items-center'>
+                <PiUserLight className="text-primary text-lg" />
+                <span className='font-semibold'>{t('cliente')}:</span> {cliente.nome} {cliente.cognome}
+              </p>
+              {cliente.email && (
+                <p className='flex gap-x-2 mb-3 items-center'>
+                  <TfiEmail className="text-primary text-lg" />
+                  <span className='font-semibold'>Email:</span> {cliente.email}
+                </p>
+              )}
+              {cliente.azienda && (
+                <p className='flex gap-x-2 mb-3 items-center'>
+                  <PiBuildingsLight className="text-primary text-lg" />
+                  <span className='font-semibold'>{t('azienda')}:</span> {cliente.azienda}
+                </p>
+              )}
+              {cliente.ruolo && (
+                <p className='flex gap-x-2 mb-3 items-center'>
+                  <PiBriefcaseLight className="text-primary text-lg" />
+                  <span className='font-semibold'>{t('ruolo')}:</span> {cliente.ruolo}
+                </p>
+              )}
+              <p className='flex gap-x-2 mb-3 items-center'>
+                <FaBuildingUser className="text-primary text-lg" />
+                <span className='font-semibold'>{t('commerciale')}:</span> {commerciale.name} {commerciale.cognome}
+              </p>
               <p className='flex gap-x-2 mb-3 items-center'>
                 <PiClockLight className="text-primary text-lg" />
                 <span className='font-semibold'>{t('quando')}:</span>
@@ -93,11 +318,23 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
                   })()}
                 </span>
               </p>
-              <p className='flex gap-x-2 mb-3 items-center'><PiNoteBlankLight className="text-primary text-lg" /><span className='font-semibold'>{t('note')}:</span></p>
-              <p><span className='block p-2 border border-1 rounded-xl mb-3'>{appuntamento.note}</span></p>
+              <p className='flex gap-x-2 mb-3 items-center'>
+                <PiNoteBlankLight className="text-primary text-lg" />
+                <span className='font-semibold'>{t('note')}:</span>
+              </p>
+              <p>
+                <span className='block p-2 border border-1 rounded-xl mb-3'>{appuntamento.note}</span>
+              </p>
             </div>
 
-            <div className="flex justify-end">
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={handleSendEmail}
+                disabled={isSending}
+                className="px-4 py-2 bg-primary text-white rounded hover:bg-primary-dark disabled:opacity-50"
+              >
+                {isSending ? t('invioInCorso') : t('inviaEmail')}
+              </button>
               <button
                 onClick={onClose}
                 className="px-4 py-2 bg-secondary text-white rounded hover:bg-blue-700"
@@ -135,6 +372,17 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
             </Dialog.Panel>
           </div>
         </Dialog>
+      )}
+
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg text-white ${
+            toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+          }`}
+        >
+          {toast.message}
+        </div>
       )}
     </>
   );
