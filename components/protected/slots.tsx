@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { useDate } from '@/context/DateContext'
 import { createAppuntamento } from '@/actions/createAppuntamento'
 import { getAvailableSlotsByDay } from '@/actions/getSlotLiberi'
@@ -21,7 +21,63 @@ const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useT
   const { selectedDate } = useDate()
   const { data: session } = useSession()
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<any | null>(null)
-
+  const [isSending, setIsSending] = useState(false);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  
+  const handleSendEmail = async () => {
+    const cliente = selectedAppuntamento?.cliente;
+    const orario = selectedAppuntamento?.orari;
+    const commerciale = selectedAppuntamento?.commerciale;
+  
+    if (!cliente?.email) {
+      setToast({ message: t('emailNonDisponibile'), type: 'error' });
+      return;
+    }
+  
+    setIsSending(true);
+  
+    const start = new Date(orario[0]);
+    const end = new Date(orario[orario.length - 1]);
+    end.setMinutes(end.getMinutes() + 30);
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+    const formattedDate = start.toLocaleDateString('it-IT');
+  
+    const html = `
+      <h2>Dettagli appuntamento</h2>
+      <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
+      <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
+      <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
+      <p><strong>Data:</strong> ${formattedDate}</p>
+      <p><strong>Orario:</strong> ${formattedTime}</p>
+      <p><strong>Commerciale:</strong> ${commerciale?.name ?? ''} ${commerciale?.cognome ?? ''} (${commerciale?.societa ?? ''})</p>
+      <p><strong>Note:</strong><br/>${selectedAppuntamento.note ?? ''}</p>
+    `;
+  
+    try {
+      const res = await fetch('/api/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: cliente.email,
+          subject: 'Dettagli Appuntamento',
+          html,
+        }),
+      });
+  
+      if (res.ok) {
+        setToast({ message: t('emailInviata'), type: 'success' });
+      } else {
+        throw new Error('Errore invio email');
+      }
+    } catch (error) {
+      console.error(error);
+      setToast({ message: t('errInvioEmail'), type: 'error' });
+    }
+  
+    setIsSending(false);
+  };
+  
   const fetchSlotsData = async (date: Date, userId: string) => {
     const formattedDate = date.toLocaleDateString('it-IT')
     const available = await getAvailableSlotsByDay(formattedDate, userId)
@@ -183,7 +239,13 @@ const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useT
                   hour: '2-digit',
                   minute: '2-digit',
                 })}`
-
+                useEffect(() => {
+                  if (toast) {
+                    const timer = setTimeout(() => setToast(null), 4000);
+                    return () => clearTimeout(timer);
+                  }
+                }, [toast]);
+                
                 return (
                   <div
                     key={app.id}
@@ -251,13 +313,34 @@ const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useT
               <li><strong>Orari:</strong> {selectedAppuntamento.orari.map((o: string) => new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })).join(', ')}</li>
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
-            <div className="flex justify-end">
-              <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400">{t('chiudi')}</button>
-            </div>
+            <div className="flex justify-end gap-2 mt-4">
+  <button
+    onClick={handleSendEmail}
+    disabled={isSending}
+    className="px-4 py-2 bg-primary text-white rounded-xl hover:bg-primary-dark disabled:opacity-50"
+  >
+    {isSending ? t('invioInCorso') : t('inviaEmail')}
+  </button>
+  <button
+    onClick={() => setSelectedAppuntamento(null)}
+    className="px-4 py-2 bg-gray-300 rounded-xl hover:bg-gray-400"
+  >
+    {t('chiudi')}
+  </button>
+</div>
+
           </div>
+        </div>
+      )}
+      {toast && (
+        <div className={`fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg text-white ${
+          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+        }`}>
+          {toast.message}
         </div>
       )}
     </div>
   )
+  
 }
 export default TimeSlotList
