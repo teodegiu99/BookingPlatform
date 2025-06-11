@@ -85,7 +85,7 @@ function formatOption(app: Appuntamento): Option {
 
   return {
     value: app.id,
-    label: `${orarioStr} - ${app.cliente.azienda} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.commerciale.cognome}`,
+    label: `${orarioStr} - ${app.cliente.azienda} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.commerciale?.cognome ?? ''}`,
     appuntamento: app,
   }
 }

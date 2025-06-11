@@ -1,3 +1,4 @@
+
 import Image from 'next/image';
 import SignOutButton from '../auth/SignoutBtn';
 import Help from './help';
@@ -6,11 +7,11 @@ import LanguageSwitcher from './langSwitch';
 import { auth, signOut } from "@/auth";
 import Link from 'next/link';
 import { headers } from 'next/headers';
-
+import { usePathname } from 'next/navigation'
+import NavSwitch from './navswitch';
 
 const NavBar = async () => {
   const session = await auth();
-  const pathname = headers().get('x-invoke-path') || '';
   if (session?.user.role === 'ADMIN') {
 
   return (
@@ -63,11 +64,8 @@ const NavBar = async () => {
                />
         </div>
         <div className='flex justify-center items-center'>
-        {pathname.includes('/dashboard') ? (
-    <Link href="/calendar" className='text-black font-thin text-sm'>Calendar</Link>
-  ) : (
-    <Link href="/dashboard" className='text-black font-thin text-sm'>Dashboard</Link>
-  )}        <LanguageSwitcher /> 
+        <NavSwitch />
+          <LanguageSwitcher /> 
         <SignOutButton />
         </div>
       </div>

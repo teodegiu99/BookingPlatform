@@ -193,7 +193,12 @@ const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useT
       alert(t('errdel'))
     }
   }
-
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
   return (
     <div className="flex items-center justify-center grow">
       <div className="border p-10 rounded-xl shadow-[5px] space-y-10">
@@ -239,12 +244,7 @@ const TimeSlotList = ({ userId }: { userId: string }) => {    const { t } = useT
                   hour: '2-digit',
                   minute: '2-digit',
                 })}`
-                useEffect(() => {
-                  if (toast) {
-                    const timer = setTimeout(() => setToast(null), 4000);
-                    return () => clearTimeout(timer);
-                  }
-                }, [toast]);
+           
                 
                 return (
                   <div
