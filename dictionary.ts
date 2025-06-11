@@ -62,7 +62,7 @@ export const dictionary = {
       emailInviata: "Email inviata con successo!",
       errInvioEmail: "Errore durante l'invio dell'email.",
       emailNonDisponibile: "Email cliente non disponibile.",
-      
+
     },
     en: {
       calendario: 'Calendar',
