@@ -46,11 +46,14 @@ export async function POST(req: Request) {
             hasSome: body.orario, // slot sovrapposti
           },
         },
+        include: {
+          commerciale: true, // 🔁 Include dati utente
+        },
       });
 
       if (overlapping) {
         return NextResponse.json(
-          { error: `Il commerciale con ID ${invitatoId} ha già un appuntamento in uno degli orari selezionati.` },
+          { error: `Il commerciale ${overlapping.commerciale.cognome} ha già un appuntamento in uno degli orari selezionati.` },
           { status: 400 }
         );
       }
