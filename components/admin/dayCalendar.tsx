@@ -148,20 +148,20 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
               return aVal.localeCompare(bVal);
             })
             .map((com) => {
-              const displayName = com.cognome
+              const displayName = com.name?.charAt(0) ? com.name.charAt(0) + '. ' + com.cognome : com.cognome
                 ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
                 : (com.name ? com.name.charAt(0).toUpperCase() + com.name.slice(1).toLowerCase() : '');
               return (
                 <React.Fragment key={com.id}>
                   {/* Colonna info commerciale */}
                   <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
-                    <Image
+                    {/* <Image
                       src={com.image || '/placeholder.png'}
                       alt={com.name || 'Commerciale'}
                       width={40}
                       height={40}
                       className="rounded-full object-cover"
-                    />
+                    /> */}
                     <button
                       onClick={() => {
                         setSelectedUserId(com.id);

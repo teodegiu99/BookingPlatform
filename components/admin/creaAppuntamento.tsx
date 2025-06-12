@@ -174,7 +174,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
             step={30}
             onChange={(e) => setDurata(parseInt(e.target.value))}
           />
-          <button onClick={addNextSlot} className="px-3 py-1 bg-blue-500 text-white rounded">
+          <button onClick={addNextSlot} className="px-3 py-1 bg-primary text-white rounded">
             Aggiungi slot
           </button>
         </div>
@@ -183,7 +183,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           <button className="px-4 py-2 rounded border" onClick={onClose}>
             Annulla
           </button>
-          <button className="px-4 py-2 rounded bg-blue-600 text-white" onClick={handleSubmit}>
+          <button className="px-4 py-2 rounded bg-primary text-white" onClick={handleSubmit}>
             Crea
           </button>
         </div>
