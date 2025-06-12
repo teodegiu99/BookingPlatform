@@ -63,7 +63,7 @@ const NavBar = async () => {
                className="object-contain"
                />
         </div>
-        <div className='flex justify-center items-center'>
+        <div className='flex justify-center items-center gap-x-4'>
         <NavSwitch />
           <LanguageSwitcher /> 
         <SignOutButton />

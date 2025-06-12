@@ -6,12 +6,16 @@ export default function NavSwitch() {
   const pathname = usePathname()
 
   return pathname.includes('/dashboard') ? (
-    <Link href="/calendar" className="text-black font-thin text-sm">
+    <div className='m-x-8 bg-primary p-2 rounded-[8px]'>
+    <Link href="/calendar" className="text-white font-thin text-sm">
       Calendar
     </Link>
+    </div>
   ) : (
-    <Link href="/dashboard" className="text-black font-thin text-sm">
+    <div className='m-x-8 bg-primary p-2 rounded-[8px]'>
+    <Link href="/dashboard" className="text-white font-thin text-sm">
       Dashboard
     </Link>
+    </div>
   )
 }
