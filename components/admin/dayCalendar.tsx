@@ -97,8 +97,9 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           <FaArrowLeft />
         </button>
         <div className="flex items-center gap-2">
+          {/* qua da andare a modificare per aggiungere il multilingua per i giorni della settimana {t('orario')}*/}
           <h2 className="text-lg font-medium">
-            {selectedDate.toLocaleDateString('it-IT', {
+            {selectedDate.toLocaleDateString(t('ling'), {
               weekday: 'long',
               year: 'numeric',
               month: 'long',

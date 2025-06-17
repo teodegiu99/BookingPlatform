@@ -62,6 +62,7 @@ export const dictionary = {
       emailInviata: "Email inviata con successo!",
       errInvioEmail: "Errore durante l'invio dell'email.",
       emailNonDisponibile: "Email cliente non disponibile.",
+      ling: "it-IT",
 
     },
     en: {
@@ -125,6 +126,8 @@ export const dictionary = {
       emailInviata: "Email sent successfully!",
       errInvioEmail: "Error while sending the email.",
       emailNonDisponibile: "Client email not available.",
+      ling: "en-EN",
+
     },
     
   } as const;
