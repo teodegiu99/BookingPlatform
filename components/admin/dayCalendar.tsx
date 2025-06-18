@@ -12,8 +12,16 @@ import DatePicker from 'react-datepicker';
 import { useTranslation } from "@/lib/useTranslation";
 
 const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
-const formatHour = (h: number) => `${Math.floor(h)}:${h % 1 === 0 ? '00' : '30'}`;
+const formatHour = (h: number) => {
+  const hours = Math.floor(h).toString().padStart(2, '0');
+  const minutes = h % 1 === 0 ? '00' : '30';
+    return `${hours}:${minutes}`;
+  };
 
+const nove = (h: number) => {
+  const hours = Math.floor(h).toString().padStart(2, '0');
+  return hours;
+}; 
 type Appuntamento = {
   id: string;
   orario: string[];
@@ -57,7 +65,8 @@ const isSameDay = (date1: Date, date2: Date) =>
 
 const formatAppointmentHour = (iso: string) => {
   const d = new Date(iso);
-  return `${d.getHours()}:${d.getMinutes() === 0 ? '00' : '30'}`;
+  // console.log(`${d.getHours()}:${d.getMinutes() === 0 ? '00' : '30'}`);
+  return `${nove(d.getHours())}:${d.getMinutes() === 0 ? '00' : '30'}`;
 };
 
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
@@ -214,7 +223,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                               {(() => {
                                 const last = new Date(occupied.orario[occupied.orario.length - 1]);
                                 last.setMinutes(last.getMinutes() + 30);
-                                return `${last.getHours()}:${last.getMinutes() === 0 ? '00' : '30'}`;
+                                return `${nove(last.getHours())}:${last.getMinutes() === 0 ? '00' : '30'}`;1
                               })()}
                             </div>
                           </div>
