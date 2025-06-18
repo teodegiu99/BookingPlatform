@@ -99,16 +99,16 @@ export async function POST(req: Request) {
         invitati, // array di id stringa
       },
     });
-    await db.appuntamento.create({
-      data: {
-        orario,
-        commercialeId,
-        clienteId: existingCliente.id,
-        note,
-        ownerId: commercialeId,
-        invitati, 
-      }
-    });
+    // await db.appuntamento.create({
+    //   data: {
+    //     orario,
+    //     commercialeId,
+    //     clienteId: existingCliente.id,
+    //     note,
+    //     ownerId: commercialeId,
+    //     invitati, 
+    //   }
+    // });
     // Crea appuntamenti duplicati per ogni invitato (escludendo il creatore)
     for (const invitatoId of invitati) {
       if (invitatoId === commercialeId) continue;
