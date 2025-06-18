@@ -15,7 +15,7 @@ const NavBar = async () => {
   if (session?.user.role === 'ADMIN') {
 
   return (
-    <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
+    <div className='absolute flex w-full h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
       <div className='p-4'><Help /></div>
       
       <div className='flex justify-center items-center'>
