@@ -228,7 +228,7 @@ type Option = {
   appuntamento: Appuntamento
 }
 
-function formatOrario(orario: string[]): string {
+function formatOrario(orario: string[], t: string): string {
   if (!orario || orario.length === 0) return ''
   const start = new Date(orario[0])
   const end = new Date(orario[orario.length - 1])
@@ -242,7 +242,7 @@ function formatOrario(orario: string[]): string {
     minute: '2-digit',
   })}`
 
-  const dateStr = start.toLocaleDateString('it-IT', {
+  const dateStr = start.toLocaleDateString(t, {
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',
@@ -269,7 +269,7 @@ export default function AppointmentSearch() {
 
   const formatOption = useCallback((app: Appuntamento): Option => ({
     value: app.id,
-    label: `${formatOrario(app.orario ?? [])} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.cliente.azienda} - ${app.cliente.email}`,
+    label: `${formatOrario(app.orario ?? [], t("ling"))} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.cliente.azienda} - ${app.cliente.email}`,
     appuntamento: app,
   }), [])
 
@@ -331,7 +331,7 @@ export default function AppointmentSearch() {
           {selectedApp.orario && (
             <p className="flex items-center gap-2">
               <PiCalendarDotsLight className="text-primary" />
-              <span>{t('orario')}: {formatOrario(selectedApp.orario)}</span>
+              <span>{t('orario')}: {formatOrario(selectedApp.orario, t('ling'))}</span>
             </p>
           )}
           <p className="flex items-center gap-2">

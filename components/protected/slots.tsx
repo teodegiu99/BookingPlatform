@@ -240,13 +240,13 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
               <li><strong>{t('azienda')}:</strong> {selectedAppuntamento.cliente.azienda}</li>
               <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>
               <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>
-              <li><strong>Orari:</strong> {selectedAppuntamento.orari.map((o: string) =>
+              <li><strong>{t('orari')}:</strong> {selectedAppuntamento.orari.map((o: string) =>
                 new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
               ).join(', ')}</li>
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end gap-2">
-            <button onClick={() => console.log("sent")} className="px-4 py-2 bg-gray-300 rounded-xl">
+            <button onClick={() => console.log("sent")} className="px-4 py-2 bg-primary text-white rounded-xl">
                 {t('inviaEmail')}
               </button>
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
