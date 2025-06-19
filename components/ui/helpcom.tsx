@@ -13,8 +13,8 @@ const Helpcom = () => {
   const { t } = useTranslation()
 
   const items = [
-    { title: 'domanda1', content: 'risposta1' },
-    { title: 'domanda2', content: 'risposta2' },];
+    { title: t('domanda1'), content: t('risposta1') },
+    { title: t('domanda2'), content: t('risposta2') },];
    
   return (
     <>
