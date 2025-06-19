@@ -246,6 +246,9 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end gap-2">
+            <button onClick={() => console.log("sent")} className="px-4 py-2 bg-gray-300 rounded-xl">
+                {t('inviaEmail')}
+              </button>
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
                 {t('chiudi')}
               </button>

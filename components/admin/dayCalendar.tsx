@@ -158,9 +158,10 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
               return aVal.localeCompare(bVal);
             })
             .map((com) => {
-              const displayName = com.name?.charAt(0) ? com.name.charAt(0) + '. ' + com.cognome : com.cognome
-                ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
-                : (com.name ? com.name.charAt(0).toUpperCase() + com.name.slice(1).toLowerCase() : '');
+              // const displayName = com.name?.charAt(0) ? com.name.charAt(0) + '. ' + com.cognome : com.cognome
+              //   ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
+              //   : (com.name ? com.name.charAt(0).toUpperCase() + com.name.slice(1).toLowerCase() : '');
+              const displayName = com.cognome?.charAt(0).toUpperCase() + " " +  com.name?.charAt(0).toUpperCase()
               return (
                 <React.Fragment key={com.id}>
                   {/* Colonna info commerciale */}
