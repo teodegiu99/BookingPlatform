@@ -3,16 +3,19 @@ import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { IoIosHelpCircleOutline } from "react-icons/io";
+import { useTranslation } from "@/lib/useTranslation"
 
 
-const items = [
-  { title: 'Creare un appuntamento', content: 'Seleziona il giorno sul calendario, e scegli uno degli slot disponibili. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia sulla mail aziendale che al cliente' },
-  { title: 'Trovare un appuntamento prenotato', content: 'Per vedere i dettagli si un appuntamento clicca sugli slot occupati oppure cercalo nella barra di ricerca filtrando per azienda, nome cliente, email o data.' },];
- 
 
 const Helpcom = () => {
+  
     const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation()
 
+  const items = [
+    { title: 'domanda1', content: 'risposta1' },
+    { title: 'domanda2', content: 'risposta2' },];
+   
   return (
     <>
     <div>
