@@ -196,8 +196,8 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
               {t('aggiungislot')}
             </button>
             <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
-              <input name="nome" placeholder={t('nome')} required className="border rounded p-2" />
-              <input name="cognome" placeholder={t('cognome')} required className="border rounded p-2" />
+              <input name="nome" placeholder={t('nome')} className="border rounded p-2" />
+              <input name="cognome" placeholder={t('cognome')} className="border rounded p-2" />
               <input name="telefono" placeholder={t('telefono')} className="border rounded p-2" />
               <input name="email" type="email" placeholder="Email *" required className="border rounded p-2" />
               <input name="azienda" placeholder={t('aziendaast')} required className="border rounded p-2" />
