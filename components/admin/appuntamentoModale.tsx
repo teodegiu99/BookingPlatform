@@ -30,6 +30,7 @@ type Props = {
       societa: string | null;
     };
     ownerId: string; // <-- aggiornato campo
+    commercialeId: string; // <-- aggiunto per invio email
     invitati?: string[]; 
     orario: string[];
     note: string;
@@ -71,12 +72,19 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       setToast({ message: t('emailNonDisponibile'), type: 'error' });
       return;
     }
-  
-    const destinatariIds = [
-      appuntamento.ownerId,
+  let destinatariIds: string[] = [];
+  if (appuntamento.commercialeId === appuntamento.ownerId) {
+     destinatariIds = [
+      appuntamento.commercialeId,
       ...(appuntamento.invitati ?? []),
     ];
-  
+  } else{
+     destinatariIds = [
+      appuntamento.commercialeId,
+      appuntamento.ownerId, // Aggiungi l'ownerId per inviare a chi ha creato l'appuntamento
+      ...(appuntamento.invitati ?? []),
+    ];
+  }
     try {
       const emailRes = await fetch('/api/users', {
         method: 'POST',
