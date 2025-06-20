@@ -29,6 +29,8 @@ type Props = {
       cognome: string | null;
       societa: string | null;
     };
+    commercialeId: string; // <-- nuovo campo
+    invitati?: string[]; 
     orario: string[];
     note: string;
   };
@@ -69,51 +71,75 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       setToast({ message: t('emailNonDisponibile'), type: 'error' });
       return;
     }
-
-    setIsSending(true);
-
-    const start = new Date(orario[0]);
-    const end = new Date(orario[orario.length - 1]);
-    end.setMinutes(end.getMinutes() + 30);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-    const formattedDate = start.toLocaleDateString('it-IT');
-
-    const html = `
-      <h2>Dettagli appuntamento</h2>
-      <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
-      <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
-      <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
-      <p><strong>Data:</strong> ${formattedDate}</p>
-      <p><strong>Orario:</strong> ${formattedTime}</p>
-      <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
-      <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
-    `;
-
+  
+    const destinatariIds = [
+      appuntamento.commercialeId,
+      ...(appuntamento.invitati ?? []),
+    ];
+  
     try {
-      const res = await fetch('/api/sendMail', {
+      const emailRes = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          to: cliente.email,
-          subject: 'Dettagli Appuntamento',
-          html,
-        }),
+        body: JSON.stringify({ ids: destinatariIds }),
       });
-
-      if (res.ok) {
-        setToast({ message: t('emailInviata'), type: 'success' });
-      } else {
-        throw new Error('Errore invio email');
+  
+      const data = await emailRes.json();
+  
+      if (!emailRes.ok || !Array.isArray(data.emails)) {
+        throw new Error('Errore nel recupero delle email');
       }
+  
+      const emailsToSend = data.emails;
+  
+      setIsSending(true);
+  
+      const start = new Date(orario[0]);
+      const end = new Date(orario[orario.length - 1]);
+      end.setMinutes(end.getMinutes() + 30);
+      const pad = (n: number) => n.toString().padStart(2, '0');
+      const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+      const formattedDate = start.toLocaleDateString('it-IT');
+  
+      const html = `
+        <h2>Dettagli appuntamento</h2>
+        <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
+        <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
+        <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
+        <p><strong>Data:</strong> ${formattedDate}</p>
+        <p><strong>Orario:</strong> ${formattedTime}</p>
+        <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
+        <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
+      `;
+  
+      try {
+        const res = await fetch('/api/sendMail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: [cliente.email, ...emailsToSend].filter(Boolean),
+            subject: 'Dettagli Appuntamento',
+            html,
+          }),
+        });
+  
+        if (res.ok) {
+          setToast({ message: t('emailInviata'), type: 'success' });
+        } else {
+          throw new Error('Errore invio email');
+        }
+      } catch (error) {
+        console.error(error);
+        setToast({ message: t('errInvioEmail'), type: 'error' });
+      }
+  
+      setIsSending(false);
     } catch (error) {
       console.error(error);
       setToast({ message: t('errInvioEmail'), type: 'error' });
+      setIsSending(false);
     }
-
-    setIsSending(false);
   };
-
   // Toast auto-dismiss
   useEffect(() => {
     if (toast) {

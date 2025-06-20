@@ -42,8 +42,8 @@ export async function POST(req: Request) {
     });
 
     await transporter.sendMail({
-      from: process.env.MAIL_FROM || 'noreply@tuaazienda.it', // Deve esistere in Exchange
-      to: to.trim(),
+      from: process.env.MAIL_FROM || 'noreply@baruffa.com', // Deve esistere in Exchange
+      to: to,
       subject,
       html,
     });

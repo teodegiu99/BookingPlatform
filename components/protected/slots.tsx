@@ -123,6 +123,10 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
     mutate();
   };
 
+const user = session?.user.role;
+
+
+
   const handleSlotClick = (slot: Date) => openModal(slot);
 
   const handleBookedClick = (app: any) => setSelectedAppuntamento(app);
@@ -147,6 +151,58 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
     }
   }, [toast]);
 
+
+
+  // const handleSendEmail = async () => {
+  //   if (!cliente.email) {
+  //     setToast({ message: t('emailNonDisponibile'), type: 'error' });
+  //     return;
+  //   }
+
+  //   setIsSending(true);
+
+  //   const start = new Date(orario[0]);
+  //   const end = new Date(orario[orario.length - 1]);
+  //   end.setMinutes(end.getMinutes() + 30);
+  //   const pad = (n: number) => n.toString().padStart(2, '0');
+  //   const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+  //   const formattedDate = start.toLocaleDateString('it-IT');
+
+  //   const html = `
+  //     <h2>Dettagli appuntamento</h2>
+  //     <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
+  //     <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
+  //     <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
+  //     <p><strong>Data:</strong> ${formattedDate}</p>
+  //     <p><strong>Orario:</strong> ${formattedTime}</p>
+  //     <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
+  //     <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
+  //   `;
+
+  //   try {
+  //     const res = await fetch('/api/sendMail', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         to: cliente.email,
+  //         subject: 'Dettagli Appuntamento',
+  //         html,
+  //       }),
+  //     });
+
+  //     if (res.ok) {
+  //       setToast({ message: t('emailInviata'), type: 'success' });
+  //     } else {
+  //       throw new Error('Errore invio email');
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     setToast({ message: t('errInvioEmail'), type: 'error' });
+  //   }
+
+  //   setIsSending(false);
+  // };
+  
   return (
     <div className="flex items-center justify-center grow">
       <div className="border p-10 rounded-xl shadow space-y-10">
@@ -246,9 +302,9 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end gap-2">
-            <button onClick={() => console.log("sent")} className="px-4 py-2 bg-primary text-white rounded-xl">
+        { user === 'SUSER' &&   <button onClick={() => console.log("sent")} className="px-4 py-2 bg-primary text-white rounded-xl">
                 {t('inviaEmail')}
-              </button>
+              </button>}
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
                 {t('chiudi')}
               </button>
