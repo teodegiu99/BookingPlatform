@@ -120,7 +120,7 @@ export async function POST(req: Request) {
           clienteId: existingCliente.id,
           note,
           ownerId: commercialeId,
-          invitati: [], // nei duplicati lasciamo vuoto
+          invitati, 
         },
       });
     }

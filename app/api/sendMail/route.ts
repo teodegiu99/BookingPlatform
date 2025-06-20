@@ -40,7 +40,7 @@ export async function POST(req: Request) {
         rejectUnauthorized: false,        // se usi certificati self-signed
       },
     });
-
+    console.log(to);
     await transporter.sendMail({
       from: process.env.MAIL_FROM || 'noreply@baruffa.com', // Deve esistere in Exchange
       to: to,

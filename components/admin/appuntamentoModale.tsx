@@ -29,7 +29,7 @@ type Props = {
       cognome: string | null;
       societa: string | null;
     };
-    commercialeId: string; // <-- nuovo campo
+    ownerId: string; // <-- aggiornato campo
     invitati?: string[]; 
     orario: string[];
     note: string;
@@ -73,7 +73,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
     }
   
     const destinatariIds = [
-      appuntamento.commercialeId,
+      appuntamento.ownerId,
       ...(appuntamento.invitati ?? []),
     ];
   
@@ -122,7 +122,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
             html,
           }),
         });
-  
+  console.log('Invio email a:', [cliente.email, ...emailsToSend].filter(Boolean));
         if (res.ok) {
           setToast({ message: t('emailInviata'), type: 'success' });
         } else {
@@ -184,10 +184,10 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
                   <span className='font-semibold'>{t('ruolo')}:</span> {cliente.ruolo}
                 </p>
               )}
-              <p className='flex gap-x-2 mb-3 items-center'>
+              {/* <p className='flex gap-x-2 mb-3 items-center'>
                 <FaBuildingUser className="text-primary text-lg" />
                 <span className='font-semibold'>{t('commerciale')}:</span> {commerciale.name} {commerciale.cognome}
-              </p>
+              </p> */}
               <p className='flex gap-x-2 mb-3 items-center'>
                 <PiClockLight className="text-primary text-lg" />
                 <span className='font-semibold'>{t('quando')}:</span>

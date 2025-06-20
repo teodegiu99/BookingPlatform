@@ -26,7 +26,7 @@ type Appuntamento = {
   id: string;
   orario: string[];
   note: string;
-  commercialeId: string;
+  ownerId: string; // <-- aggiornato campo
   invitati?: string[];  //forse rompo tutto
   cliente: {
     nome: string | null;
