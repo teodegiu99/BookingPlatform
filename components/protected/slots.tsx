@@ -152,56 +152,42 @@ const user = session?.user.role;
   }, [toast]);
 
 
+  const handleSendMail = async () => {
+    if (!selectedAppuntamento) return;
+  
+    const destinatari = [
+      selectedAppuntamento.cliente.email,
+      ...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []),
+      session?.user.email,
+    ].filter(Boolean); // Rimuove eventuali `undefined` o `null`
+  console.log(destinatari);
+    const res = await fetch('/api/sendMail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        to: destinatari,
+        subject: 'Dettagli appuntamento',
+        html: `
+        <p>Hai un appuntamento con <strong>${selectedAppuntamento.cliente.nome} ${selectedAppuntamento.cliente.cognome}</strong></p>
+        <p><strong>Data:</strong> ${selectedDate.toLocaleDateString()}</p>
+        <p><strong>Orario:</strong> ${formatTimeRange()}</p>
+      `,
+          }),
+    });
+  
+    const result = await res.json();
+    if (result.success) {
+      setToast({ message: 'Email inviata con successo', type: 'success' });
+    } else {
+      setToast({ message: 'Errore durante l\'invio dell\'email', type: 'error' });
+    }
+  };
 
-  // const handleSendEmail = async () => {
-  //   if (!cliente.email) {
-  //     setToast({ message: t('emailNonDisponibile'), type: 'error' });
-  //     return;
-  //   }
 
-  //   setIsSending(true);
 
-  //   const start = new Date(orario[0]);
-  //   const end = new Date(orario[orario.length - 1]);
-  //   end.setMinutes(end.getMinutes() + 30);
-  //   const pad = (n: number) => n.toString().padStart(2, '0');
-  //   const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-  //   const formattedDate = start.toLocaleDateString('it-IT');
 
-  //   const html = `
-  //     <h2>Dettagli appuntamento</h2>
-  //     <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
-  //     <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
-  //     <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
-  //     <p><strong>Data:</strong> ${formattedDate}</p>
-  //     <p><strong>Orario:</strong> ${formattedTime}</p>
-  //     <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
-  //     <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
-  //   `;
 
-  //   try {
-  //     const res = await fetch('/api/sendMail', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         to: cliente.email,
-  //         subject: 'Dettagli Appuntamento',
-  //         html,
-  //       }),
-  //     });
 
-  //     if (res.ok) {
-  //       setToast({ message: t('emailInviata'), type: 'success' });
-  //     } else {
-  //       throw new Error('Errore invio email');
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setToast({ message: t('errInvioEmail'), type: 'error' });
-  //   }
-
-  //   setIsSending(false);
-  // };
   
   return (
     <div className="flex items-center justify-center grow">
@@ -302,7 +288,7 @@ const user = session?.user.role;
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end gap-2">
-        { user === 'SUSER' &&   <button onClick={() => console.log("sent")} className="px-4 py-2 bg-primary text-white rounded-xl">
+        { user === 'SUSER' &&   <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}
                 {t('inviaEmail')}
               </button>}
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
@@ -325,3 +311,67 @@ const user = session?.user.role;
 };
 
 export default TimeSlotList;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // const handleSendEmail = async () => {
+  //   if (!cliente.email) {
+  //     setToast({ message: t('emailNonDisponibile'), type: 'error' });
+  //     return;
+  //   }
+
+  //   setIsSending(true);
+
+  //   const start = new Date(orario[0]);
+  //   const end = new Date(orario[orario.length - 1]);
+  //   end.setMinutes(end.getMinutes() + 30);
+  //   const pad = (n: number) => n.toString().padStart(2, '0');
+  //   const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
+  //   const formattedDate = start.toLocaleDateString('it-IT');
+
+  //   const html = `
+  //     <h2>Dettagli appuntamento</h2>
+  //     <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
+  //     <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
+  //     <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
+  //     <p><strong>Data:</strong> ${formattedDate}</p>
+  //     <p><strong>Orario:</strong> ${formattedTime}</p>
+  //     <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
+  //     <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
+  //   `;
+
+  //   try {
+  //     const res = await fetch('/api/sendMail', {
+  //       method: 'POST',
+  //       headers: { 'Content-Type': 'application/json' },
+  //       body: JSON.stringify({
+  //         to: cliente.email,
+  //         subject: 'Dettagli Appuntamento',
+  //         html,
+  //       }),
+  //     });
+
+  //     if (res.ok) {
+  //       setToast({ message: t('emailInviata'), type: 'success' });
+  //     } else {
+  //       throw new Error('Errore invio email');
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     setToast({ message: t('errInvioEmail'), type: 'error' });
+  //   }
+
+  //   setIsSending(false);
+  // };
