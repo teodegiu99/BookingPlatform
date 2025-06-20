@@ -10,32 +10,47 @@ export async function getAppuntamentiByCommerciale(commercialeId: string) {
     include: {
       cliente: true,
     },
-  })
+  });
 
-  return appuntamenti.map(app => ({
-    id: app.id,
-    orari: app.orario,
-    cliente: app.cliente,
-    note: app.note,
-  }))
+  return await Promise.all(appuntamenti.map(async app => {
+    const invitati = await db.user.findMany({
+      where: {
+        id: {
+          in: app.invitati,
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+      },
+    });
+
+    return {
+      id: app.id,
+      orari: app.orario,
+      cliente: app.cliente,
+      note: app.note,
+      invitati, // Array di oggetti con id ed email
+    };
+  }));
 }
 
-
 export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, date: Date) {
-    const all = await getAppuntamentiByCommerciale(commercialeId)
-    const formatted = date.toLocaleDateString('it-IT')
-  
-    return all
-      .filter(app =>
-        app.orari.some((orario: string) => {
-          const d = new Date(orario)
-          return d.toLocaleDateString('it-IT') === formatted
-        })
-      )
-      .map(app => ({
-        id: app.id, 
-        orari: app.orari,
-        cliente: app.cliente,
-        note: app.note,
-      }))
-  }
+  const all = await getAppuntamentiByCommerciale(commercialeId);
+  const formatted = date.toLocaleDateString('it-IT');
+
+  return all
+    .filter(app =>
+      app.orari.some((orario: string) => {
+        const d = new Date(orario);
+        return d.toLocaleDateString('it-IT') === formatted;
+      })
+    )
+    .map(app => ({
+      id: app.id,
+      orari: app.orari,
+      cliente: app.cliente,
+      note: app.note,
+      invitati: app.invitati, // Include { id, email }
+    }));
+}
