@@ -160,6 +160,7 @@ const user = session?.user.role;
       ...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []),
       session?.user.email,
     ].filter(Boolean); // Rimuove eventuali `undefined` o `null`
+    console.log(...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []))
     console.log(selectedAppuntamento.invitati);
     console.log(destinatari);
     const res = await fetch('/api/sendMail', {
