@@ -112,7 +112,7 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
     });
 
     if(user === 'USER') {
-      handleSendMail();
+      await handleSendMail();
     }
 
     if (!res.success) {
