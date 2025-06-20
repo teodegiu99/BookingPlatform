@@ -113,7 +113,7 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
 
     if(user === 'USER') {
       console.log(' invio email per utenti normali');
-      await handleSendMail();
+       handleSendMail
     }
 
     if (!res.success) {
