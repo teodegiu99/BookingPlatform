@@ -111,10 +111,7 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
       invitatiIds: selectedInvitati.map((i) => i.value),
     });
 
-    if(user === 'USER') {
-      console.log(' invio email per utenti normali');
-       handleSendMail
-    }
+  
 
     if (!res.success) {
       setToast({ message: res.message ?? 'Errore sconosciuto', type: 'error' });
@@ -296,8 +293,8 @@ const user = session?.user.role;
               <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
             </ul>
             <div className="flex justify-end gap-2">
-        { user === 'SUSER' &&   <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}
-              </button>}
+    <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}
+              </button>
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
                 {t('chiudi')}
               </button>
