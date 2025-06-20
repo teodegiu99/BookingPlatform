@@ -111,6 +111,10 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
       invitatiIds: selectedInvitati.map((i) => i.value),
     });
 
+    if(user === 'USER') {
+      handleSendMail();
+    }
+
     if (!res.success) {
       setToast({ message: res.message ?? 'Errore sconosciuto', type: 'error' });
       return;
