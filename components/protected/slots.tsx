@@ -160,7 +160,8 @@ const user = session?.user.role;
       ...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []),
       session?.user.email,
     ].filter(Boolean); // Rimuove eventuali `undefined` o `null`
-  console.log(destinatari);
+    console.log(selectedAppuntamento.invitati);
+    console.log(destinatari);
     const res = await fetch('/api/sendMail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -289,7 +290,6 @@ const user = session?.user.role;
             </ul>
             <div className="flex justify-end gap-2">
         { user === 'SUSER' &&   <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}
-                {t('inviaEmail')}
               </button>}
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
                 {t('chiudi')}
