@@ -173,10 +173,36 @@ const user = session?.user.role;
         to: destinatari,
         subject: 'Dettagli appuntamento',
         html: `
-        <p>Hai un appuntamento con <strong>${selectedAppuntamento.cliente.nome} ${selectedAppuntamento.cliente.cognome}</strong></p>
-        <p><strong>Data:</strong> ${selectedDate.toLocaleDateString()}</p>
-        <p><strong>Orario:</strong> ${formatTimeRange()}</p>
+             <h2>Appointment Confirmation</h2>
+
+      <p>
+        Dear ${selectedAppuntamento.cliente.nome ?? ''} ${selectedAppuntamento.cliente.cognome ?? ''},
+      </p>
+      
+      <p>
+        This is to confirm your appointment scheduled as follows:
+      </p>
+      
+      <ul>
+        <li><strong>Date:</strong>${selectedDate.toLocaleDateString()}</li>
+        <li><strong>Time:</strong>${formatTimeRange()}</li>
+      </ul>
+      
+      
+      
+      <p>
+        Best regards,<br/>
+      </p>
+      
       `,
+
+
+
+
+
+
+
+
           }),
     });
   
