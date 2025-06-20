@@ -163,6 +163,7 @@ const user = session?.user.role;
     console.log(...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []))
     console.log(selectedAppuntamento.invitati);
     console.log(destinatari);
+    console.log(selectedAppuntamento);
     const res = await fetch('/api/sendMail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
