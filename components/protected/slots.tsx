@@ -16,6 +16,13 @@ import { useTranslation } from '@/lib/useTranslation';
 
 type UserOption = { value: string; label: string };
 
+type Commerciale = {
+  id: string;
+  name: string;
+  cognome: string;
+  email: string;
+};
+
 export const dynamic = 'force-dynamic';
 
 const TimeSlotList = ({ userId }: { userId: string }) => {
@@ -29,8 +36,8 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
   const [selectedInvitati, setSelectedInvitati] = useState<UserOption[]>([]);
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<any | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
-
-  const fetchSlotsData = async () => {
+  const [commerciale, setCommerciale] = useState<Commerciale | null>(null);
+    const fetchSlotsData = async () => {
     const formattedDate = selectedDate.toLocaleDateString('it-IT');
     const available = await getAvailableSlotsByDay(formattedDate, userId);
     const allApp = await getAppuntamentiByDayAndCommerciale(userId, selectedDate);
@@ -70,6 +77,13 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
     setIsModalOpen(false);
     setSelectedSlots([]);
   };
+
+  useEffect(() => {
+    fetch("/api/user")
+      .then((r) => r.json())
+      .then((data) => setCommerciale(data));
+    console.log(commerciale);
+  }, []);
 
   const addNextSlot = () => {
     if (selectedSlots.length === 0) return;
@@ -202,6 +216,7 @@ const user = session?.user.role;
       
       <p>
         Best regards,<br/>
+       ${commerciale?.name || ''} ${commerciale?.cognome || ''}<br/>
       </p>
       
       `,
@@ -353,65 +368,3 @@ const user = session?.user.role;
 export default TimeSlotList;
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-  // const handleSendEmail = async () => {
-  //   if (!cliente.email) {
-  //     setToast({ message: t('emailNonDisponibile'), type: 'error' });
-  //     return;
-  //   }
-
-  //   setIsSending(true);
-
-  //   const start = new Date(orario[0]);
-  //   const end = new Date(orario[orario.length - 1]);
-  //   end.setMinutes(end.getMinutes() + 30);
-  //   const pad = (n: number) => n.toString().padStart(2, '0');
-  //   const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-  //   const formattedDate = start.toLocaleDateString('it-IT');
-
-  //   const html = `
-  //     <h2>Dettagli appuntamento</h2>
-  //     <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
-  //     <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
-  //     <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
-  //     <p><strong>Data:</strong> ${formattedDate}</p>
-  //     <p><strong>Orario:</strong> ${formattedTime}</p>
-  //     <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} (${commerciale.societa ?? ''})</p>
-  //     <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
-  //   `;
-
-  //   try {
-  //     const res = await fetch('/api/sendMail', {
-  //       method: 'POST',
-  //       headers: { 'Content-Type': 'application/json' },
-  //       body: JSON.stringify({
-  //         to: cliente.email,
-  //         subject: 'Dettagli Appuntamento',
-  //         html,
-  //       }),
-  //     });
-
-  //     if (res.ok) {
-  //       setToast({ message: t('emailInviata'), type: 'success' });
-  //     } else {
-  //       throw new Error('Errore invio email');
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setToast({ message: t('errInvioEmail'), type: 'error' });
-  //   }
-
-  //   setIsSending(false);
-  // };

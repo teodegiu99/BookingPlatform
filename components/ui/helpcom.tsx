@@ -53,7 +53,7 @@ const Helpcom = () => {
           >
             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
               <Dialog.Title className="text-lg font-medium text-gray-900">
-                Guida
+                {t('Guida')}
               </Dialog.Title>
 
               <div className="mt-4 space-y-2">

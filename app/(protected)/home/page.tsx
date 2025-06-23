@@ -7,11 +7,13 @@ import AppointmentSearch from "@/components/protected/AppointmentSearch"
 import { auth, signOut } from "@/auth";
 import DashboardPage from "@/app/dashboard/page"
 import Calendar from "@/app/calendar/page"
+import NavBar from "@/components/ui/navbar"
 const Home = async () => {
   const session = await auth();
 
   if (session?.user.role === 'ADMIN') {
     return (
+      
     <DashboardPage />
     )
   } else {

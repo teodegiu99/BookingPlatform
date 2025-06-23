@@ -27,7 +27,7 @@ export default function RootLayout({
     <html lang="en">
                   
 
-      <body className={poppins.className}><Providers><NavBar />{children}</Providers></body>
+      <body className={poppins.className}><Providers><NavBar /><div className="pt-16">{children}</div></Providers></body>
 
     </html>
   );
