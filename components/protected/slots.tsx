@@ -210,6 +210,7 @@ const user = session?.user.role;
       <ul>
         <li><strong>Date:</strong>${selectedDate.toLocaleDateString()}</li>
         <li><strong>Time:</strong>${timeRange}</li>
+        <li><strong>Representative:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
       </ul>
       
       
