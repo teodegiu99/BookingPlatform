@@ -23,7 +23,6 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
   const { selectedDate } = useDate();
   const { data: session } = useSession();
   const formRef = useRef<HTMLFormElement>(null);
-
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [invitatiOptions, setInvitatiOptions] = useState<UserOption[]>([]);
@@ -85,6 +84,15 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
       }
     }
   };
+
+  const getTimeRangeFromAppuntamento = (app: any) => {
+    if (!app.orari || app.orari.length === 0) return '';
+    const start = new Date(app.orari[0]);
+    const end = new Date(app.orari[app.orari.length - 1]);
+    end.setMinutes(end.getMinutes() + 30);
+    return `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
 
   const formatTimeRange = () => {
     if (selectedSlots.length === 0) return '';
@@ -166,6 +174,8 @@ const user = session?.user.role;
     console.log(selectedAppuntamento.invitati);
     console.log(destinatari);
     console.log(selectedAppuntamento);
+    const timeRange = getTimeRangeFromAppuntamento(selectedAppuntamento);
+
     const res = await fetch('/api/sendMail', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -185,7 +195,7 @@ const user = session?.user.role;
       
       <ul>
         <li><strong>Date:</strong>${selectedDate.toLocaleDateString()}</li>
-        <li><strong>Time:</strong>${formatTimeRange()}</li>
+        <li><strong>Time:</strong>${timeRange}</li>
       </ul>
       
       
