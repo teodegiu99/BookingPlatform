@@ -145,7 +145,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: [cliente.email, ...emailsToSend].filter(Boolean),
-            subject: 'Dettagli Appuntamento',
+            subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
             html,
           }),
         });

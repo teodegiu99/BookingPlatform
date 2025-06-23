@@ -181,7 +181,7 @@ const user = session?.user.role;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         to: destinatari,
-        subject: 'Dettagli appuntamento',
+        subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
         html: `
              <h2>Appointment Confirmation</h2>
 
