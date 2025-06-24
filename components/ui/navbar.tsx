@@ -5,9 +5,7 @@ import Help from './help';
 import Helpcom from './helpcom';
 import LanguageSwitcher from './langSwitch';
 import { auth, signOut } from "@/auth";
-import Link from 'next/link';
-import { headers } from 'next/headers';
-import { usePathname } from 'next/navigation'
+import HelpSwitch from './helpSwitch';
 import NavSwitch from './navswitch';
 
 const NavBar = async () => {
@@ -16,7 +14,7 @@ const NavBar = async () => {
 
   return (
     <div className='fixed top-0 left-0 right-0 flex w-full h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden z/10'>
-      <div className='p-4'><Help /></div>
+      <div className='p-4'><HelpSwitch /></div>
       
       <div className='flex justify-center items-center'>
         <Image src="/logo-black.svg"
@@ -35,7 +33,7 @@ const NavBar = async () => {
   )}else if (session?.user.role === 'USER'){
     return (
       <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
-        <div className='p-4'><Helpcom /></div>
+        <div className='p-4'><HelpSwitch /></div>
         
         <div className='flex justify-center items-center'>
           <Image src="/logo-black.svg"
@@ -53,7 +51,7 @@ const NavBar = async () => {
   )}else if (session?.user.role === 'SUSER'){
     return (
       <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
-        <div className='p-4'><Help /></div>
+        <div className='p-4'><HelpSwitch /></div>
         
         <div className='flex justify-center items-center'>
           <Image src="/logo-black.svg"

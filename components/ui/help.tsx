@@ -3,17 +3,22 @@ import { Dialog, Transition, Disclosure } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { ChevronUpIcon } from '@heroicons/react/20/solid';
 import { IoIosHelpCircleOutline } from "react-icons/io";
+import { PiPhoneThin } from "react-icons/pi";
+import { TfiEmail } from "react-icons/tfi";
+import { useTranslation } from "@/lib/useTranslation"
 
 
 
- const items = [
+
+const Help = () => {
+    const [isOpen, setIsOpen] = useState(false);
+  const { t } = useTranslation()
+
+  const items = [
     { title: 'Creare un appuntamento', content: 'Scegli la riga del commerciale e clicca sul riquadro in cui vorresti piazzare l\' appuntamento. Compila i campi richiesti \(Solo la mail e l\'azienda sono obbligatori\) e clicca su invia. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia al commerciale che al cliente' },
     { title: 'Impostare il colore di un commerciale', content: 'Clicca sul nome del commerciale e seleziona il colore. Una volta assegnato il colore al commerciale, non sarà più neccessario riperterlo per ogni appuntamento.' },
     { title: 'Come trovo un appuntamento', content: 'Clicca sulla barra di ricerca, e cerca in base al nome del commerciale, per azienda, nome del cliente o email.' },
   ];
-
-const Help = () => {
-    const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
@@ -52,7 +57,7 @@ const Help = () => {
           >
             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
               <Dialog.Title className="text-lg font-medium text-gray-900">
-                Guida
+              {t('Guida')}
               </Dialog.Title>
 
               <div className="mt-4 space-y-2">
@@ -74,14 +79,32 @@ const Help = () => {
 </Disclosure>
 ))}
 </div>
-              <div className="mt-6 flex justify-end">
-                <button
-                  onClick={() => setIsOpen(false)}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
-                >
-                  Chiudi
-                </button>
-              </div>
+                <div className='flex justify-between items-end mt-6'>
+                <div className="mt-6 flex flex-col items-start space-y-2 text-sm">
+               <div className="text-sm">{t('contact')}</div>
+             
+               <div className="flex flex-col gap-y-1 text-xs">
+                 <div className="flex items-center gap-x-1">
+                   <TfiEmail className="text-primary" />
+                   <span>matteo.degiuseppe@baruffa.com</span>
+                 </div>
+                 <div className="flex items-center gap-x-1">
+                   <PiPhoneThin className="text-primary" />
+                   <span>015700220</span>
+                 </div>
+               </div>
+             
+              
+             </div>
+             <div className="flex justify-end">
+             <button
+                 onClick={() => setIsOpen(false)}
+                 className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 "
+               >
+                 {t('chiudi')}
+               </button>
+               </div>
+               </div>
             </Dialog.Panel>
           </Transition.Child>
         </div>

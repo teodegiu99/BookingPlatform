@@ -46,15 +46,15 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
   const end = new Date(nextApp.orario[nextApp.orario.length - 1])
   end.setMinutes(end.getMinutes() + 30)
 
-  const timeRange = `${start.toLocaleTimeString('it-IT', {
+  const timeRange = `${start.toLocaleTimeString(t('ling'), {
     hour: '2-digit',
     minute: '2-digit',
-  })} - ${end.toLocaleTimeString('it-IT', {
+  })} - ${end.toLocaleTimeString(t('ling'), {
     hour: '2-digit',
     minute: '2-digit',
   })}`
 
-  const dateStr = start.toLocaleDateString('it-IT', {
+  const dateStr = start.toLocaleDateString(t('ling'), {
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',

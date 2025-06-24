@@ -64,6 +64,7 @@ export const dictionary = {
       emailNonDisponibile: "Email cliente non disponibile.",
       ling: "it-IT",
       Guida: "Guida",
+      contact: "Contatta Matteo se hai bisogno di aiuto",
       domanda1: "Creare un appuntamento",
       domanda2: "Trovare un appuntamento prenotato",
       risposta1: "Seleziona il giorno sul calendario, e scegli uno degli slot disponibili. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia sulla mail aziendale che al cliente",
@@ -136,7 +137,8 @@ export const dictionary = {
       risposta1: "Select the day on the calendar and choose one of the available slots. Please note, once the appointment is created, a confirmation email will be sent both to the company email and to the client.",
       risposta2: "To view the details of an appointment, click on the occupied slots or search for it using the search bar by filtering by company, client name, email, or date.",
       Guida: "Guide",
-      
+      contact: "Contact Matteo if you need help",
+
     },
     
   } as const;
