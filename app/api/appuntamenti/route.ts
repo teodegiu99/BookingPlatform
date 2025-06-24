@@ -1,7 +1,6 @@
-import { auth } from '@/auth'
-import { db } from '@/lib/db'
-import { NextResponse } from 'next/server'
-import { use } from 'react'
+import { auth } from '@/auth';
+import { db } from '@/lib/db';
+import { NextResponse } from 'next/server';
 
 export async function GET() {
   const session = await auth()
@@ -21,14 +20,9 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    // const session = await auth();
-    // const commercialeId = session?.user?.id;
-
- 
     const body = await req.json();
-    const { commercialeId, cliente, orario, note, invitati = [] } = body;
+    const { commercialeId, cliente, orario, note, invitati = [], force = false } = body;
 
-    // Validazione dei dati
     if (
       !cliente?.email ||
       !cliente?.azienda ||
@@ -37,58 +31,39 @@ export async function POST(req: Request) {
     ) {
       return NextResponse.json({ error: 'Dati mancanti o invalidi' }, { status: 400 });
     }
-    // Verifica che gli invitati siano liberi in quegli orari
-    for (const invitatoId of body.invitati) {
+
+    for (const invitatoId of invitati) {
       const overlapping = await db.appuntamento.findFirst({
         where: {
           commercialeId: invitatoId,
-          orario: {
-            hasSome: body.orario, // slot sovrapposti
-          },
+          orario: { hasSome: orario },
         },
-        include: {
-          commerciale: true, // 🔁 Include dati utente
-        },
+        include: { commerciale: true },
       });
 
       if (overlapping) {
         return NextResponse.json(
-          { error: `Il commerciale ${overlapping.commerciale.cognome} ha già un appuntamento in uno degli orari selezionati.` },
+          { error: `Il commerciale ${overlapping.commerciale.cognome} ha già un appuntamento.` },
           { status: 400 }
         );
       }
     }
 
-    // Cerca o crea cliente
-    let existingCliente = await db.cliente.findUnique({
-      where: { email: cliente.email },
-    });
+    let existingCliente = await db.cliente.findUnique({ where: { email: cliente.email } });
+
+    if (existingCliente && !force) {
+      return NextResponse.json({ conflict: true, clienteEsistente: existingCliente }, { status: 200 });
+    }
 
     if (!existingCliente) {
-      existingCliente = await db.cliente.create({
-        data: {
-          nome: cliente.nome,
-          cognome: cliente.cognome,
-          azienda: cliente.azienda,
-          ruolo: cliente.ruolo,
-          email: cliente.email,
-          numero: cliente.telefono,
-        },
-      });
+      existingCliente = await db.cliente.create({ data: cliente });
     } else {
       existingCliente = await db.cliente.update({
         where: { email: cliente.email },
-        data: {
-          nome: cliente.nome,
-          cognome: cliente.cognome,
-          azienda: cliente.azienda,
-          ruolo: cliente.ruolo,
-          numero: cliente.telefono,
-        },
+        data: cliente,
       });
     }
 
-    // Crea appuntamento principale con lista invitati
     const appuntamentoPrincipale = await db.appuntamento.create({
       data: {
         orario,
@@ -96,20 +71,10 @@ export async function POST(req: Request) {
         clienteId: existingCliente.id,
         note,
         ownerId: commercialeId,
-        invitati, // array di id stringa
+        invitati,
       },
     });
-    // await db.appuntamento.create({
-    //   data: {
-    //     orario,
-    //     commercialeId,
-    //     clienteId: existingCliente.id,
-    //     note,
-    //     ownerId: commercialeId,
-    //     invitati, 
-    //   }
-    // });
-    // Crea appuntamenti duplicati per ogni invitato (escludendo il creatore)
+
     for (const invitatoId of invitati) {
       if (invitatoId === commercialeId) continue;
 
@@ -120,14 +85,14 @@ export async function POST(req: Request) {
           clienteId: existingCliente.id,
           note,
           ownerId: commercialeId,
-          invitati, 
+          invitati,
         },
       });
     }
 
     return NextResponse.json(appuntamentoPrincipale, { status: 201 });
   } catch (error) {
-    console.error('Errore nella creazione dell\'appuntamento:', error);
+    console.error('Errore creazione appuntamento:', error);
     return NextResponse.json({ error: 'Errore interno del server' }, { status: 500 });
   }
 }

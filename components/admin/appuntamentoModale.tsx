@@ -110,15 +110,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       const formattedDate = start.toLocaleDateString('it-IT');
   
       const html = 
-      //   <h2>Dettagli appuntamento</h2>
-      //   <p><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</p>
-      //   <p><strong>Azienda:</strong> ${cliente.azienda ?? ''}</p>
-      //   <p><strong>Ruolo:</strong> ${cliente.ruolo ?? ''}</p>
-      //   <p><strong>Data:</strong> ${formattedDate}</p>
-      //   <p><strong>Orario:</strong> ${formattedTime}</p>
-      //   <p><strong>Commerciale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} ${commerciale.societa ?? ''}</p>
-      //   <p><strong>Note:</strong><br/>${appuntamento.note ?? ''}</p>
-      // `;
+     
       `<h2>Appointment Confirmation</h2>
 
 <p>

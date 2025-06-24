@@ -69,6 +69,11 @@ export const dictionary = {
       domanda2: "Trovare un appuntamento prenotato",
       risposta1: "Seleziona il giorno sul calendario, e scegli uno degli slot disponibili. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia sulla mail aziendale che al cliente",
       risposta2: "Per vedere i dettagli si un appuntamento clicca sugli slot occupati oppure cercalo nella barra di ricerca filtrando per azienda, nome cliente, email o data.",
+    crea: "Crea",
+    cliente_gia_in_anagrafica: "Cliente già presente in anagrafica",
+    esiste_gia_un_cliente_con_questa_email: "Esiste già un cliente con questa email, sei sicuro di voler sovrascrivere i dati?",
+    error: "Errore",
+    Invita_altri_commerciali: "Invita altri commerciali",
     },
     en: {
       calendario: 'Calendar',
@@ -138,7 +143,11 @@ export const dictionary = {
       risposta2: "To view the details of an appointment, click on the occupied slots or search for it using the search bar by filtering by company, client name, email, or date.",
       Guida: "Guide",
       contact: "Contact Matteo if you need help",
-
+      crea: "Create",
+      cliente_gia_in_anagrafica: "Client already exists in the database",
+      esiste_gia_un_cliente_con_questa_email: "A client with this email already exists, are you sure you want to overwrite the data?",
+      error: "Error",
+      Invita_altri_commerciali: "Invite other salespeople",
     },
     
   } as const;

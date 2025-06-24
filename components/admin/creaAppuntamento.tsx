@@ -1,9 +1,35 @@
 'use client';
+import { useTranslation } from "@/lib/useTranslation";
 
 import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { toast } from 'sonner';
 import { User } from '@prisma/client';
+
+
+
+const ConfermaClienteModal = ({ cliente, onConfirm, onCancel }: any) => {
+  const { t } = useTranslation();
+  return (
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl p-6 shadow-lg w-full max-w-md">
+        <h2 className="text-lg font-semibold mb-2">{t('cliente_gia_in_anagrafica')}</h2>
+        <p>{t('esiste_gia_un_cliente_con_questa_email')}</p>
+        <div className="mt-4 text-sm text-gray-700 space-y-1">
+          <div><strong>{t('nome')}:</strong> {cliente.nome}</div>
+          <div><strong>{t('cognome')}:</strong> {cliente.cognome}</div>
+          <div><strong>{t('azienda')}:</strong> {cliente.azienda}</div>
+          <div><strong>'email':</strong> {cliente.email}</div>
+          <div><strong>{t('telefono')}:</strong> {cliente.numero}</div>
+        </div>
+        <div className="mt-6 flex justify-end gap-2">
+          <button className="px-4 py-2 border rounded" onClick={onCancel}>{t('annulla')}</button>
+          <button className="px-4 py-2 bg-primary text-white rounded" onClick={onConfirm}>{t('conferma')}</button>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 type UserOption = {
   value: string;
@@ -39,12 +65,14 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   const [azienda, setAzienda] = useState('');
   const [ruolo, setRuolo] = useState('');
   const [email, setEmail] = useState('');
-  const [telefono, setTelefono] = useState('');
+  const [numero, setnumero] = useState('');
   const [note, setNote] = useState('');
   const [durata, setDurata] = useState(30);
   const [invitatiOptions, setInvitatiOptions] = useState<UserOption[]>([]);
   const [selectedInvitati, setSelectedInvitati] = useState<UserOption[]>([]);
   const [errore, setErrore] = useState<string | null>(null);
+  const [clienteEsistente, setClienteEsistente] = useState<any>(null);
+  const { t } = useTranslation();
 
   if (!open) return null;
 
@@ -52,12 +80,10 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     const fetchCommerciali = async () => {
       const res = await fetch('/api/commerciali');
       const data = await res.json();
-      const options = data
-        .filter((u: User) => u.id !== commercialeId)
-        .map((u: User) => ({
-          value: u.id,
-          label: `${u.name ?? ''} ${u.cognome ?? ''} (${u.email})`,
-        }));
+      const options = data.filter((u: User) => u.id !== commercialeId).map((u: User) => ({
+        value: u.id,
+        label: `${u.name ?? ''} ${u.cognome ?? ''} (${u.email})`,
+      }));
       setInvitatiOptions(options);
     };
 
@@ -66,9 +92,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
 
   const isSlotOccupied = (userId: string, slotTime: number) => {
     return appuntamenti.some(
-      (a) =>
-        a.commerciale.id === userId &&
-        a.orario.some((o) => new Date(o).getTime() === slotTime)
+      (a) => a.commerciale.id === userId && a.orario.some((o) => new Date(o).getTime() === slotTime)
     );
   };
 
@@ -79,14 +103,14 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     const nextSlotTime = nextSlot.getTime();
 
     if (isSlotOccupied(commercialeId, nextSlotTime)) {
-      toast.warning('Il prossimo slot non è disponibile.');
+      toast.warning(t('proxslotnodisp'));
     } else {
       toast.info('Slot aggiunto.');
       setDurata((prev) => prev + 30);
     }
   };
 
-  const handleSubmit = async () => {
+  const submitDati = async (force = false) => {
     const start = new Date(`${selectedDate}T${startHour}`);
     const slots: string[] = [];
     const slotCount = durata / 30;
@@ -95,61 +119,72 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
       slot.setMinutes(slot.getMinutes() + i * 30);
       slots.push(slot.toISOString());
     }
-
-    try {
-      const res = await fetch('/api/appuntamenti', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          cliente: { nome, cognome, azienda, ruolo, email, telefono },
-          orario: slots,
-          commercialeId,
-          note,
-          invitati: selectedInvitati.map((i) => i.value),
-        }),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        setErrore(result.error || 'Errore nella creazione dell’appuntamento.');
-        return;
-      }
-
-      toast.success('Appuntamento creato con successo.');
-      setErrore(null);
-      onClose();
-    } catch (err: any) {
-      setErrore(err.message || 'Si è verificato un errore.');
+  
+    const res = await fetch('/api/appuntamenti', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cliente: { nome, cognome, azienda, ruolo, email, numero },
+        orario: slots,
+        commercialeId,
+        note,
+        invitati: selectedInvitati.map((i) => i.value),
+        force,
+      }),
+    });
+  
+    const result = await res.json();
+  
+    console.log('Response from API:', result);
+  
+    if (result.conflict) {
+      setClienteEsistente(result.clienteEsistente);
+      return;
     }
+  
+    if (!res.ok) {
+      setErrore(result.error || t('apperr'));
+      return;
+    }
+  
+    toast.success(t('appsucc'));
+    setErrore(null);
+    onClose();
   };
+  
+
 
   return (
     <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 space-y-4 relative">
-        <h2 className="text-xl font-semibold text-center">Nuovo Appuntamento</h2>
+        <h2 className="text-xl font-semibold text-center">{t('nuovoappuntamento')}</h2>
 
         {errore && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center">
-            <strong className="font-bold">Errore:</strong> {errore}
-            <button
-              onClick={() => setErrore(null)}
-              className="absolute top-1 right-2 text-red-700 text-xl font-bold"
-              aria-label="Chiudi"
-            >
-              ×
-            </button>
+            <strong className="font-bold">{t('error')}:</strong> {errore}
+            <button onClick={() => setErrore(null)} className="absolute top-1 right-2 text-red-700 text-xl font-bold" aria-label="Chiudi">×</button>
           </div>
         )}
 
-        <input className="w-full border p-2 rounded" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} />
-        <input className="w-full border p-2 rounded" placeholder="Cognome" value={cognome} onChange={(e) => setCognome(e.target.value)} />
-        <input className="w-full border p-2 rounded" placeholder="Azienda" value={azienda} onChange={(e) => setAzienda(e.target.value)} />
-        <input className="w-full border p-2 rounded" placeholder="Ruolo" value={ruolo} onChange={(e) => setRuolo(e.target.value)} />
-        <input className="w-full border p-2 rounded" placeholder="Email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <input className="w-full border p-2 rounded" placeholder="Telefono" value={telefono} onChange={(e) => setTelefono(e.target.value)} />
+{clienteEsistente && (
+  <ConfermaClienteModal
+    cliente={clienteEsistente}
+    onConfirm={() => {
+      setClienteEsistente(null);
+      submitDati(true);
+    }}
+    onCancel={() => setClienteEsistente(null)}
+  />
+)}
 
-        <label className="block text-sm font-medium text-gray-700">Invita altri commerciali</label>
+        <input className="w-full border p-2 rounded" placeholder={t('nome')} value={nome} onChange={(e) => setNome(e.target.value)} />
+        <input className="w-full border p-2 rounded" placeholder={t('cognome')} value={cognome} onChange={(e) => setCognome(e.target.value)} />
+        <input className="w-full border p-2 rounded" placeholder={t('azienda')} value={azienda} onChange={(e) => setAzienda(e.target.value)} />
+        <input className="w-full border p-2 rounded" placeholder={t('ruolo')} value={ruolo} onChange={(e) => setRuolo(e.target.value)} />
+        <input className="w-full border p-2 rounded" placeholder='email' type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="w-full border p-2 rounded" placeholder={t('telefono')} value={numero} onChange={(e) => setnumero(e.target.value)} />
+
+        <label className="block text-sm font-medium text-gray-700">{t('Invita_altri_commerciali')}</label>
         <Select
           isMulti
           options={invitatiOptions}
@@ -157,35 +192,17 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
           onChange={(val) => setSelectedInvitati(val as UserOption[])}
         />
 
-        <textarea
-          className="w-full border p-2 rounded"
-          placeholder="Note (opzionale)"
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-        />
+        <textarea className="w-full border p-2 rounded" placeholder="Note (opzionale)" value={note} onChange={(e) => setNote(e.target.value)} />
 
         <div className="flex items-center gap-2">
-          <label>Durata (min):</label>
-          <input
-            className="border rounded p-1 w-20"
-            type="number"
-            value={durata}
-            min={30}
-            step={30}
-            onChange={(e) => setDurata(parseInt(e.target.value))}
-          />
-          <button onClick={addNextSlot} className="px-3 py-1 bg-primary text-white rounded">
-            Aggiungi slot
-          </button>
+          <label>{t('durata')}:</label>
+          <input className="border rounded p-1 w-20" type="number" value={durata} min={30} step={30} onChange={(e) => setDurata(parseInt(e.target.value))} />
+          <button onClick={addNextSlot} className="px-3 py-1 bg-primary text-white rounded">{t('aggiungislot')}</button>
         </div>
 
         <div className="flex justify-end space-x-2 pt-4">
-          <button className="px-4 py-2 rounded border" onClick={onClose}>
-            Annulla
-          </button>
-          <button className="px-4 py-2 rounded bg-primary text-white" onClick={handleSubmit}>
-            Crea
-          </button>
+          <button className="px-4 py-2 rounded border" onClick={onClose}>{t('annulla')}</button>
+          <button className="px-4 py-2 rounded bg-primary text-white" onClick={() => submitDati(false)}>{t('crea')}</button>
         </div>
       </div>
     </div>
