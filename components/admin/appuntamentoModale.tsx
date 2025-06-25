@@ -37,7 +37,11 @@ type Props = {
   };
   onClose: () => void;
 };
-
+type Invitato = {
+  id: string;
+  name: string;
+  cognome: string;
+};
 export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) => {
   const { cliente, commerciale, orario } = appuntamento;
   const { t } = useTranslation();
@@ -46,10 +50,46 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
   const [isDeleting, setIsDeleting] = useState(false);
   const [altCommercialeName, setAltCommercialeName] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
-
+  const [invitati, setInvitati] = useState<Invitato[]>([]);
   // Stato toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
+  useEffect(() => {
+    const fetchInvitati = async () => {
+      if (appuntamento.invitati && appuntamento.invitati.length > 0) {
+        const risultati = await getNomiInvitati(appuntamento.invitati);
+  
+        // Filtra rimuovendo l'invitato che ha lo stesso ID del commerciale principale
+        const filtrati = risultati.filter((inv) => inv.id !== appuntamento.commercialeId);
+  
+        setInvitati(filtrati);
+      }
+    };
+  
+    fetchInvitati();
+  }, [appuntamento.invitati, appuntamento.commercialeId]);
+
+
+   const getNomiInvitati = async (ids: string[]): Promise<Invitato[]> => {
+    if (!ids || ids.length === 0) return [];
+  
+    const res = await fetch('/api/user/invitati', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ids }),
+    });
+  
+    if (!res.ok) throw new Error('Errore nel recupero utenti');
+  
+    const data = await res.json();
+  
+    return data.map((u: any) => ({
+      id: u.id,
+      name: u.name ?? '',
+      cognome: u.cognome ?? '',
+    }));
+  };
+  
 
   const getCommercialeNameIfInvitato = async (app: Appuntamento): Promise<string | null> => {
       if (!app || !app.commerciale || !app['ownerId'] || !app['commercialeId']) return null
@@ -258,7 +298,18 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
                   <span className='font-semibold'>{t('invitatoda')}:</span> {altCommercialeName}
                 </p>
               )}
-
+{invitati.length > 0 && (
+  <div className="mb-3">
+    <p className="flex gap-x-2 items-center text-sm font-semibold">
+    {t('invitati')}:
+    </p>
+    <ul className="ml-4 text-sm list-disc">
+      {invitati.map((inv) => (
+        <li key={inv.id}>{inv.name} {inv.cognome}</li>
+      ))}
+    </ul>
+  </div>
+)}
               {appuntamento.note && (
                 <p className='flex gap-x-2 mb-3 items-center'>
                 <PiNoteBlankLight className="text-primary text-lg" />

@@ -76,6 +76,8 @@ export const dictionary = {
     Invita_altri_commerciali: "Invita altri commerciali",
     questaAzione: "Questa azione è irreversibile.",
     invitatoda: "Invitato da",
+    invitati: "Invitati",
+
     },
     en: {
       calendario: 'Calendar',
@@ -152,6 +154,7 @@ export const dictionary = {
       Invita_altri_commerciali: "Invite other salespeople",
       questaAzione: "This action is irreversible.",
       invitatoda: "Invited by",
+      invitati: "Invited",
     },
     
   } as const;
