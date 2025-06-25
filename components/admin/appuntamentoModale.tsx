@@ -13,7 +13,7 @@ import {
 } from "react-icons/pi";
 import { TfiEmail } from "react-icons/tfi";
 import { FaBuildingUser } from "react-icons/fa6";
-
+import { CiUser } from "react-icons/ci";
 type Props = {
   appuntamento: {
     id: string;
@@ -41,14 +41,44 @@ type Props = {
 export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) => {
   const { cliente, commerciale, orario } = appuntamento;
   const { t } = useTranslation();
-
+  type Appuntamento = Props['appuntamento'];
   const [showConfirm, setShowConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-
+  const [altCommercialeName, setAltCommercialeName] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
 
   // Stato toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+
+  const getCommercialeNameIfInvitato = async (app: Appuntamento): Promise<string | null> => {
+      if (!app || !app.commerciale || !app['ownerId'] || !app['commercialeId']) return null
+  
+    // Se owner e commerciale coincidono, nessun invitato
+    if (app.ownerId === app.commercialeId) return null
+  
+    try {
+      const res = await fetch(`/api/users/${app.ownerId}`)
+      if (!res.ok) throw new Error('Errore nel recupero del commerciale')
+  
+      const data = await res.json()
+      const nome = data?.name ?? ''
+      const cognome = data?.cognome ?? ''
+  
+      return `${nome} ${cognome}`.trim()
+    } catch (error) {
+      console.error('Errore nel recupero commerciale invitato:', error)
+      return null
+    }
+  }
+  useEffect(() => {
+    const fetchAltCommerciale = async () => {
+      const name = await getCommercialeNameIfInvitato(appuntamento);
+      setAltCommercialeName(name);
+    };
+    fetchAltCommerciale();
+  }, [appuntamento]);
+
 
   const handleDeleteAppuntamento = async () => {
     setIsDeleting(true);
@@ -222,13 +252,22 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
                   })()}
                 </span>
               </p>
-              <p className='flex gap-x-2 mb-3 items-center'>
+              {altCommercialeName && (
+                <p className='flex gap-x-2 mb-3 items-center'>
+                  <CiUser className="text-primary text-lg" />
+                  <span className='font-semibold'>{t('invitatoda')}:</span> {altCommercialeName}
+                </p>
+              )}
+
+              {appuntamento.note && (
+                <p className='flex gap-x-2 mb-3 items-center'>
                 <PiNoteBlankLight className="text-primary text-lg" />
                 <span className='font-semibold'>{t('note')}:</span>
-              </p>
-              <p>
+              
+              
                 <span className='block p-2 border border-1 rounded-xl mb-3'>{appuntamento.note}</span>
-              </p>
+              </p>)}
+
             </div>
 
             <div className="flex justify-end space-x-2">
