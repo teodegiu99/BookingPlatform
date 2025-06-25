@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import React, { useRef, useState, useEffect } from 'react';
@@ -28,6 +26,8 @@ export const dynamic = 'force-dynamic';
 const TimeSlotList = ({ userId }: { userId: string }) => {
   const { t } = useTranslation();
   const { selectedDate } = useDate();
+  const [clienteEsistente, setClienteEsistente] = useState(false);
+const [formValues, setFormValues] = useState<FormData | null>(null);
   const { data: session } = useSession();
   const formRef = useRef<HTMLFormElement>(null);
   const [selectedSlots, setSelectedSlots] = useState<Date[]>([]);
@@ -107,7 +107,6 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
     return `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
   };
 
-
   const formatTimeRange = () => {
     if (selectedSlots.length === 0) return '';
     const start = selectedSlots[0];
@@ -120,8 +119,8 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-
-    const res = await createAppuntamento({
+  
+    const payload = {
       nome: formData.get('nome') as string,
       cognome: formData.get('cognome') as string,
       azienda: formData.get('azienda') as string,
@@ -131,22 +130,58 @@ const TimeSlotList = ({ userId }: { userId: string }) => {
       numero: formData.get('telefono') as string,
       orari: selectedSlots,
       invitatiIds: selectedInvitati.map((i) => i.value),
-    });
-
+    };
   
-
+    const res = await createAppuntamento({ ...payload });
+  
+    if (res.clienteEsistente && !res.success) {
+      // Mostra conferma utente
+      setClienteEsistente(true);
+      setFormValues(formData);
+      return;
+    }
+  
     if (!res.success) {
       setToast({ message: res.message ?? 'Errore sconosciuto', type: 'error' });
       return;
     }
-    
-
+  
     formRef.current?.reset();
     setToast({ message: t('appsucc'), type: 'success' });
     closeModal();
     mutate();
   };
-
+  
+  const confermaSovrascrittura = async () => {
+    if (!formValues) return;
+  
+    const payload = {
+      nome: formValues.get('nome') as string,
+      cognome: formValues.get('cognome') as string,
+      azienda: formValues.get('azienda') as string,
+      ruolo: formValues.get('ruolo') as string,
+      email: formValues.get('email') as string,
+      note: formValues.get('note') as string,
+      numero: formValues.get('telefono') as string,
+      orari: selectedSlots,
+      invitatiIds: selectedInvitati.map((i) => i.value),
+      force: true,
+    };
+  
+    const res = await createAppuntamento(payload);
+  
+    if (!res.success) {
+      setToast({ message: res.message ?? 'Errore durante la creazione', type: 'error' });
+      setClienteEsistente(false);
+      return;
+    }
+  
+    setToast({ message: t('appsucc'), type: 'success' });
+    setClienteEsistente(false);
+    setFormValues(null);
+    closeModal();
+    mutate();
+  };
 const user = session?.user.role;
 
 
@@ -221,14 +256,6 @@ const user = session?.user.role;
       </p>
       
       `,
-
-
-
-
-
-
-
-
           }),
     });
   
@@ -240,12 +267,6 @@ const user = session?.user.role;
     }
   };
 
-
-
-
-
-
-  
   return (
     <div className="flex items-center justify-center grow">
       <div className="border p-10 rounded-xl shadow space-y-10">
@@ -362,7 +383,30 @@ const user = session?.user.role;
           {toast.message}
         </div>
       )}
+          {clienteEsistente && (
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="bg-white rounded-2xl p-6 shadow-lg max-w-lg w-full text-center space-y-4">
+          <h2 className="text-lg font-semibold">Cliente già presente</h2>
+          <p className="text-sm">Vuoi sovrascrivere i dati esistenti con quelli inseriti nel form?</p>
+          <div className="flex justify-center gap-4">
+            <button
+              onClick={() => setClienteEsistente(false)}
+              className="px-4 py-2 bg-gray-300 rounded-xl"
+            >
+              Annulla
+            </button>
+            <button
+              onClick={confermaSovrascrittura}
+              className="px-4 py-2 bg-primary text-white rounded-xl"
+            >
+              Conferma
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
+
   );
 };
 
