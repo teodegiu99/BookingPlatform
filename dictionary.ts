@@ -74,6 +74,7 @@ export const dictionary = {
     esiste_gia_un_cliente_con_questa_email: "Esiste già un cliente con questa email, sei sicuro di voler sovrascrivere i dati?",
     error: "Errore",
     Invita_altri_commerciali: "Invita altri commerciali",
+    questaAzione: "Questa azione è irreversibile.",
     },
     en: {
       calendario: 'Calendar',
@@ -148,6 +149,8 @@ export const dictionary = {
       esiste_gia_un_cliente_con_questa_email: "A client with this email already exists, are you sure you want to overwrite the data?",
       error: "Error",
       Invita_altri_commerciali: "Invite other salespeople",
+      questaAzione: "This action is irreversible.",
+      
     },
     
   } as const;

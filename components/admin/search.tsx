@@ -4,11 +4,11 @@ import React, { useEffect, useId, useState } from 'react'
 import Select from 'react-select'
 import { getAllAppuntamenti } from '@/actions/getAllAppuntamenti'
 import { Dialog } from '@headlessui/react'
-import useSWR from 'swr'
+import useSWR, { mutate } from 'swr'
 import { useTranslation } from "@/lib/useTranslation"
 import { FiTrash2 } from 'react-icons/fi'
 
-export const dynamic = 'force-dynamic'; // 👈 disabilita cache
+export const dynamic = 'force-dynamic'
 
 const customStyles = {
   control: (base: any, state: any) => ({
@@ -66,7 +66,6 @@ type Option = {
   appuntamento: Appuntamento
 }
 
-// ✅ funzione spostata fuori dal componente
 function formatOption(app: Appuntamento): Option {
   const orari = app.orario ?? []
 
@@ -74,9 +73,9 @@ function formatOption(app: Appuntamento): Option {
   if (orari.length > 0) {
     const start = new Date(orari[0])
     const end = new Date(orari[orari.length - 1])
-    end.setMinutes(end.getMinutes() + 30) // aggiunge 30 min
+    end.setMinutes(end.getMinutes() + 30)
 
-    const dateStr = start.toLocaleDateString('it-IT') // es. 15/05/2025
+    const dateStr = start.toLocaleDateString('it-IT')
     const startTime = start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
     const endTime = end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
 
@@ -95,6 +94,7 @@ export default function Search() {
   const [inputValue, setInputValue] = useState('')
   const [options, setOptions] = useState<Option[]>([])
   const [selectedApp, setSelectedApp] = useState<Appuntamento | null>(null)
+  const [showConfirmModal, setShowConfirmModal] = useState(false)
   const selectInstanceId = useId()
 
   const fetcher = async (): Promise<Appuntamento[]> => {
@@ -108,19 +108,19 @@ export default function Search() {
   useEffect(() => {
     const search = inputValue.toLowerCase()
     const filtered = inputValue
-  ? allAppuntamenti.filter(({ cliente, commerciale }) => {
-      return (
-        cliente.nome?.toLowerCase().includes(search) ||
-        cliente.cognome?.toLowerCase().includes(search) ||
-        cliente.azienda.toLowerCase().includes(search) ||
-        cliente.email.toLowerCase().includes(search) ||
-        cliente.numero?.includes(search) ||
-        commerciale.name?.toLowerCase().includes(search) ||
-        commerciale.cognome?.toLowerCase().includes(search) ||
-        commerciale.societa?.toLowerCase().includes(search)
-      )
-    })
-  : allAppuntamenti
+      ? allAppuntamenti.filter(({ cliente, commerciale }) => {
+          return (
+            cliente.nome?.toLowerCase().includes(search) ||
+            cliente.cognome?.toLowerCase().includes(search) ||
+            cliente.azienda.toLowerCase().includes(search) ||
+            cliente.email.toLowerCase().includes(search) ||
+            cliente.numero?.includes(search) ||
+            commerciale.name?.toLowerCase().includes(search) ||
+            commerciale.cognome?.toLowerCase().includes(search) ||
+            commerciale.societa?.toLowerCase().includes(search)
+          )
+        })
+      : allAppuntamenti
 
     setOptions(filtered.map(formatOption))
   }, [inputValue, allAppuntamenti])
@@ -131,16 +131,15 @@ export default function Search() {
 
   const handleDeleteAppuntamento = async () => {
     if (!selectedApp) return
-  
+
     try {
       const res = await fetch(`/api/appuntamenti/${selectedApp.id}`, {
         method: 'DELETE',
       })
-  
+
       if (res.ok) {
-        setSelectedApp(null) // chiude il modale
-        // opzionale: fai un refresh dei dati con mutate
-        // mutate('appuntamenti')
+        setSelectedApp(null)
+        mutate('appuntamenti') // aggiorna lista
       } else {
         console.error(t('errdel'))
       }
@@ -148,7 +147,6 @@ export default function Search() {
       console.error('Errore durante l\'eliminazione:', error)
     }
   }
-  
 
   return (
     <>
@@ -172,13 +170,13 @@ export default function Search() {
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
-            <div className=' flex items-center justify-between'>
-            <Dialog.Title className="text-xl font-semibold mb-4">
-              {t('dettapp')}
-            </Dialog.Title>
-            <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
-                            <FiTrash2 className="w-5 h-5" />
-                          </button>
+            <div className='flex items-center justify-between'>
+              <Dialog.Title className="text-xl font-semibold mb-4">
+                {t('dettapp')}
+              </Dialog.Title>
+              <button onClick={() => setShowConfirmModal(true)} className="text-red-600 hover:text-red-800">
+                <FiTrash2 className="w-5 h-5" />
+              </button>
             </div>
             {selectedApp && (
               <div className="space-y-2">
@@ -188,40 +186,36 @@ export default function Search() {
                   <p><strong>{t('ruolo')}:</strong> {selectedApp.cliente.ruolo}</p>
                 )}
                 <p><strong>Email:</strong> {selectedApp.cliente.email}</p>
-
                 {selectedApp.cliente.numero && (
                   <p><strong>{t('telefono')}:</strong> {selectedApp.cliente.numero}</p>
                 )}
-                     {selectedApp.commerciale.cognome && (
+                {selectedApp.commerciale.cognome && (
                   <p><strong>{t('commerciale')}:</strong> {selectedApp.commerciale.cognome}</p>
                 )}
-                     {selectedApp.commerciale.societa && (
+                {selectedApp.commerciale.societa && (
                   <p><strong>{t('societa')}:</strong> {selectedApp.commerciale.societa}</p>
                 )}
-             
-             {selectedApp.orario && selectedApp.orario.length > 0 && (
-  <p>
- 
-    <strong>{t('orario')}:</strong>{' '}
-    {(() => {
-      const start = new Date(selectedApp.orario[0])
-      const end = new Date(selectedApp.orario[selectedApp.orario.length - 1])
-      end.setMinutes(end.getMinutes() + 30) 
+                {selectedApp.orario && selectedApp.orario.length > 0 && (
+                  <p>
+                    <strong>{t('orario')}:</strong>{' '}
+                    {(() => {
+                      const start = new Date(selectedApp.orario[0])
+                      const end = new Date(selectedApp.orario[selectedApp.orario.length - 1])
+                      end.setMinutes(end.getMinutes() + 30)
 
-      const startStr = start.toLocaleTimeString('it-IT', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-      const endStr = end.toLocaleTimeString('it-IT', {
-        hour: '2-digit',
-        minute: '2-digit',
-      });
+                      const startStr = start.toLocaleTimeString('it-IT', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
+                      const endStr = end.toLocaleTimeString('it-IT', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      });
 
-      return `${startStr} → ${endStr}`;
-    })()}
-  </p>
-)}
-
+                      return `${startStr} → ${endStr}`;
+                    })()}
+                  </p>
+                )}
               </div>
             )}
             <div className="mt-6 flex justify-end">
@@ -230,6 +224,36 @@ export default function Search() {
                 className="px-4 py-2 bg-secondary text-white rounded hover:bg-secondary/80"
               >
                 {t('chiudi')}
+              </button>
+            </div>
+          </Dialog.Panel>
+        </div>
+      </Dialog>
+
+      {/* MODALE CONFERMA ELIMINAZIONE */}
+      <Dialog open={showConfirmModal} onClose={() => setShowConfirmModal(false)} className="relative z-50">
+        <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
+        <div className="fixed inset-0 flex items-center justify-center p-4">
+          <Dialog.Panel className="w-full max-w-md rounded-xl bg-white p-6 shadow-lg">
+            <Dialog.Title className="text-lg font-semibold mb-4">
+              {t('confermaEliminazione') ?? 'Confermi eliminazione?'}
+            </Dialog.Title>
+            <p className="mb-4">{t('questaAzione') ?? 'Questa azione è irreversibile.'}</p>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+              >
+                {t('annulla') ?? 'Annulla'}
+              </button>
+              <button
+                onClick={async () => {
+                  await handleDeleteAppuntamento()
+                  setShowConfirmModal(false)
+                }}
+                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                {t('conferma') ?? 'Conferma'}
               </button>
             </div>
           </Dialog.Panel>
