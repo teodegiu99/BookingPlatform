@@ -37,6 +37,8 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<any | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [commerciale, setCommerciale] = useState<Commerciale | null>(null);
+  const [invitatoda, setInvitatoda] = useState<{ nome: string; cognome: string } | null>(null);
+
     const fetchSlotsData = async () => {
     const formattedDate = selectedDate.toLocaleDateString('it-IT');
     const available = await getAvailableSlotsByDay(formattedDate, userId);
@@ -66,6 +68,32 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
         });
     }
   }, [isModalOpen, userId]);
+
+  useEffect(() => {
+    const fetchOwner = async () => {
+      if (!selectedAppuntamento) {
+        setInvitatoda(null);
+        return;
+      }
+  
+      const { ownerId, commercialeId } = selectedAppuntamento;
+  
+      if (ownerId && ownerId !== userId) {
+        try {
+          const result = await getCommercialeById(ownerId);
+          setInvitatoda(result);
+        } catch (error) {
+          console.error("Errore nel recupero del commerciale:", error);
+          setInvitatoda(null);
+        }
+      } else {
+        setInvitatoda(null);
+      }
+    };
+  
+    fetchOwner();
+  }, [selectedAppuntamento]);
+
 
   const openModal = (slot: Date) => {
     setSelectedSlots([slot]);
@@ -105,6 +133,21 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
     const end = new Date(app.orari[app.orari.length - 1]);
     end.setMinutes(end.getMinutes() + 30);
     return `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+  };
+
+  const getCommercialeById = async (id: string) => {
+    if (!id || id === selectedAppuntamento?.commercialeId) return null;
+  
+    try {
+      const res = await fetch(`/api/users/${id}`);
+      if (!res.ok) throw new Error('Errore nel recupero del commerciale');
+      const data = await res.json();
+    console.log(data);
+      return { nome: data.name, cognome: data.cognome };
+    } catch (error) {
+      console.error('Errore durante il recupero del commerciale:', error);
+      return null;
+    }
   };
 
   const formatTimeRange = () => {
@@ -355,15 +398,20 @@ const user = session?.user.role;
               </button>
             </div>
             <ul className="mb-4 space-y-1">
-              <li><strong>{t('nome')}:</strong> {selectedAppuntamento.cliente.nome}</li>
-              <li><strong>Email:</strong> {selectedAppuntamento.cliente.email}</li>
-              <li><strong>{t('azienda')}:</strong> {selectedAppuntamento.cliente.azienda}</li>
-              <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>
-              <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>
+            {selectedAppuntamento.cliente.nome && <li><strong>{t('nome')}:</strong> {selectedAppuntamento.cliente.nome}</li>}
+            {selectedAppuntamento.cliente.email && <li><strong>Email:</strong> {selectedAppuntamento.cliente.email}</li>}
+            {selectedAppuntamento.cliente.azienda && <li><strong>{t('azienda')}:</strong> {selectedAppuntamento.cliente.azienda}</li>}
+            {selectedAppuntamento.cliente.ruolo && <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>}
+            {selectedAppuntamento.cliente.numero && <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>}
               <li><strong>{t('orari')}:</strong> {selectedAppuntamento.orari.map((o: string) =>
                 new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
               ).join(', ')}</li>
-              <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>
+              {invitatoda && (
+  <li>
+    <strong>Creato da:</strong> {invitatoda.nome} {invitatoda.cognome}
+  </li>
+)}
+             {selectedAppuntamento.cliente.nome && <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>}
             </ul>
             <div className="flex justify-end gap-2">
     <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}

@@ -30,6 +30,7 @@ export async function getAppuntamentiByCommerciale(commercialeId: string) {
       orari: app.orario,
       cliente: app.cliente,
       note: app.note,
+      ownerId: app.ownerId,
       invitati, // Array di oggetti con id ed email
     };
   }));
@@ -51,6 +52,7 @@ export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, 
       orari: app.orari,
       cliente: app.cliente,
       note: app.note,
+      ownerId: app.ownerId,
       invitati: app.invitati, // Include { id, email }
     }));
 }
