@@ -257,7 +257,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
               </p>
               {cliente.email && (
                 <p className='flex gap-x-2 mb-3 items-center'>
-                  <TfiEmail className="text-primary text-lg" />
+                   <TfiEmail className="text-primary text-lg" />
                   <span className='font-semibold'>Email:</span> {cliente.email}
                 </p>
               )}

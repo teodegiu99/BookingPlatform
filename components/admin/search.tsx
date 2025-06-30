@@ -174,7 +174,7 @@ export default function Search() {
               <Dialog.Title className="text-xl font-semibold mb-4">
                 {t('dettapp')}
               </Dialog.Title>
-              <button onClick={() => setShowConfirmModal(true)} className="text-red-600 hover:text-red-800">
+              <button onClick={() => setShowConfirmModal(true)} className="text-red-600 hover:text-red-800"> 
                 <FiTrash2 className="w-5 h-5" />
               </button>
             </div>

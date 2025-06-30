@@ -348,7 +348,7 @@ const user = session?.user.role;
             })}
           </div>
         </div>
-      </div>
+       </div>
 
       {isModalOpen && selectedSlots.length > 0 && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
