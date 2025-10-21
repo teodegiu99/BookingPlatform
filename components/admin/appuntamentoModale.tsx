@@ -206,6 +206,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            //qua e dove manda le mail se vuoi renderlo diverso tra commerciale e tra cliente, lascia solo cliente e crea una funziona async da richiamare dopo questa per mandare la mail al commerciale #emailnotion cosi che mandi al commerciale il nome dell azienda con cui deve avere l incontro e al cliente il nome di chi deve incontrare 
             to: [cliente.email, ...emailsToSend].filter(Boolean),
             subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
             html,
