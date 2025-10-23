@@ -144,14 +144,25 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
 
       {/* Tabella calendario */}
       <div className="overflow-x-auto">
+
+
+ <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border-b sticky top-0 bg-white z-30">
+    <div className="border-r bg-gray-100 p-2 font-semibold text-sm">
+      {t('commerciale')}
+    </div>
+    {hours.map((h, i) => (
+      <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
+        {formatHour(h)}
+      </div>
+    ))}
+  </div>
+
+      <div className="overflow-y-auto max-h-[80vh]">
+
+
         <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border">
-          {/* Header orari */}
-          <div className="border-r bg-gray-100 p-2 font-semibold text-sm">{t('commerciale')}</div>
-          {hours.map((h, i) => (
-            <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
-              {formatHour(h)}
-            </div>
-          ))}
+ 
+
 
           {/* Riga per ogni commerciale */}
           {[...commercialiState]
@@ -169,13 +180,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                 <React.Fragment key={com.id}>
                   {/* Colonna info commerciale */}
                   <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
-                    {/* <Image
-                      src={com.image || '/placeholder.png'}
-                      alt={com.name || 'Commerciale'}
-                      width={40}
-                      height={40}
-                      className="rounded-full object-cover"
-                    /> */}
+      
                     <button
                       onClick={() => {
                         setSelectedUserId(com.id);
@@ -240,7 +245,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
             })}
         </div>
       </div>
-
+</div>
       {/* Modale appuntamento */}
       {selectedAppuntamento && (
         <AppuntamentoModal

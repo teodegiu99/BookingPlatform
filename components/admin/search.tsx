@@ -150,7 +150,7 @@ export default function Search() {
 
   return (
     <>
-      <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%]">
+      <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%] z-0">
         <Select
           className="w-full"
           options={options}
@@ -166,7 +166,7 @@ export default function Search() {
       </div>
 
       {/* MODALE DETTAGLI */}
-      <Dialog open={!!selectedApp} onClose={() => setSelectedApp(null)} className="relative z-50">
+      <Dialog open={!!selectedApp} onClose={() => setSelectedApp(null)} className="relative z-20">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
           <Dialog.Panel className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
