@@ -46,6 +46,7 @@ model User {
   approvato              Boolean @default(false)
   lastLogin              DateTime?
   personale            Personale @default(INTERNO)  
+  multipleAppointment    Boolean @default(false)
 }
 
 model Account {
