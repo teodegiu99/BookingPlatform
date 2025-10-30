@@ -12,8 +12,58 @@ import {
   PiNoteBlankLight,
 } from "react-icons/pi";
 import { TfiEmail } from "react-icons/tfi";
-// import { FaBuildingUser } from "react-icons/fa6"; // Non usato
 import { CiUser } from "react-icons/ci";
+
+// --- HELPERS ICalendar (.ics) ---
+
+/**
+ * Formatta una data nel formato richiesto da iCalendar (YYYYMMDDTHHMMSSZ).
+ * @param date Oggetto Date
+ * @returns stringa data formattata UTC
+ */
+const formatIcsDate = (date: Date): string => {
+  return date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+};
+
+/**
+ * Crea il contenuto di un file .ics.
+ * Richiede \r\n come terminatori di riga.
+ */
+const createIcsContent = (
+  appId: string,
+  start: Date,
+  end: Date,
+  summary: string,
+  description: string,
+  location: string,
+  organizerName: string,
+  organizerEmail: string,
+  attendeeName: string,
+  attendeeEmail: string
+): string => {
+  const icsData = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//ZegnaBaruffa//PittiFilatiApp//EN',
+    'BEGIN:VEVENT',
+    `UID:${appId}@zegnabaruffa.com`, // Assicurati che il dominio sia univoco
+    `DTSTAMP:${formatIcsDate(new Date())}`,
+    `DTSTART:${formatIcsDate(start)}`,
+    `DTEND:${formatIcsDate(end)}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${description.replace(/\n/g, '\\n')}`, // \n deve essere escapato
+    `LOCATION:${location}`,
+    `ORGANIZER;CN="${organizerName}":mailto:${organizerEmail}`,
+    `ATTENDEE;CN="${attendeeName}";ROLE=REQ-PARTICIPANT:mailto:${attendeeEmail}`,
+    'STATUS:CONFIRMED',
+    'SEQUENCE:0', // 0 per un nuovo evento
+    'END:VEVENT',
+    'END:VCALENDAR'
+  ];
+  return icsData.join('\r\n');
+};
+
+// --- COMPONENTE ---
 
 type Props = {
   appuntamento: {
@@ -150,7 +200,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       } else {
         destinatariIds = [
           appuntamento.commercialeId,
-          appuntamento.ownerId, // Aggiungi l'ownerId per inviare a chi ha creato l'appuntamento
+          appuntamento.ownerId, // Aggiungi l'ownerId
           ...(appuntamento.invitati ?? []),
         ];
       }
@@ -162,14 +212,27 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       });
 
       const data = await emailRes.json();
-
       if (!emailRes.ok || !Array.isArray(data.emails)) {
         throw new Error('Errore nel recupero delle email dei commerciali');
       }
+      const emailsCommerciali = data.emails.filter(Boolean);
 
-      const emailsCommerciali = data.emails.filter(Boolean); // Filtra email nulle o vuote
+      // 2. Recupera l'email dell'organizzatore (Commerciale Principale)
+      // (Necessario per il campo ORGANIZER del file .ics)
+      const organizerRes = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [appuntamento.commercialeId] }),
+      });
+      const organizerData = await organizerRes.json();
+      if (!organizerRes.ok || !organizerData.emails || organizerData.emails.length === 0) {
+        throw new Error("Errore nel recupero dell'email dell'organizzatore");
+      }
+      const organizerEmail = organizerData.emails[0];
+      const organizerName = `${commerciale.name ?? ''} ${commerciale.cognome ?? ''}`;
+      const location = "Pitti Filati, Fortezza da Basso, Firenze";
 
-      // 2. Prepara i dati comuni
+      // 3. Prepara i dati comuni
       const start = new Date(orario[0]);
       const end = new Date(orario[orario.length - 1]);
       end.setMinutes(end.getMinutes() + 30);
@@ -177,20 +240,32 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
       const formattedDate = start.toLocaleDateString('it-IT');
 
-      // 3. Prepara Email per il Cliente
+      // 4. Prepara Email e ICS per il Cliente
       const htmlCliente = `
         <h2>Appointment Confirmation</h2>
         <p>Dear ${cliente.nome ?? ''} ${cliente.cognome ?? ''},</p>
-        <p>This is to confirm your appointment scheduled as follows:</p>
+        <p>This is to confirm your appointment scheduled as follows (see attached calendar invite):</p>
         <ul>
           <li><strong>Date:</strong> ${formattedDate}</li>
           <li><strong>Time:</strong> ${formattedTime}</li>
-          <li><strong>Representative:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}</li>
+          <li><strong>Representative:</strong> ${organizerName}</li>
         </ul>
         <p>Best regards,<br/>
-        ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}
+        ${organizerName}
         </p>
       `;
+
+      const summaryCliente = `Appuntamento: Zegna Baruffa / ${cliente.nome ?? ''} ${cliente.cognome ?? ''}`;
+      const descriptionCliente = `Conferma appuntamento.\nCommerciale: ${organizerName}\nCliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''}\nData: ${formattedDate} ${formattedTime}\nNote: ${appuntamento.note ?? ''}`;
+      
+      const icsClienteString = createIcsContent(
+        appuntamento.id, start, end, summaryCliente, descriptionCliente, location,
+        organizerName, organizerEmail,
+        `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`, cliente.email
+      );
+      // Converti in Base64 per invio JSON (UTF-8 safe)
+      const icsClienteBase64 = btoa(unescape(encodeURIComponent(icsClienteString)));
+
 
       const promiseCliente = fetch('/api/sendMail', {
         method: 'POST',
@@ -199,13 +274,17 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
           to: [cliente.email],
           subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
           html: htmlCliente,
+          ics: {
+            filename: 'appuntamento.ics',
+            content: icsClienteBase64
+          }
         }),
       });
 
-      // 4. Prepara Email per i Commerciali
+      // 5. Prepara Email e ICS per i Commerciali
       const htmlCommerciale = `
         <h2>Dettagli Appuntamento Fiera</h2>
-        <p>È stato confermato un appuntamento:</p>
+        <p>È stato confermato un appuntamento (vedi invito calendario allegato):</p>
         <ul>
           <li><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</li>
           <li><strong>Email Cliente:</strong> ${cliente.email ?? 'N/D'}</li>
@@ -213,15 +292,24 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
           <li><strong>Ruolo:</strong> ${cliente.ruolo ?? 'N/D'}</li>
           <li><strong>Data:</strong> ${formattedDate}</li>
           <li><strong>Orario:</strong> ${formattedTime}</li>
-          <li><strong>Commerciale Principale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}</li>
+          <li><strong>Commerciale Principale:</strong> ${organizerName}</li>
           ${appuntamento.note ? `<li><strong>Note:</strong> ${appuntamento.note}</li>` : ''}
         </ul>
         <p>Questo è un promemoria automatico.</p>
       `;
 
+      const summaryCommerciale = `APP. FIERA: ${cliente.azienda ?? cliente.nome} / ${organizerName}`;
+      const descriptionCommerciale = `Dettagli appuntamento:\nCliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''} (${cliente.email ?? 'N/D'})\nAzienda: ${cliente.azienda ?? 'N/D'}\nRuolo: ${cliente.ruolo ?? 'N/D'}\nData: ${formattedDate} ${formattedTime}\nNote: ${appuntamento.note ?? 'Nessuna'}`;
+      
+      const icsCommercialeString = createIcsContent(
+        appuntamento.id, start, end, summaryCommerciale, descriptionCommerciale, location,
+        organizerName, organizerEmail,
+        `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`, cliente.email
+      );
+      const icsCommercialeBase64 = btoa(unescape(encodeURIComponent(icsCommercialeString)));
+
       const promises = [promiseCliente];
 
-      // Aggiungi la promise per i commerciali solo se ci sono destinatari
       if (emailsCommerciali.length > 0) {
         const promiseCommerciale = fetch('/api/sendMail', {
           method: 'POST',
@@ -230,6 +318,10 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
             to: emailsCommerciali,
             subject: `ZEGNA BARUFFA: Dettagli Appuntamento Fiera - ${cliente.azienda ?? cliente.nome}`,
             html: htmlCommerciale,
+            ics: {
+              filename: 'appuntamento.ics',
+              content: icsCommercialeBase64
+            }
           }),
         });
         promises.push(promiseCommerciale);
@@ -237,20 +329,13 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
         console.log("Nessuna email commerciale interna da inviare.");
       }
 
-      // 5. Invia entrambe le email in parallelo
+      // 6. Invia entrambe
       const results = await Promise.all(promises);
-
-      // 6. Controlla i risultati
       const allOk = results.every(res => res.ok);
 
       if (allOk) {
         setToast({ message: t('emailInviata'), type: 'success' });
-        console.log('Invio email a cliente:', [cliente.email]);
-        if(emailsCommerciali.length > 0) {
-          console.log('Invio email a commerciali:', emailsCommerciali);
-        }
       } else {
-        // Logga quale email ha fallito
         results.forEach((res, index) => {
           if (!res.ok) {
             const target = index === 0 ? 'cliente' : 'commerciali';
