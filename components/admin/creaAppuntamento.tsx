@@ -6,6 +6,10 @@ import Select from 'react-select';
 import { toast } from 'sonner';
 import { User } from '@prisma/client';
 
+// Aggiungo 'multipleAppointment' al tipo User per TypeScript
+type AppUser = User & {
+  multipleAppointment?: boolean;
+};
 
 
 const ConfermaClienteModal = ({ cliente, onConfirm, onCancel }: any) => {
@@ -36,11 +40,13 @@ type UserOption = {
   label: string;
 };
 
+// Ho aggiunto 'invitati' al tipo, assumendo che la prop 'appuntamenti' lo contenga
 type Appuntamento = {
   orario: string[];
   commerciale: {
     id: string;
   };
+  invitati?: string[]; // Aggiunto per il controllo conflitti
 };
 
 type Props = {
@@ -49,7 +55,7 @@ type Props = {
   commercialeId: string;
   selectedDate: string; // formato YYYY-MM-DD
   startHour: string; // formato HH:mm
-  appuntamenti: Appuntamento[];
+  appuntamenti: Appuntamento[]; // Questa prop deve includere gli 'invitati'
 };
 
 export const CreaAppuntamentoModal: React.FC<Props> = ({
@@ -60,6 +66,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   startHour,
   appuntamenti,
 }) => {
+  // --- (FIX) RIPRISTINO STATI MANCANTI ---
   const [nome, setNome] = useState('');
   const [cognome, setCognome] = useState('');
   const [azienda, setAzienda] = useState('');
@@ -72,43 +79,93 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
   const [selectedInvitati, setSelectedInvitati] = useState<UserOption[]>([]);
   const [errore, setErrore] = useState<string | null>(null);
   const [clienteEsistente, setClienteEsistente] = useState<any>(null);
+  // --- Fine Fix ---
+  
+  // Stato per memorizzare TUTTI i commerciali con i loro dati
+  const [allCommerciali, setAllCommerciali] = useState<AppUser[]>([]);
   const { t } = useTranslation();
 
   if (!open) return null;
 
   useEffect(() => {
     const fetchCommerciali = async () => {
-      const res = await fetch('/api/commerciali');
-      const data = await res.json();
-      const options = data.filter((u: User) => u.id !== commercialeId).map((u: User) => ({
-        value: u.id,
-        label: `${u.name ?? ''} ${u.cognome ?? ''} (${u.email})`,
-      }));
-      setInvitatiOptions(options);
+      try {
+        const res = await fetch('/api/commerciali');
+        if (!res.ok) throw new Error('Failed to fetch commerciali');
+        const data: AppUser[] = await res.json();
+        
+        setAllCommerciali(data); // Memorizza tutti i commerciali
+        
+        const options = data
+          .filter((u: AppUser) => u.id !== commercialeId) // Filtra l'utente principale
+          .map((u: AppUser) => ({
+            value: u.id,
+            label: `${u.name ?? ''} ${u.cognome ?? ''} (${u.email ?? ''})`,
+          }));
+        setInvitatiOptions(options);
+      } catch (err) {
+        console.error(err);
+        // toast.error(t('errore_caricamento_commerciali'));
+      }
     };
 
     if (open) fetchCommerciali();
-  }, [open, commercialeId]);
+  }, [open, commercialeId, t]);
 
+  // Logica isSlotOccupied aggiornata per controllare anche gli invitati
   const isSlotOccupied = (userId: string, slotTime: number) => {
-    return appuntamenti.some(
-      (a) => a.commerciale.id === userId && a.orario.some((o) => new Date(o).getTime() === slotTime)
-    );
+    return appuntamenti.some((a) => {
+      // Controlla se l'utente è il commerciale principale di questo appuntamento
+      const isMain = a.commerciale.id === userId;
+      
+      // Controlla se l'utente è tra gli invitati di questo appuntamento
+      const isInvited = a.invitati ? a.invitati.includes(userId) : false;
+      
+      // Controlla se l'appuntamento è in questo slot orario
+      const timeMatch = a.orario.some((o) => new Date(o).getTime() === slotTime);
+      
+      // È occupato se è il principale O un invitato E l'orario coincide
+      return (isMain || isInvited) && timeMatch;
+    });
   };
 
+  // Logica 'addNextSlot' aggiornata
   const addNextSlot = () => {
     const start = new Date(`${selectedDate}T${startHour}`);
     const nextSlot = new Date(start);
     nextSlot.setMinutes(nextSlot.getMinutes() + durata);
     const nextSlotTime = nextSlot.getTime();
 
-    if (isSlotOccupied(commercialeId, nextSlotTime)) {
-      toast.warning(t('proxslotnodisp'));
-    } else {
-      toast.info('Slot aggiunto.');
-      setDurata((prev) => prev + 30);
+    // 1. Trova il commerciale principale
+    const mainCommerciale = allCommerciali.find(c => c.id === commercialeId);
+
+    // 2. Trova i commerciali invitati
+    const invitedCommerciali = selectedInvitati.map(inv => 
+      allCommerciali.find(c => c.id === inv.value)
+    ).filter(Boolean) as AppUser[]; // Filtra eventuali 'undefined'
+
+    const allParticipants = [mainCommerciale, ...invitedCommerciali].filter(Boolean) as AppUser[];
+
+    // 3. Controlla la disponibilità di tutti
+    for (const com of allParticipants) {
+      // Se il commerciale NON può avere appuntamenti multipli...
+      if (com && com.multipleAppointment !== true) { // Aggiunto check 'com' per sicurezza
+        // ...controlla se lo slot è occupato (usando la NUOVA logica isSlotOccupied)
+        if (isSlotOccupied(com.id, nextSlotTime)) {
+          // Se è occupato, mostra l'avviso e interrompi
+          const nomeCom = com.name || com.email;
+          // toast.warning(`${t('proxslotnodisp_per')} ${nomeCom}`);
+          return; // Interrompi la funzione
+        }
+      }
+      // Se 'multipleAppointment' è true, ignora il controllo e continua il loop
     }
+
+    // 4. Se tutti i controlli (per chi non è 'multi') sono passati, aggiungi lo slot
+    // toast.info(t('Slot_aggiunto'));
+    setDurata((prev) => prev + 30);
   };
+
 
   const submitDati = async (force = false) => {
     const start = new Date(`${selectedDate}T${startHour}`);
@@ -176,7 +233,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     onCancel={() => setClienteEsistente(null)}
   />
 )}
-
+        {/* I campi ora funzionano perché gli stati sono definiti */}
         <input className="w-full border p-2 rounded" placeholder={t('nome')} value={nome} onChange={(e) => setNome(e.target.value)} />
         <input className="w-full border p-2 rounded" placeholder={t('cognome')} value={cognome} onChange={(e) => setCognome(e.target.value)} />
         <input className="w-full border p-2 rounded" placeholder={t('azienda')} value={azienda} onChange={(e) => setAzienda(e.target.value)} />
@@ -208,3 +265,4 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
     </div>
   );
 };
+

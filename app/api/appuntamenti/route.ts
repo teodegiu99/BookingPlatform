@@ -32,23 +32,61 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Dati mancanti o invalidi' }, { status: 400 });
     }
 
-    for (const invitatoId of invitati) {
-      const overlapping = await db.appuntamento.findFirst({
+    // --- (FIX 1) CONTROLLO COMMERCIALE PRINCIPALE ---
+    // Recupera i dati del commerciale principale
+    const mainCommerciale = await db.user.findUnique({
+      where: { id: commercialeId },
+      select: { multipleAppointment: true, cognome: true }
+    });
+
+    // Se multipleAppointment NON è true (quindi è false, null, o undefined), controlla i conflitti
+    if (mainCommerciale && mainCommerciale.multipleAppointment !== true) {
+      const mainOverlapping = await db.appuntamento.findFirst({
         where: {
-          commercialeId: invitatoId,
+          commercialeId: commercialeId,
           orario: { hasSome: orario },
         },
-        include: { commerciale: true },
       });
-
-      if (overlapping) {
+      if (mainOverlapping) {
         return NextResponse.json(
-          { error: `Il commerciale ${overlapping.commerciale.cognome} ha già un appuntamento.` },
+          { error: `Il commerciale ${mainCommerciale.cognome} ha già un appuntamento.` },
           { status: 400 }
         );
       }
     }
 
+    // --- (FIX 2) CONTROLLO INVITATI AGGIORNATO ---
+    
+    // 1. Recupera tutti i dati degli invitati in una sola chiamata
+    const invitedUsers = await db.user.findMany({
+      where: { id: { in: invitati } },
+      select: { id: true, multipleAppointment: true, cognome: true }
+    });
+
+    // 2. Itera sui dati recuperati
+    for (const invitato of invitedUsers) {
+      
+      // 3. Se multipleAppointment NON è true, controlla i conflitti
+      if (invitato.multipleAppointment !== true) {
+        const overlapping = await db.appuntamento.findFirst({
+          where: {
+            commercialeId: invitato.id,
+            orario: { hasSome: orario },
+          },
+          // Non c'è bisogno di 'include' qui se usiamo 'invitato.cognome'
+        });
+
+        if (overlapping) {
+          return NextResponse.json(
+            { error: `Il commerciale ${invitato.cognome} ha già un appuntamento.` },
+            { status: 400 }
+          );
+        }
+      }
+      // Se multipleAppointment è true, il ciclo continua senza controllare questo utente
+    }
+
+    // --- Logica Cliente (invariata) ---
     let existingCliente = await db.cliente.findUnique({ where: { email: cliente.email } });
 
     if (existingCliente && !force) {
@@ -64,6 +102,7 @@ export async function POST(req: Request) {
       });
     }
 
+    // --- Creazione Appuntamenti (invariata) ---
     const appuntamentoPrincipale = await db.appuntamento.create({
       data: {
         orario,

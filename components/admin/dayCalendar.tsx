@@ -245,7 +245,9 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                   {/* Celle orarie */}
                   {hours.map((h, i) => {
                     const hourStr = formatHour(h);
-                    const occupied = filtered.find(
+
+                    // --- INIZIO MODIFICA: Da .find() a .filter() ---
+                    const appointmentsInSlot = filtered.filter(
                       (a) =>
                         a.commerciale.id === com.id &&
                         a.orario.some(
@@ -255,38 +257,77 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                         )
                     );
 
+                    const canHaveMultiple = com.multipleAppointment === true;
+                    // Lista di appuntamenti da mostrare (rispetta canHaveMultiple)
+                    const displayAppointments = canHaveMultiple 
+                      ? appointmentsInSlot 
+                      : appointmentsInSlot.slice(0, 1); // Mostra solo il primo se multiple=false
+
+                    const slotHasAppointments = displayAppointments.length > 0;
+                    // --- FINE MODIFICA ---
+
                     return (
                       <div
                         key={i}
                         className="relative border-t border-r h-16 cursor-pointer hover:bg-gray-100"
                         onClick={() => {
-                          if (occupied) {
-                            setSelectedAppuntamento(occupied);
-                          } else {
-                            setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
-                          }
+                          // Click sulla cella: apre sempre CREA (per aggiungere)
+                          setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
                         }}
                       >
-                        {occupied && (
+                        {/* --- INIZIO MODIFICA RENDER --- */}
+
+                        {/* Se 0 appuntamenti, non renderizza nulla (cella vuota) */}
+
+                        {/* Caso 1: Un solo appuntamento (o multipli non permessi) */}
+                        {slotHasAppointments && displayAppointments.length === 1 && (
                           <div
                             className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
-                            // 5. Usiamo com.color (che include l'override)
                             style={{ backgroundColor: com.color || '#3B82F6' }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Evita che si apra "Crea"
+                              setSelectedAppuntamento(displayAppointments[0]);
+                            }}
                           >
                             <div className="font-medium truncate">
-                              {occupied.cliente.azienda}<br className='gap-y-1'/>
-                              {occupied.cliente.cognome}
+                              {displayAppointments[0].cliente.azienda}<br className='gap-y-1'/>
+                              {displayAppointments[0].cliente.cognome}
                             </div>
                             <div>
-                              {formatAppointmentHour(occupied.orario[0])}–
+                              {formatAppointmentHour(displayAppointments[0].orario[0])}–
                               {(() => {
-                                const last = new Date(occupied.orario[occupied.orario.length - 1]);
+                                const last = new Date(displayAppointments[0].orario[displayAppointments[0].orario.length - 1]);
                                 last.setMinutes(last.getMinutes() + 30);
                                 return `${nove(last.getHours())}:${last.getMinutes() === 0 ? '00' : '30'}`;1
                               })()}
                             </div>
                           </div>
                         )}
+
+                        {/* Caso 2: Multipli appuntamenti permessi e presenti */}
+                        {slotHasAppointments && displayAppointments.length > 1 && (
+                          <div className="flex flex-col h-full w-full overflow-hidden">
+                            {displayAppointments.map((occupied) => (
+                              <div
+                                key={occupied.id}
+                                className="text-white text-xs p-0.5 overflow-hidden rounded hover:brightness-125"
+                                style={{ 
+                                  backgroundColor: com.color || '#3B82F6', 
+                                  minHeight: `${100 / displayAppointments.length}%` // Divide l'altezza
+                                }}
+                                onClick={(e) => {
+                                  e.stopPropagation(); // Evita che si apra "Crea"
+                                  setSelectedAppuntamento(occupied);
+                                }}
+                              >
+                                <div className="font-medium truncate">
+                                  {occupied.cliente.azienda}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* --- FINE MODIFICA RENDER --- */}
                       </div>
                     );
                   })}
