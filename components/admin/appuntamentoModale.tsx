@@ -12,8 +12,9 @@ import {
   PiNoteBlankLight,
 } from "react-icons/pi";
 import { TfiEmail } from "react-icons/tfi";
-import { FaBuildingUser } from "react-icons/fa6";
+// import { FaBuildingUser } from "react-icons/fa6"; // Non usato
 import { CiUser } from "react-icons/ci";
+
 type Props = {
   appuntamento: {
     id: string;
@@ -29,19 +30,21 @@ type Props = {
       cognome: string | null;
       societa: string | null;
     };
-    ownerId: string; // <-- aggiornato campo
-    commercialeId: string; // <-- aggiunto per invio email
-    invitati?: string[]; 
+    ownerId: string;
+    commercialeId: string;
+    invitati?: string[];
     orario: string[];
     note: string;
   };
   onClose: () => void;
 };
+
 type Invitato = {
   id: string;
   name: string;
   cognome: string;
 };
+
 export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) => {
   const { cliente, commerciale, orario } = appuntamento;
   const { t } = useTranslation();
@@ -51,66 +54,58 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
   const [altCommercialeName, setAltCommercialeName] = useState<string | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [invitati, setInvitati] = useState<Invitato[]>([]);
-  // Stato toast
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     const fetchInvitati = async () => {
       if (appuntamento.invitati && appuntamento.invitati.length > 0) {
         const risultati = await getNomiInvitati(appuntamento.invitati);
-  
-        // Filtra rimuovendo l'invitato che ha lo stesso ID del commerciale principale
         const filtrati = risultati.filter((inv) => inv.id !== appuntamento.commercialeId);
-  
         setInvitati(filtrati);
       }
     };
-  
     fetchInvitati();
   }, [appuntamento.invitati, appuntamento.commercialeId]);
 
-
-   const getNomiInvitati = async (ids: string[]): Promise<Invitato[]> => {
+  const getNomiInvitati = async (ids: string[]): Promise<Invitato[]> => {
     if (!ids || ids.length === 0) return [];
-  
+
     const res = await fetch('/api/user/invitati', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ids }),
     });
-  
+
     if (!res.ok) throw new Error('Errore nel recupero utenti');
-  
+
     const data = await res.json();
-  
+
     return data.map((u: any) => ({
       id: u.id,
       name: u.name ?? '',
       cognome: u.cognome ?? '',
     }));
   };
-  
 
   const getCommercialeNameIfInvitato = async (app: Appuntamento): Promise<string | null> => {
-      if (!app || !app.commerciale || !app['ownerId'] || !app['commercialeId']) return null
-  
-    // Se owner e commerciale coincidono, nessun invitato
+    if (!app || !app.commerciale || !app['ownerId'] || !app['commercialeId']) return null
     if (app.ownerId === app.commercialeId) return null
-  
+
     try {
       const res = await fetch(`/api/users/${app.ownerId}`)
       if (!res.ok) throw new Error('Errore nel recupero del commerciale')
-  
+
       const data = await res.json()
       const nome = data?.name ?? ''
       const cognome = data?.cognome ?? ''
-  
+
       return `${nome} ${cognome}`.trim()
     } catch (error) {
       console.error('Errore nel recupero commerciale invitato:', error)
       return null
     }
   }
+
   useEffect(() => {
     const fetchAltCommerciale = async () => {
       const name = await getCommercialeNameIfInvitato(appuntamento);
@@ -118,7 +113,6 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
     };
     fetchAltCommerciale();
   }, [appuntamento]);
-
 
   const handleDeleteAppuntamento = async () => {
     setIsDeleting(true);
@@ -128,7 +122,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
 
     if (res.ok) {
       setShowConfirm(false);
-      onClose(); // chiude il modale principale
+      onClose();
     } else {
       console.error(t('errdel'));
       setToast({ message: t('errdel'), type: 'error' });
@@ -142,94 +136,138 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       setToast({ message: t('emailNonDisponibile'), type: 'error' });
       return;
     }
-  let destinatariIds: string[] = [];
-  if (appuntamento.commercialeId === appuntamento.ownerId) {
-     destinatariIds = [
-      appuntamento.commercialeId,
-      ...(appuntamento.invitati ?? []),
-    ];
-  } else{
-     destinatariIds = [
-      appuntamento.commercialeId,
-      appuntamento.ownerId, // Aggiungi l'ownerId per inviare a chi ha creato l'appuntamento
-      ...(appuntamento.invitati ?? []),
-    ];
-  }
+
+    setIsSending(true);
+
     try {
+      // 1. Recupera le email dei commerciali/invitati
+      let destinatariIds: string[] = [];
+      if (appuntamento.commercialeId === appuntamento.ownerId) {
+        destinatariIds = [
+          appuntamento.commercialeId,
+          ...(appuntamento.invitati ?? []),
+        ];
+      } else {
+        destinatariIds = [
+          appuntamento.commercialeId,
+          appuntamento.ownerId, // Aggiungi l'ownerId per inviare a chi ha creato l'appuntamento
+          ...(appuntamento.invitati ?? []),
+        ];
+      }
+
       const emailRes = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ids: destinatariIds }),
       });
-  
+
       const data = await emailRes.json();
-  
+
       if (!emailRes.ok || !Array.isArray(data.emails)) {
-        throw new Error('Errore nel recupero delle email');
+        throw new Error('Errore nel recupero delle email dei commerciali');
       }
-  
-      const emailsToSend = data.emails;
-  
-      setIsSending(true);
-  
+
+      const emailsCommerciali = data.emails.filter(Boolean); // Filtra email nulle o vuote
+
+      // 2. Prepara i dati comuni
       const start = new Date(orario[0]);
       const end = new Date(orario[orario.length - 1]);
       end.setMinutes(end.getMinutes() + 30);
       const pad = (n: number) => n.toString().padStart(2, '0');
       const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
       const formattedDate = start.toLocaleDateString('it-IT');
-  
-      const html = 
-     
-      `<h2>Appointment Confirmation</h2>
 
-<p>
-  Dear ${cliente.nome ?? ''} ${cliente.cognome ?? ''},
-</p>
-<p>
-  This is to confirm your appointment scheduled as follows:
-</p>
-<ul>
-  <li><strong>Date:</strong> ${formattedDate}</li>
-  <li><strong>Time:</strong> ${formattedTime}</li>
-  <li><strong>Representative:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''} </li>
-</ul>
-<p>
-  Best regards,<br/>
-  ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}
-</p>
+      // 3. Prepara Email per il Cliente
+      const htmlCliente = `
+        <h2>Appointment Confirmation</h2>
+        <p>Dear ${cliente.nome ?? ''} ${cliente.cognome ?? ''},</p>
+        <p>This is to confirm your appointment scheduled as follows:</p>
+        <ul>
+          <li><strong>Date:</strong> ${formattedDate}</li>
+          <li><strong>Time:</strong> ${formattedTime}</li>
+          <li><strong>Representative:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}</li>
+        </ul>
+        <p>Best regards,<br/>
+        ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}
+        </p>
+      `;
 
-    `;
+      const promiseCliente = fetch('/api/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: [cliente.email],
+          subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
+          html: htmlCliente,
+        }),
+      });
 
-      try {
-        const res = await fetch('/api/sendMail', {
+      // 4. Prepara Email per i Commerciali
+      const htmlCommerciale = `
+        <h2>Dettagli Appuntamento Fiera</h2>
+        <p>È stato confermato un appuntamento:</p>
+        <ul>
+          <li><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</li>
+          <li><strong>Email Cliente:</strong> ${cliente.email ?? 'N/D'}</li>
+          <li><strong>Azienda:</strong> ${cliente.azienda ?? 'N/D'}</li>
+          <li><strong>Ruolo:</strong> ${cliente.ruolo ?? 'N/D'}</li>
+          <li><strong>Data:</strong> ${formattedDate}</li>
+          <li><strong>Orario:</strong> ${formattedTime}</li>
+          <li><strong>Commerciale Principale:</strong> ${commerciale.name ?? ''} ${commerciale.cognome ?? ''}</li>
+          ${appuntamento.note ? `<li><strong>Note:</strong> ${appuntamento.note}</li>` : ''}
+        </ul>
+        <p>Questo è un promemoria automatico.</p>
+      `;
+
+      const promises = [promiseCliente];
+
+      // Aggiungi la promise per i commerciali solo se ci sono destinatari
+      if (emailsCommerciali.length > 0) {
+        const promiseCommerciale = fetch('/api/sendMail', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            //qua e dove manda le mail se vuoi renderlo diverso tra commerciale e tra cliente, lascia solo cliente e crea una funziona async da richiamare dopo questa per mandare la mail al commerciale #emailnotion cosi che mandi al commerciale il nome dell azienda con cui deve avere l incontro e al cliente il nome di chi deve incontrare 
-            to: [cliente.email, ...emailsToSend].filter(Boolean),
-            subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
-            html,
+            to: emailsCommerciali,
+            subject: `ZEGNA BARUFFA: Dettagli Appuntamento Fiera - ${cliente.azienda ?? cliente.nome}`,
+            html: htmlCommerciale,
           }),
         });
-  console.log('Invio email a:', [cliente.email, ...emailsToSend].filter(Boolean));
-        if (res.ok) {
-          setToast({ message: t('emailInviata'), type: 'success' });
-        } else {
-          throw new Error('Errore invio email');
-        }
-      } catch (error) {
-        console.error(error);
-        setToast({ message: t('errInvioEmail'), type: 'error' });
+        promises.push(promiseCommerciale);
+      } else {
+        console.log("Nessuna email commerciale interna da inviare.");
       }
-  
-      setIsSending(false);
+
+      // 5. Invia entrambe le email in parallelo
+      const results = await Promise.all(promises);
+
+      // 6. Controlla i risultati
+      const allOk = results.every(res => res.ok);
+
+      if (allOk) {
+        setToast({ message: t('emailInviata'), type: 'success' });
+        console.log('Invio email a cliente:', [cliente.email]);
+        if(emailsCommerciali.length > 0) {
+          console.log('Invio email a commerciali:', emailsCommerciali);
+        }
+      } else {
+        // Logga quale email ha fallito
+        results.forEach((res, index) => {
+          if (!res.ok) {
+            const target = index === 0 ? 'cliente' : 'commerciali';
+            console.error(`Errore invio email a ${target}`, res.status, res.statusText);
+          }
+        });
+        throw new Error('Errore: almeno una email non è stata inviata.');
+      }
+
     } catch (error) {
       console.error(error);
       setToast({ message: t('errInvioEmail'), type: 'error' });
+    } finally {
       setIsSending(false);
     }
   };
+
   // Toast auto-dismiss
   useEffect(() => {
     if (toast) {
@@ -382,15 +420,3 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
     </>
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
