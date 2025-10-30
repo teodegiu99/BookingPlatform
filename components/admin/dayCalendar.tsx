@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react'; // 1. Importato useMemo
 import Image from 'next/image';
 import { FaArrowLeft, FaArrowRight } from 'react-icons/fa';
 import { AppuntamentoModal } from './appuntamentoModale';
@@ -10,6 +10,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { FaCalendarAlt } from 'react-icons/fa';
 import DatePicker from 'react-datepicker';
 import { useTranslation } from "@/lib/useTranslation";
+import { useSession } from "next-auth/react"; 
 
 const hours = Array.from({ length: 20 }, (_, i) => 9 + i / 2);
 const formatHour = (h: number) => {
@@ -26,9 +27,9 @@ type Appuntamento = {
   id: string;
   orario: string[];
   note: string;
-  ownerId: string; // <-- aggiornato campo
+  ownerId: string; 
   commercialeId: string;
-  invitati?: string[];  //forse rompo tutto
+  invitati?: string[];
   cliente: {
     nome: string | null;
     cognome: string | null;
@@ -54,6 +55,8 @@ type Commerciale = {
   color: string | null;
   societa: string | null;
   cognome: string | null;
+  email: string | null; // 1. Aggiunto email
+  multipleAppointment?: boolean; 
 };
 
 type Props = {
@@ -68,12 +71,14 @@ const isSameDay = (date1: Date, date2: Date) =>
 
 const formatAppointmentHour = (iso: string) => {
   const d = new Date(iso);
-  // console.log(`${d.getHours()}:${d.getMinutes() === 0 ? '00' : '30'}`);
   return `${nove(d.getHours())}:${d.getMinutes() === 0 ? '00' : '30'}`;
 };
 
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
   const { t } = useTranslation();
+  const { data: session } = useSession();
+  // 2. Aggiunto email al cast della sessione
+  const user = session?.user as { name?: string | null, cognome?: string | null, email?: string | null }; 
 
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<Appuntamento | null>(null);
@@ -84,7 +89,8 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
 
   const [colorModalOpen, setColorModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
-  const [commercialiState, setCommercialiState] = useState(commerciali);
+  
+  const [colorOverrides, setColorOverrides] = useState<Record<string, string>>({});
 
   const filtered = appuntamenti.filter((a) =>
     a.orario.some((slot) => isSameDay(new Date(slot), selectedDate))
@@ -98,10 +104,58 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
     });
   };
 
+  // 3. Creiamo la lista ordinata e con i colori aggiornati usando useMemo
+  const sortedCommerciali = useMemo(() => {
+    
+    // 3. (FIX) Dati utente normalizzati per EMAIL
+    const userEmail = user?.email ? user.email.trim().toLowerCase() : null;
+
+    // Applica prima gli override dei colori
+    const listWithOverrides = commerciali.map(com => ({
+      ...com,
+      color: colorOverrides[com.id] || com.color, // Usa l'override se esiste
+    }));
+
+    // Poi ordina la lista
+    listWithOverrides.sort((a, b) => {
+        // --- Priorità 1: multipleAppointment ---
+        const aHasMulti = a.multipleAppointment === true;
+        const bHasMulti = b.multipleAppointment === true;
+
+        if (aHasMulti && !bHasMulti) return -1; 
+        if (!aHasMulti && bHasMulti) return 1;  
+        
+        // --- Priorità 2: Utente corrente (basata su email) ---
+        const aEmail = a.email ? a.email.trim().toLowerCase() : null;
+        const bEmail = b.email ? b.email.trim().toLowerCase() : null;
+
+        let aIsUser = false;
+        let bIsUser = false;
+        
+        if (user && userEmail) { // Confronta solo se l'utente è loggato E ha un'email
+          aIsUser = (aEmail === userEmail);
+          bIsUser = (bEmail === userEmail);
+        }
+
+        if (aIsUser && !bIsUser) return -1; 
+        if (!aIsUser && bIsUser) return 1;  
+
+        // --- Priorità 3: Ordine alfabetico ---
+        const aVal = (a.cognome || a.name || '').toLowerCase();
+        const bVal = (b.cognome || b.name || '').toLowerCase();
+        return aVal.localeCompare(bVal);
+    });
+    
+    return listWithOverrides;
+
+  }, [commerciali, user, colorOverrides]); // Dipendenze: props, sessione, colori locali
+
+
   return (
     <>
       {/* Header */}
       <div className="flex items-center justify-between mb-4 px-2">
+{/* ... (codice header invariato) ... */}
         <button
           onClick={() => changeDay(-1)}
           className="px-3 py-1 bg-gray-200 rounded hover:bg-gray-300"
@@ -165,17 +219,12 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
 
 
           {/* Riga per ogni commerciale */}
-          {[...commercialiState]
-            .sort((a, b) => {
-              const aVal = (a.cognome || a.name || '').toLowerCase();
-              const bVal = (b.cognome || b.name || '').toLowerCase();
-              return aVal.localeCompare(bVal);
-            })
-            .map((com) => {
+          {/* 4. Mappiamo la nuova lista memoizzata */}
+          {sortedCommerciali.map((com) => {
               const displayName = com.name?.charAt(0) ? com.name+ ' ' + com.cognome : com.cognome
                 ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
                 : (com.name ? com.name + com.name.slice(1).toLowerCase() : '');
-              // const displayName = com.cognome? + " " +  com.name
+              
               return (
                 <React.Fragment key={com.id}>
                   {/* Colonna info commerciale */}
@@ -183,7 +232,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
       
                     <button
                       onClick={() => {
-                        setSelectedUserId(com.id);
+                        setSelectedUserId(com.id); // Questo è corretto
                         setColorModalOpen(true);
                       }}
                       className="text-sm font-regular hover:underline focus:outline-none flex flex-col items-start"
@@ -221,6 +270,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                         {occupied && (
                           <div
                             className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
+                            // 5. Usiamo com.color (che include l'override)
                             style={{ backgroundColor: com.color || '#3B82F6' }}
                           >
                             <div className="font-medium truncate">
@@ -260,7 +310,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           open={true}
           onClose={() => setSlotToCreate(null)}
           commercialeId={slotToCreate.commercialeId}
-          selectedDate={selectedDate.toISOString().split('T')[0]} // ✅ stringa: "2025-05-27"
+          selectedDate={selectedDate.toISOString().split('T')[0]} 
           startHour={slotToCreate.startHour}
           appuntamenti={filtered}
         />
@@ -273,14 +323,15 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
           onClose={() => setColorModalOpen(false)}
           userId={selectedUserId}
           onColorChange={(newColor) => {
-            setCommercialiState((prev) =>
-              prev.map((c) =>
-                c.id === selectedUserId ? { ...c, color: newColor } : c
-              )
-            );
+            // 6. Aggiorna solo lo stato degli override
+            setColorOverrides(prev => ({
+              ...prev,
+              [selectedUserId]: newColor
+            }));
           }}
         />
       )}
     </>
   );
 };
+

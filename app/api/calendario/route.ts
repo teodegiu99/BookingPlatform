@@ -23,6 +23,8 @@ export async function GET() {
       societa: true,
       image: true,
       color: true,
+      multipleAppointment: true,
+      email: true,
     },
   });
 
