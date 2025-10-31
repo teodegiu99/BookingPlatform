@@ -21,6 +21,70 @@ type Commerciale = {
   email: string;
 };
 
+// --- (FIX 1) FUNZIONI HELPER PER CALENDARIO ---
+
+/**
+ * Formatta una data in formato iCalendar (UTC).
+ * Es: 20251031T103000Z
+ */
+const formatIcsDate = (date: Date): string => {
+  // (FIX) La funzione pad ora usa padStart e restituisce sempre string
+  const pad = (n: number): string => n.toString().padStart(2, '0');
+  
+  return (
+    date.getUTCFullYear() +
+    pad(date.getUTCMonth() + 1) +
+    pad(date.getUTCDate()) +
+    'T' +
+    pad(date.getUTCHours()) +
+    pad(date.getUTCMinutes()) +
+    pad(date.getUTCSeconds()) +
+    'Z'
+  );
+};
+
+/**
+ * Crea il contenuto di un file .ics.
+ */
+const createIcsContent = (
+  uid: string,
+  start: Date,
+  end: Date,
+  summary: string,
+  description: string,
+  location: string
+): string => {
+  const dtStamp = formatIcsDate(new Date()); // Data di creazione
+  const dtStart = formatIcsDate(start);
+  const dtEnd = formatIcsDate(end);
+
+  // Sostituisce le interruzioni di riga HTML (<br/>) con \n per il file .ics
+  const plainDescription = description
+    .replace(/<br\s*\/?>/gi, '\\n')
+    .replace(/<[^>]+>/g, ''); // Rimuove altro HTML
+
+  const icsLines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//ZegnaBaruffa//Appuntamento//IT',
+    'BEGIN:VEVENT',
+    `UID:${uid}`,
+    `DTSTAMP:${dtStamp}`,
+    `DTSTART:${dtStart}`,
+    `DTEND:${dtEnd}`,
+    `SUMMARY:${summary}`,
+    `DESCRIPTION:${plainDescription}`,
+    `LOCATION:${location}`,
+    'STATUS:CONFIRMED',
+    'END:VEVENT',
+    'END:VCALENDAR',
+  ];
+  return icsLines.join('\r\n');
+};
+
+// --- FINE HELPER ---
+
+
 export const dynamic = 'force-dynamic';
 
 const TimeSlotList = ({ userId }: { userId: string }) => {
@@ -38,6 +102,7 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [commerciale, setCommerciale] = useState<Commerciale | null>(null);
   const [invitatoda, setInvitatoda] = useState<{ nome: string; cognome: string } | null>(null);
+  const [isSending, setIsSending] = useState(false); 
 
     const fetchSlotsData = async () => {
     const formattedDate = selectedDate.toLocaleDateString('it-IT');
@@ -92,7 +157,7 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
     };
   
     fetchOwner();
-  }, [selectedAppuntamento]);
+  }, [selectedAppuntamento, userId]); // Aggiunto userId alle dipendenze
 
 
   const openModal = (slot: Date) => {
@@ -110,7 +175,7 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
     fetch("/api/user")
       .then((r) => r.json())
       .then((data) => setCommerciale(data));
-    console.log(commerciale);
+    // console.log(commerciale); // Rimosso log ridondante
   }, []);
 
   const addNextSlot = () => {
@@ -136,13 +201,13 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
   };
 
   const getCommercialeById = async (id: string) => {
-    if (!id || id === selectedAppuntamento?.commercialeId) return null;
+    if (!id) return null; // Rimosso controllo 'id === selectedAppuntamento?.commercialeId'
   
     try {
       const res = await fetch(`/api/users/${id}`);
       if (!res.ok) throw new Error('Errore nel recupero del commerciale');
       const data = await res.json();
-    console.log(data);
+    // console.log(data); // Rimosso log
       return { nome: data.name, cognome: data.cognome };
     } catch (error) {
       console.error('Errore durante il recupero del commerciale:', error);
@@ -254,59 +319,136 @@ const user = session?.user.role;
   }, [toast]);
 
 
+  // --- (FIX 2) LOGICA DI INVIO EMAIL SEPARATA CON CALENDARI ---
   const handleSendMail = async () => {
     if (!selectedAppuntamento) return;
-  
-    const destinatari = [
-      selectedAppuntamento.cliente.email,
-      ...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []),
-      session?.user.email,
-    ].filter(Boolean); // Rimuove eventuali `undefined` o `null`
-    console.log(...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []))
-    console.log(selectedAppuntamento.invitati);
-    console.log(destinatari);
-    console.log(selectedAppuntamento);
-    const timeRange = getTimeRangeFromAppuntamento(selectedAppuntamento);
 
-    const res = await fetch('/api/sendMail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: destinatari,
-        subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
-        html: `
-             <h2>Appointment Confirmation</h2>
+    const { cliente } = selectedAppuntamento;
 
-      <p>
-        Dear ${selectedAppuntamento.cliente.nome ?? ''} ${selectedAppuntamento.cliente.cognome ?? ''},
-      </p>
+    if (!cliente.email) {
+      setToast({ message: t('emailNonDisponibile'), type: 'error' });
+      return;
+    }
+
+    setIsSending(true);
+
+    try {
+      const timeRange = getTimeRangeFromAppuntamento(selectedAppuntamento);
+      const formattedDate = selectedDate.toLocaleDateString('it-IT');
+
+      // Definisci le date di inizio e fine per .ics
+      const startDate = new Date(selectedAppuntamento.orari[0]);
+      const endDate = new Date(selectedAppuntamento.orari[selectedAppuntamento.orari.length - 1]);
+      endDate.setMinutes(endDate.getMinutes() + 30);
+
+      // --- 1. Email e ICS per il Cliente ---
+      const htmlCliente = `
+        <h2>Appointment Confirmation</h2>
+        <p>Dear ${cliente.nome ?? ''} ${cliente.cognome ?? ''},</p>
+        <p>This is to confirm your appointment scheduled as follows:</p>
+        <ul>
+          <li><strong>Date:</strong> ${formattedDate}</li>
+          <li><strong>Time:</strong> ${timeRange}</li>
+          <li><strong>Representative:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
+        </ul>
+        <p>Best regards,<br/>
+           ${commerciale?.name || ''} ${commerciale?.cognome || ''}
+        </p>
+      `;
       
-      <p>
-        This is to confirm your appointment scheduled as follows:
-      </p>
-      
-      <ul>
-        <li><strong>Date:</strong>${selectedDate.toLocaleDateString()}</li>
-        <li><strong>Time:</strong>${timeRange}</li>
-        <li><strong>Representative:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
-      </ul>
-      
-      
-      
-      <p>
-        Best regards,<br/>
-       ${commerciale?.name || ''} ${commerciale?.cognome || ''}<br/>
-      </p>
-      
-      `,
+      const icsContentCliente = createIcsContent(
+        String(selectedAppuntamento.id), // (FIX) Cast a string
+        startDate,
+        endDate,
+        `Appuntamento ZEGNA BARUFFA: ${cliente.azienda ?? ''}`,
+        `Appuntamento con ${commerciale?.name || ''} ${commerciale?.cognome || ''} per ${cliente.azienda ?? ''}.`,
+        'PITTI FILATI'
+      );
+      const icsBase64Cliente = btoa(icsContentCliente);
+
+
+      const promiseCliente = fetch('/api/sendMail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          to: [cliente.email],
+          subject: 'ZEGNA BARUFFA LANE BORGOSESIA - Conferma Appuntamento / Appointment confirmation PITTI FILATI',
+          html: htmlCliente,
+          ics: {
+            filename: 'appuntamento.ics',
+            content: icsBase64Cliente,
+          },
+        }),
+      });
+
+      // --- 2. Email e ICS per Commerciali (Internal) ---
+      const emailsCommerciali = [
+        ...(selectedAppuntamento.invitati?.map((i: any) => i.email) ?? []),
+        session?.user.email,
+      ].filter(Boolean);
+
+      const promises = [promiseCliente];
+
+      if (emailsCommerciali.length > 0) {
+        const htmlCommerciale = `
+          <h2>Dettagli Appuntamento Fiera</h2>
+          <p>È stato confermato un appuntamento:</p>
+          <ul>
+            <li><strong>Cliente:</strong> ${cliente.nome ?? ''} ${cliente.cognome ?? ''}</li>
+            <li><strong>Email Cliente:</strong> ${cliente.email ?? 'N/D'}</li>
+            <li><strong>Azienda:</strong> ${cliente.azienda ?? 'N/D'}</li>
+            <li><strong>Ruolo:</strong> ${cliente.ruolo ?? 'N/D'}</li>
+            <li><strong>Data:</strong> ${formattedDate}</li>
+            <li><strong>Orario:</strong> ${timeRange}</li>
+            <li><strong>Commerciale Principale:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
+            ${selectedAppuntamento.note ? `<li><strong>Note:</strong> ${selectedAppuntamento.note}</li>` : ''}
+          </ul>
+          <p>Questo è un promemoria automatico.</p>
+        `;
+
+        const icsContentCommerciale = createIcsContent(
+          String(selectedAppuntamento.id) + '-commerciale', // (FIX) Cast a string
+          startDate,
+          endDate,
+          `APPUNTAMENTO: ${cliente.azienda ?? ''} (${cliente.nome ?? ''} ${cliente.cognome ?? ''})`,
+          `Appuntamento con ${cliente.azienda ?? ''}.<br/>Cliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''}<br/>Email: ${cliente.email ?? 'N/D'}<br/>Note: ${selectedAppuntamento.note ?? 'N/D'}`,
+          'PITTI FILATI'
+        );
+        const icsBase64Commerciale = btoa(icsContentCommerciale);
+
+        const promiseCommerciale = fetch('/api/sendMail', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: emailsCommerciali,
+            subject: `ZEGNA BARUFFA: Dettagli Appuntamento Fiera - ${cliente.azienda ?? cliente.nome}`,
+            html: htmlCommerciale,
+            ics: {
+              filename: 'appuntamento_interno.ics',
+              content: icsBase64Commerciale,
+            },
           }),
-    });
-  
-    const result = await res.json();
-    if (result.success) {
-      setToast({ message: 'Email inviata con successo', type: 'success' });
-    } else {
-      setToast({ message: 'Errore durante l\'invio dell\'email', type: 'error' });
+        });
+        promises.push(promiseCommerciale);
+      }
+
+      // --- 3. Invia tutto ---
+      const results = await Promise.all(promises);
+      const allOk = results.every(res => res.ok);
+
+      if (allOk) {
+        setToast({ message: 'Email inviate con successo', type: 'success' });
+      } else {
+        const failed = results.filter(res => !res.ok);
+        console.error("Errore invio email:", failed);
+        setToast({ message: `Errore: ${failed.length} email non inviate.`, type: 'error' });
+      }
+
+    } catch (error) {
+      console.error(error);
+      setToast({ message: 'Errore grave durante l\'invio dell\'email', type: 'error' });
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -414,7 +556,13 @@ const user = session?.user.role;
              {selectedAppuntamento.cliente.nome && <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>}
             </ul>
             <div className="flex justify-end gap-2">
-    <button name="mail" onClick={handleSendMail} className="px-4 py-2 bg-primary text-white rounded-xl"> {t('inviaEmail')}
+              <button 
+                name="mail" 
+                onClick={handleSendMail} 
+                className="px-4 py-2 bg-primary text-white rounded-xl disabled:opacity-50"
+                disabled={isSending} // <-- (FIX 3) Disabilita bottone
+              > 
+                {isSending ? t('invioInCorso') : t('inviaEmail')}
               </button>
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
                 {t('chiudi')}
@@ -459,5 +607,4 @@ const user = session?.user.role;
 };
 
 export default TimeSlotList;
-
 
