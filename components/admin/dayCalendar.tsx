@@ -96,6 +96,18 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
     a.orario.some((slot) => isSameDay(new Date(slot), selectedDate))
   );
 
+  // --- (FIX 1) PALETTE COLORI PER STACK ---
+  // Colori usati per il 2°, 3°, 4° appuntamento ecc. nello stesso slot
+  const stackedAppointmentColors = [
+    '#10B981', // green-500
+    '#EF4444', // red-500
+    '#F59E0B', // amber-500
+    '#8B5CF6', // violet-500
+    '#EC4899', // pink-500
+    '#64748B', // slate-500
+  ];
+  // --- FINE FIX 1 ---
+
   const changeDay = (days: number) => {
     setSelectedDate((prev) => {
       const newDate = new Date(prev);
@@ -304,30 +316,39 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                           </div>
                         )}
 
-                        {/* Caso 2: Multipli appuntamenti permessi e presenti */}
+                        {/* --- (FIX 2) Caso 2: Multipli appuntamenti (Logica Colori) --- */}
                         {slotHasAppointments && displayAppointments.length > 1 && (
                           <div className="flex flex-col h-full w-full overflow-hidden">
-                            {displayAppointments.map((occupied) => (
-                              <div
-                                key={occupied.id}
-                                className="text-white text-xs p-0.5 overflow-hidden rounded hover:brightness-125"
-                                style={{ 
-                                  backgroundColor: com.color || '#3B82F6', 
-                                  minHeight: `${100 / displayAppointments.length}%` // Divide l'altezza
-                                }}
-                                onClick={(e) => {
-                                  e.stopPropagation(); // Evita che si apra "Crea"
-                                  setSelectedAppuntamento(occupied);
-                                }}
-                              >
-                                <div className="font-medium truncate">
-                                  {occupied.cliente.azienda}
+                            {displayAppointments.map((occupied, index) => {
+
+                              // Il primo app (index 0) usa il colore del commerciale
+                              // Gli altri usano la palette a rotazione
+                              const bgColor = index === 0 
+                                ? (com.color || '#3B82F6') 
+                                : stackedAppointmentColors[(index - 1) % stackedAppointmentColors.length];
+
+                              return (
+                                <div
+                                  key={occupied.id}
+                                  className="text-white text-xs p-0.5 overflow-hidden rounded hover:brightness-125"
+                                  style={{ 
+                                    backgroundColor: bgColor, // <-- USA LA NUOVA LOGICA
+                                    minHeight: `${100 / displayAppointments.length}%` // Divide l'altezza
+                                  }}
+                                  onClick={(e) => {
+                                    e.stopPropagation(); // Evita che si apra "Crea"
+                                    setSelectedAppuntamento(occupied);
+                                  }}
+                                >
+                                  <div className="font-medium truncate">
+                                    {occupied.cliente.azienda}
+                                  </div>
                                 </div>
-                              </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         )}
-                        {/* --- FINE MODIFICA RENDER --- */}
+                        {/* --- FINE FIX 2 --- */}
                       </div>
                     );
                   })}
