@@ -85,20 +85,22 @@ function formatOrario(orario: string[], t: string): string {
   return `${dateStr.charAt(0).toUpperCase()}${dateStr.slice(1)}, ${timeRange}`
 }
 
-export default function AppointmentSearch() {
-  const { t } = useTranslation()
+export default function AppointmentSearch({ targetUserId }: { targetUserId?: string }) {
+    const { t } = useTranslation()
   const [inputValue, setInputValue] = useState('')
   const [options, setOptions] = useState<Option[]>([])
   const [selectedApp, setSelectedApp] = useState<Appuntamento | null>(null)
   const selectInstanceId = useId()
 
   const fetcher = async (): Promise<Appuntamento[]> => {
-    return await getAllAppuntamentiByCommerciale()
+    return await getAllAppuntamentiByCommerciale(targetUserId)
   }
 
-  const { data: allAppuntamenti = [], isLoading } = useSWR('appuntamenti', fetcher, {
-    refreshInterval: 2400,
-  })
+const { data: allAppuntamenti = [], isLoading } = useSWR(
+    ['appuntamenti', targetUserId], 
+    fetcher, 
+    { refreshInterval: 2400 }
+  )
 
   const formatOption = useCallback((app: Appuntamento): Option => ({
     value: app.id,

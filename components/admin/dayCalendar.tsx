@@ -25,7 +25,7 @@ const nove = (h: number) => {
 }; 
 type Appuntamento = {
   id: string;
-  orario: string[];
+  orario: string[]; 
   note: string;
   ownerId: string; 
   commercialeId: string;

@@ -11,7 +11,7 @@ import { FiTrash2 } from 'react-icons/fi';
 import { deleteAppuntamento } from '@/actions/deleteSlot';
 import useSWR from 'swr';
 import { useTranslation } from '@/lib/useTranslation';
-
+import { toast } from 'sonner';
 type UserOption = { value: string; label: string };
 
 type Commerciale = {
@@ -99,15 +99,16 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
   const [invitatiOptions, setInvitatiOptions] = useState<UserOption[]>([]);
   const [selectedInvitati, setSelectedInvitati] = useState<UserOption[]>([]);
   const [selectedAppuntamento, setSelectedAppuntamento] = useState<any | null>(null);
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+const [localMessage, setLocalMessage] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   const [commerciale, setCommerciale] = useState<Commerciale | null>(null);
   const [invitatoda, setInvitatoda] = useState<{ nome: string; cognome: string } | null>(null);
   const [isSending, setIsSending] = useState(false); 
-
+// Se l'ID passato al componente è diverso dall'ID dell'utente loggato, siamo in "view mode"
+  const isReadOnly = session?.user?.id && session.user.id !== userId;
     const fetchSlotsData = async () => {
     const formattedDate = selectedDate.toLocaleDateString('it-IT');
-    const available = await getAvailableSlotsByDay(formattedDate, userId);
-    const allApp = await getAppuntamentiByDayAndCommerciale(userId, selectedDate);
+const available = await getAvailableSlotsByDay(formattedDate, userId);
+ const allApp = await getAppuntamentiByDayAndCommerciale(userId, selectedDate);
     const booked = allApp.filter((app) =>
       app.orari.some((str: string) => new Date(str).toLocaleDateString('it-IT') === formattedDate)
     );
@@ -250,12 +251,12 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
     }
   
     if (!res.success) {
-      setToast({ message: res.message ?? 'Errore sconosciuto', type: 'error' });
+      setLocalMessage({ message: res.message ?? 'Errore sconosciuto', type: 'error' });
       return;
     }
   
     formRef.current?.reset();
-    setToast({ message: t('appsucc'), type: 'success' });
+    setLocalMessage({ message: t('appsucc'), type: 'success' });
     closeModal();
     mutate();
   };
@@ -279,12 +280,12 @@ const [formValues, setFormValues] = useState<FormData | null>(null);
     const res = await createAppuntamento(payload);
   
     if (!res.success) {
-      setToast({ message: res.message ?? 'Errore durante la creazione', type: 'error' });
+      setLocalMessage({ message: res.message ?? 'Errore durante la creazione', type: 'error' });
       setClienteEsistente(false);
       return;
     }
   
-    setToast({ message: t('appsucc'), type: 'success' });
+    setLocalMessage({ message: t('appsucc'), type: 'success' });
     setClienteEsistente(false);
     setFormValues(null);
     closeModal();
@@ -294,11 +295,23 @@ const user = session?.user.role;
 
 
 
-  const handleSlotClick = (slot: Date) => openModal(slot);
+ const handleSlotClick = (slot: Date) => {
+    if (isReadOnly) {
+      // Opzionale: mostra un avviso
+toast.info(t('sola_lettura_alert'));
+      return; // Blocca l'apertura del modale
+    }
+    openModal(slot);
+  };
 
-  const handleBookedClick = (app: any) => setSelectedAppuntamento(app);
-
+const handleBookedClick = (app: any) => {
+     // Decidi tu: vuoi fargli vedere i dettagli ma non cancellare?
+     // Se vuoi vedere i dettagli, lascia così. 
+     // Se vuoi bloccare anche i dettagli: if (isReadOnly) return;
+     setSelectedAppuntamento(app);
+  };
   const handleDeleteAppuntamento = async () => {
+if (isReadOnly) return; // Blocca cancellazione
     if (!selectedAppuntamento) return;
     if (!confirm(t('confdel'))) return;
 
@@ -307,17 +320,16 @@ const user = session?.user.role;
       setSelectedAppuntamento(null);
       mutate();
     } else {
-      setToast({ message: t('errdel'), type: 'error' });
+      setLocalMessage({ message: t('errdel'), type: 'error' });
     }
   };
 
   useEffect(() => {
-    if (toast) {
-      const timer = setTimeout(() => setToast(null), 4000);
+    if (localMessage) {
+      const timer = setTimeout(() => setLocalMessage(null), 4000);
       return () => clearTimeout(timer);
     }
-  }, [toast]);
-
+  }, [localMessage]);
 
   // --- (FIX 2) LOGICA DI INVIO EMAIL SEPARATA CON CALENDARI ---
   const handleSendMail = async () => {
@@ -326,7 +338,7 @@ const user = session?.user.role;
     const { cliente } = selectedAppuntamento;
 
     if (!cliente.email) {
-      setToast({ message: t('emailNonDisponibile'), type: 'error' });
+      setLocalMessage({ message: t('emailNonDisponibile'), type: 'error' });
       return;
     }
 
@@ -437,16 +449,16 @@ const user = session?.user.role;
       const allOk = results.every(res => res.ok);
 
       if (allOk) {
-        setToast({ message: 'Email inviate con successo', type: 'success' });
+        setLocalMessage({ message: 'Email inviate con successo', type: 'success' });
       } else {
         const failed = results.filter(res => !res.ok);
         console.error("Errore invio email:", failed);
-        setToast({ message: `Errore: ${failed.length} email non inviate.`, type: 'error' });
+        setLocalMessage({ message: `Errore: ${failed.length} email non inviate.`, type: 'error' });
       }
 
     } catch (error) {
       console.error(error);
-      setToast({ message: 'Errore grave durante l\'invio dell\'email', type: 'error' });
+      setLocalMessage({ message: 'Errore grave durante l\'invio dell\'email', type: 'error' });
     } finally {
       setIsSending(false);
     }
@@ -457,12 +469,18 @@ const user = session?.user.role;
       <div className="border p-10 rounded-xl shadow space-y-10">
         <div>
           <h2 className="text-xl font-semibold mb-4">{t('slotdisponibili')}</h2>
+          {isReadOnly && <span className="text-sm font-normal text-gray-500 ml-2">(Sola lettura)</span>}
           <div className="flex flex-wrap gap-3">
             {slots.map((slot, i) => (
-              <div
+             <div
                 key={i}
                 onClick={() => handleSlotClick(slot)}
-                className="cursor-pointer px-4 py-2 rounded border text-primary hover:bg-blue-200 shadow"
+                // Stile disabilitato se readOnly
+                className={`px-4 py-2 rounded border shadow transition-colors ${
+                  isReadOnly 
+                    ? 'cursor-default bg-gray-100 text-gray-400 border-gray-200' 
+                    : 'cursor-pointer text-primary hover:bg-blue-200 border-gray-300'
+                }`}
               >
                 {slot.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
               </div>
@@ -556,12 +574,17 @@ const user = session?.user.role;
              {selectedAppuntamento.cliente.nome && <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>}
             </ul>
             <div className="flex justify-end gap-2">
-              <button 
+            <button 
                 name="mail" 
                 onClick={handleSendMail} 
-                className="px-4 py-2 bg-primary text-white rounded-xl disabled:opacity-50"
-                disabled={isSending} // <-- (FIX 3) Disabilita bottone
-              > 
+                // MODIFICA QUI: Disabilita se sola lettura O se sta inviando
+                disabled={isReadOnly || isSending} 
+                className={`px-4 py-2 rounded-xl text-white transition-colors ${
+                  isReadOnly || isSending
+                    ? 'bg-gray-400 cursor-not-allowed opacity-50' // Stile disabilitato
+                    : 'bg-primary hover:bg-primary/90'
+                }`}
+              >
                 {isSending ? t('invioInCorso') : t('inviaEmail')}
               </button>
               <button onClick={() => setSelectedAppuntamento(null)} className="px-4 py-2 bg-gray-300 rounded-xl">
@@ -572,11 +595,11 @@ const user = session?.user.role;
         </div>
       )}
 
-      {toast && (
+      {localMessage && (
         <div className={`fixed bottom-6 right-6 px-4 py-2 rounded shadow-lg text-white ${
-          toast.type === 'success' ? 'bg-green-600' : 'bg-red-600'
+          localMessage.type === 'success' ? 'bg-green-600' : 'bg-red-600'
         }`}>
-          {toast.message}
+          {localMessage.message}
         </div>
       )}
           {clienteEsistente && (

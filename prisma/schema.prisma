@@ -47,6 +47,7 @@ model User {
   lastLogin              DateTime?
   personale            Personale @default(INTERNO)  
   multipleAppointment    Boolean @default(false)
+  estxcomm              String?
 }
 
 model Account {

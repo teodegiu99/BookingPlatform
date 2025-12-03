@@ -62,6 +62,11 @@ export const {
       if (token.role && session.user) {
         session.user.role = token.role as UserRole;
       }
+      if (session.user) {
+         // Recuperiamo il valore salvato nel token o facciamo una query se necessario, 
+         // ma idealmente lo passiamo dal token JWT
+         session.user.estxcomm = token.estxcomm as string | null;
+      }
 
 	//   if (session.user) {
     //     session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
@@ -82,6 +87,7 @@ export const {
       if (!existingUser) return token;
 
       token.role = existingUser.role;
+      token.estxcomm = existingUser.estxcomm;
 
       return token;
     },

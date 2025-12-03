@@ -2,16 +2,32 @@ import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
-  const session = await auth()
-  const userId = session?.user?.id
+export const dynamic = 'force-dynamic';
 
-  if (!userId) {
+export async function GET(req: Request) {
+  const session = await auth()
+  
+  if (!session?.user?.id) {
     return NextResponse.json([], { status: 401 })
   }
 
+  // 1. Leggi il parametro userId dalla query string
+  const { searchParams } = new URL(req.url);
+  const requestedUserId = searchParams.get('userId');
+
+  // 2. Determina l'ID target
+  // Default: il tuo ID
+  let targetUserId = session.user.id;
+
+  // Se è stato richiesto un ID specifico, controlla se è legittimo
+  // (O è il tuo ID, oppure è l'ID che hai nel campo estxcomm)
+  if (requestedUserId && (requestedUserId === session.user.id || requestedUserId === session.user.estxcomm)) {
+    targetUserId = requestedUserId;
+  }
+
+  // 3. Esegui la query con l'ID corretto
   const appuntamenti = await db.appuntamento.findMany({
-    where: { commercialeId: userId },
+    where: { commercialeId: targetUserId },
     include: { cliente: true },
   })
 

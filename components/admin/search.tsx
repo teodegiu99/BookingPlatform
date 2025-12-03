@@ -150,7 +150,7 @@ export default function Search() {
 
   return (
     <>
-      <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%] z-0">
+      <div className="flex justify-center items-center xl:w-[40%] p-5 min-w-[40%] z-40">
         <Select
           className="w-full"
           options={options}

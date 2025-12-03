@@ -5,7 +5,8 @@ import React from 'react'
 import { useDate } from "@/context/DateContext"
 import { useTranslation } from "@/lib/useTranslation";
 
-export function CalendarDemo() {
+// Aggiungi userId alle props
+export function CalendarDemo({ userId }: { userId?: string }) {
   const { selectedDate, setSelectedDate } = useDate()
   const { t } = useTranslation();
 
@@ -26,6 +27,8 @@ export function CalendarDemo() {
           selected={selectedDate}
           onSelect={(date) => date && setSelectedDate(date)}
           className="p-5 text-4xl text-center !rounded-full"
+          // Passa la prop userId qui!
+          userId={userId} 
         />
       </div>
     </div>

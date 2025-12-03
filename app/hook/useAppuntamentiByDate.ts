@@ -2,16 +2,23 @@
 
 import useSWR from 'swr'
 
-export const useAppuntamentiByDate = () => {
-  const fetcher = async () => {
-    const res = await fetch('/api/appuntamenti')
+// Accetta userId opzionale
+export const useAppuntamentiByDate = (userId?: string) => {
+  const fetcher = async (url: string) => {
+    const res = await fetch(url)
     if (!res.ok) throw new Error('Errore nel fetch degli appuntamenti')
     return res.json()
   }
 
-  const { data: appuntamenti = [], error } = useSWR('/api/appuntamenti', fetcher, {
+  // Costruisci l'URL dinamico. Se c'è userId, lo aggiunge alla query.
+  const url = userId 
+    ? `/api/appuntamenti?userId=${userId}` 
+    : '/api/appuntamenti';
+
+  // Usa l'URL come chiave SWR (così ricarica se cambia l'URL)
+  const { data: appuntamenti = [], error } = useSWR(url, fetcher, {
     refreshInterval: 10000,
-  })
+  })  
 
   const dateSet = new Set<string>()
 
@@ -32,6 +39,5 @@ export const useAppuntamentiByDate = () => {
     return date
   })
 
-  console.log("appuntamentiDays:", appuntamentiDays)
   return { appuntamentiDays, error }
 }
