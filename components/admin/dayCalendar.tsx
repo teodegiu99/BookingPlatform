@@ -212,45 +212,48 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
       <div className="overflow-x-auto">
 
 
- <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border-b sticky top-0 bg-white z-30">
-    <div className="border-r bg-gray-100 p-2 font-semibold text-sm">
-      {t('commerciale')}
-    </div>
-    {hours.map((h, i) => (
-      <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 min-w-[80px]">
-        {formatHour(h)}
-      </div>
-    ))}
-  </div>
+{/* Tabella calendario */}
+      {/* FIX: Unico container per scorrimento X e Y. 
+         Questo allinea perfettamente header e body perché condividono la stessa larghezza effettiva
+         e la stessa scrollbar.
+      */}
+      <div className="overflow-auto max-h-[80vh] border border-gray-200 rounded-md relative shadow-sm">
+        
+        {/* Container interno che forza la larghezza minima per attivare lo scroll orizzontale */}
+        <div className="min-w-[1600px]">
+          
+          {/* HEADER: Sticky top-0 per rimanere fisso quando scorri verticalmente */}
+          <div className="grid grid-cols-[200px_repeat(20,_1fr)] border-b bg-white sticky top-0 z-40 shadow-sm">
+            <div className="border-r bg-gray-100 p-2 font-semibold text-sm flex items-center">
+              {t('commerciale')}
+            </div>
+            {hours.map((h, i) => (
+              <div key={i} className="border-r text-xs text-center bg-gray-50 py-2 flex items-center justify-center">
+                {formatHour(h)}
+              </div>
+            ))}
+          </div>
 
-      <div className="overflow-y-auto max-h-[80vh]">
-
-
-        <div className="min-w-[1600px] grid grid-cols-[200px_repeat(20,_1fr)] border">
- 
-
-
-          {/* Riga per ogni commerciale */}
-          {/* 4. Mappiamo la nuova lista memoizzata */}
-          {sortedCommerciali.map((com) => {
-              const displayName = com.name?.charAt(0) ? com.name+ ' ' + com.cognome : com.cognome
+          {/* BODY: Le righe dei commerciali */}
+          <div className="grid grid-cols-[200px_repeat(20,_1fr)] divide-y">
+            {sortedCommerciali.map((com) => {
+              const displayName = com.name?.charAt(0) ? com.name + ' ' + com.cognome : com.cognome
                 ? com.cognome.charAt(0).toUpperCase() + com.cognome.slice(1).toLowerCase()
                 : (com.name ? com.name + com.name.slice(1).toLowerCase() : '');
-              
+
               return (
                 <React.Fragment key={com.id}>
                   {/* Colonna info commerciale */}
-                  <div className="flex items-center gap-2 border-t border-r p-2 bg-gray-50">
-      
+                  <div className="flex items-center gap-2 border-r p-2 bg-gray-50 h-16">
                     <button
                       onClick={() => {
-                        setSelectedUserId(com.id); // Questo è corretto
+                        setSelectedUserId(com.id);
                         setColorModalOpen(true);
                       }}
-                      className="text-sm font-regular hover:underline focus:outline-none flex flex-col items-start"
+                      className="text-sm font-regular hover:underline focus:outline-none flex flex-col items-start text-left"
                     >
-                      {com.societa && <span>{com.societa}</span>}
-                      {displayName}
+                      {com.societa && <span className="font-bold text-gray-600 text-xs">{com.societa}</span>}
+                      <span>{displayName}</span>
                     </button>
                   </div>
 
@@ -258,7 +261,6 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                   {hours.map((h, i) => {
                     const hourStr = formatHour(h);
 
-                    // --- INIZIO MODIFICA: Da .find() a .filter() ---
                     const appointmentsInSlot = filtered.filter(
                       (a) =>
                         a.commerciale.id === com.id &&
@@ -270,39 +272,32 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                     );
 
                     const canHaveMultiple = com.multipleAppointment === true;
-                    // Lista di appuntamenti da mostrare (rispetta canHaveMultiple)
-                    const displayAppointments = canHaveMultiple 
-                      ? appointmentsInSlot 
-                      : appointmentsInSlot.slice(0, 1); // Mostra solo il primo se multiple=false
+                    const displayAppointments = canHaveMultiple
+                      ? appointmentsInSlot
+                      : appointmentsInSlot.slice(0, 1);
 
                     const slotHasAppointments = displayAppointments.length > 0;
-                    // --- FINE MODIFICA ---
 
                     return (
                       <div
                         key={i}
-                        className="relative border-t border-r h-16 cursor-pointer hover:bg-gray-100"
+                        className="relative border-r h-16 cursor-pointer hover:bg-gray-100 bg-white"
                         onClick={() => {
-                          // Click sulla cella: apre sempre CREA (per aggiungere)
                           setSlotToCreate({ commercialeId: com.id, startHour: hourStr });
                         }}
                       >
-                        {/* --- INIZIO MODIFICA RENDER --- */}
-
-                        {/* Se 0 appuntamenti, non renderizza nulla (cella vuota) */}
-
-                        {/* Caso 1: Un solo appuntamento (o multipli non permessi) */}
                         {slotHasAppointments && displayAppointments.length === 1 && (
                           <div
-                            className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded"
+                            className="absolute text-white text-xs p-1 h-full w-full overflow-hidden rounded inset-0 m-[1px]"
                             style={{ backgroundColor: com.color || '#3B82F6' }}
                             onClick={(e) => {
-                              e.stopPropagation(); // Evita che si apra "Crea"
+                              e.stopPropagation();
                               setSelectedAppuntamento(displayAppointments[0]);
                             }}
                           >
                             <div className="font-medium truncate">
-                              {displayAppointments[0].cliente.azienda}<br className='gap-y-1'/>
+                              {displayAppointments[0].cliente.azienda}
+                              <br className='gap-y-1' />
                               {displayAppointments[0].cliente.cognome}
                             </div>
                             <div>
@@ -310,53 +305,50 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                               {(() => {
                                 const last = new Date(displayAppointments[0].orario[displayAppointments[0].orario.length - 1]);
                                 last.setMinutes(last.getMinutes() + 30);
-                                return `${nove(last.getHours())}:${last.getMinutes() === 0 ? '00' : '30'}`;1
+                                return `${nove(last.getHours())}:${last.getMinutes() === 0 ? '00' : '30'}`;
                               })()}
                             </div>
                           </div>
                         )}
 
-                        {/* --- (FIX 2) Caso 2: Multipli appuntamenti (Logica Colori) --- */}
                         {slotHasAppointments && displayAppointments.length > 1 && (
-                          <div className="flex flex-col h-full w-full overflow-hidden">
+                          <div className="flex flex-col h-full w-full overflow-hidden p-[1px]">
                             {displayAppointments.map((occupied, index) => {
-
-                              // Il primo app (index 0) usa il colore del commerciale
-                              // Gli altri usano la palette a rotazione
-                              const bgColor = index === 0 
-                                ? (com.color || '#3B82F6') 
+                              const bgColor = index === 0
+                                ? (com.color || '#3B82F6')
                                 : stackedAppointmentColors[(index - 1) % stackedAppointmentColors.length];
 
                               return (
                                 <div
                                   key={occupied.id}
-                                  className="text-white text-xs p-0.5 overflow-hidden rounded hover:brightness-125"
-                                  style={{ 
-                                    backgroundColor: bgColor, // <-- USA LA NUOVA LOGICA
-                                    minHeight: `${100 / displayAppointments.length}%` // Divide l'altezza
+                                  className="text-white text-xs px-1 overflow-hidden rounded hover:brightness-125 border-b border-white/20 last:border-0"
+                                  style={{
+                                    backgroundColor: bgColor,
+                                    height: `${100 / displayAppointments.length}%`
                                   }}
                                   onClick={(e) => {
-                                    e.stopPropagation(); // Evita che si apra "Crea"
+                                    e.stopPropagation();
                                     setSelectedAppuntamento(occupied);
                                   }}
                                 >
-                                  <div className="font-medium truncate">
-                                    {occupied.cliente.azienda}
+                                  <div className="font-medium truncate flex items-center h-full">
+                                    {occupied.cliente.azienda || occupied.cliente.cognome}
                                   </div>
                                 </div>
                               );
                             })}
                           </div>
                         )}
-                        {/* --- FINE FIX 2 --- */}
                       </div>
                     );
                   })}
                 </React.Fragment>
               );
             })}
+          </div>
         </div>
       </div>
+   
 </div>
       {/* Modale appuntamento */}
       {selectedAppuntamento && (
