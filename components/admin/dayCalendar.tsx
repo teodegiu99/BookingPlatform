@@ -166,7 +166,7 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
   return (
     <>
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 px-2">
+      <div className="flex items-center justify-between mb-4 px-2 relative z-50">
 {/* ... (codice header invariato) ... */}
         <button
           onClick={() => changeDay(-1)}
