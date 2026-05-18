@@ -1,6 +1,7 @@
 import { auth } from '@/auth';
 import { db } from '@/lib/db';
 import { NextResponse } from 'next/server';
+import { buildItalyIsoDatetime } from '@/components/utils/timeslots';
 
 export const dynamic = 'force-dynamic';
 
@@ -102,6 +103,16 @@ export async function POST(req: Request) {
       // Se multipleAppointment è true, il ciclo continua senza controllare questo utente
     }
 
+    const normalizedOrario = orario.map((slot: string) => {
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(slot)) {
+        return buildItalyIsoDatetime(slot, slot.split('T')[1])
+      }
+      if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/.test(slot)) {
+        return buildItalyIsoDatetime(slot.split('T')[0], slot.split('T')[1].slice(0, 5))
+      }
+      return slot
+    })
+
     // --- Logica Cliente (invariata) ---
     let existingCliente = await db.cliente.findUnique({ where: { email: cliente.email } });
 
@@ -121,7 +132,7 @@ export async function POST(req: Request) {
     // --- Creazione Appuntamenti (invariata) ---
     const appuntamentoPrincipale = await db.appuntamento.create({
       data: {
-        orario,
+        orario: normalizedOrario,
         commercialeId,
         clienteId: existingCliente.id,
         note,
@@ -135,7 +146,7 @@ export async function POST(req: Request) {
 
       await db.appuntamento.create({
         data: {
-          orario,
+          orario: normalizedOrario,
           commercialeId: invitatoId,
           clienteId: existingCliente.id,
           note,

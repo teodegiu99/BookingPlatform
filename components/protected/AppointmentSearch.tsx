@@ -68,14 +68,17 @@ function formatOrario(orario: string[], t: string): string {
   end.setMinutes(end.getMinutes() + 30)
 
   const timeRange = `${start.toLocaleTimeString('it-IT', {
+    timeZone: 'Europe/Rome',
     hour: '2-digit',
     minute: '2-digit',
   })} → ${end.toLocaleTimeString('it-IT', {
+    timeZone: 'Europe/Rome',
     hour: '2-digit',
     minute: '2-digit',
   })}`
 
   const dateStr = start.toLocaleDateString(t, {
+    timeZone: 'Europe/Rome',
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',

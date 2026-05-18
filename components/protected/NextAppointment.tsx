@@ -47,14 +47,17 @@ const fetcher = (url: string) => fetch(url).then(res => res.json())
   end.setMinutes(end.getMinutes() + 30)
 
   const timeRange = `${start.toLocaleTimeString(t('ling'), {
+    timeZone: 'Europe/Rome',
     hour: '2-digit',
     minute: '2-digit',
   })} - ${end.toLocaleTimeString(t('ling'), {
+    timeZone: 'Europe/Rome',
     hour: '2-digit',
     minute: '2-digit',
   })}`
 
   const dateStr = start.toLocaleDateString(t('ling'), {
+    timeZone: 'Europe/Rome',
     weekday: 'long',
     day: '2-digit',
     month: '2-digit',

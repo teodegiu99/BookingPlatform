@@ -237,8 +237,8 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       const end = new Date(orario[orario.length - 1]);
       end.setMinutes(end.getMinutes() + 30);
       const pad = (n: number) => n.toString().padStart(2, '0');
-      const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} - ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-      const formattedDate = start.toLocaleDateString('it-IT');
+      const formattedTime = `${start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}`;
+      const formattedDate = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 
       // 4. Prepara Email e ICS per il Cliente
       const htmlCliente = `
@@ -410,8 +410,8 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
                     const end = new Date(orario[orario.length - 1]);
                     end.setMinutes(end.getMinutes() + 30);
                     const pad = (n: number) => n.toString().padStart(2, '0');
-                    const formattedTime = `${pad(start.getHours())}:${pad(start.getMinutes())} ${t('to')} ${pad(end.getHours())}:${pad(end.getMinutes())}`;
-                    const formattedDate = start.toLocaleDateString('it-IT');
+                    const formattedTime = `${start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })} ${t('to')} ${end.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}`;
+                    const formattedDate = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
                     return `${formattedDate} ${t('dalle')} ${formattedTime}`;
                   })()}
                 </span>

@@ -71,7 +71,11 @@ const isSameDay = (date1: Date, date2: Date) =>
 
 const formatAppointmentHour = (iso: string) => {
   const d = new Date(iso);
-  return `${nove(d.getHours())}:${d.getMinutes() === 0 ? '00' : '30'}`;
+  return d.toLocaleTimeString('it-IT', {
+    timeZone: 'Europe/Rome',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 };
 
 export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
@@ -305,7 +309,11 @@ export const DayCalendar: React.FC<Props> = ({ commerciali, appuntamenti }) => {
                               {(() => {
                                 const last = new Date(displayAppointments[0].orario[displayAppointments[0].orario.length - 1]);
                                 last.setMinutes(last.getMinutes() + 30);
-                                return `${nove(last.getHours())}:${last.getMinutes() === 0 ? '00' : '30'}`;
+                                return last.toLocaleTimeString('it-IT', {
+                                  timeZone: 'Europe/Rome',
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                });
                               })()}
                             </div>
                           </div>

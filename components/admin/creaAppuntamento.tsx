@@ -5,6 +5,7 @@ import React, { useEffect, useState } from 'react';
 import Select from 'react-select';
 import { toast } from 'sonner';
 import { User } from '@prisma/client';
+import { buildItalyIsoDatetime } from '../utils/timeslots';
 
 // Aggiungo 'multipleAppointment' al tipo User per TypeScript
 type AppUser = User & {
@@ -131,7 +132,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
 
   // Logica 'addNextSlot' aggiornata
   const addNextSlot = () => {
-    const start = new Date(`${selectedDate}T${startHour}`);
+    const start = new Date(buildItalyIsoDatetime(selectedDate, startHour));
     const nextSlot = new Date(start);
     nextSlot.setMinutes(nextSlot.getMinutes() + durata);
     const nextSlotTime = nextSlot.getTime();
@@ -168,7 +169,7 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
 
 
   const submitDati = async (force = false) => {
-    const start = new Date(`${selectedDate}T${startHour}`);
+    const start = new Date(buildItalyIsoDatetime(selectedDate, startHour));
     const slots: string[] = [];
     const slotCount = durata / 30;
     for (let i = 0; i < slotCount; i++) {

@@ -75,14 +75,9 @@ function formatOption(app: Appuntamento): Option {
     const end = new Date(orari[orari.length - 1])
     end.setMinutes(end.getMinutes() + 30)
 
-    const dateStr = start.toLocaleDateString('it-IT')
-    const startTime = start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-    const endTime = end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
-
-    orarioStr = `${dateStr} ${startTime} → ${endTime}`
-  }
-
-  return {
+    const dateStr = start.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' })
+    const startTime = start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })
+    const endTime = end.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })
     value: app.id,
     label: `${orarioStr} - ${app.cliente.azienda} - ${app.cliente.nome ?? ''} ${app.cliente.cognome ?? ''} - ${app.commerciale?.cognome ?? ''}`,
     appuntamento: app,
@@ -204,10 +199,12 @@ export default function Search() {
                       end.setMinutes(end.getMinutes() + 30)
 
                       const startStr = start.toLocaleTimeString('it-IT', {
+                        timeZone: 'Europe/Rome',
                         hour: '2-digit',
                         minute: '2-digit',
                       });
                       const endStr = end.toLocaleTimeString('it-IT', {
+                        timeZone: 'Europe/Rome',
                         hour: '2-digit',
                         minute: '2-digit',
                       });

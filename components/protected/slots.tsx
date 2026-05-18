@@ -106,11 +106,11 @@ const [localMessage, setLocalMessage] = useState<{ message: string; type: 'succe
 // Se l'ID passato al componente è diverso dall'ID dell'utente loggato, siamo in "view mode"
   const isReadOnly = session?.user?.id && session.user.id !== userId;
     const fetchSlotsData = async () => {
-    const formattedDate = selectedDate.toLocaleDateString('it-IT');
+    const formattedDate = selectedDate.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 const available = await getAvailableSlotsByDay(formattedDate, userId);
  const allApp = await getAppuntamentiByDayAndCommerciale(userId, selectedDate);
     const booked = allApp.filter((app) =>
-      app.orari.some((str: string) => new Date(str).toLocaleDateString('it-IT') === formattedDate)
+      app.orari.some((str: string) => new Date(str).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }) === formattedDate)
     );
     return {
       slots: available.map((s: any) => new Date(s)),
@@ -198,7 +198,7 @@ const available = await getAvailableSlotsByDay(formattedDate, userId);
     const start = new Date(app.orari[0]);
     const end = new Date(app.orari[app.orari.length - 1]);
     end.setMinutes(end.getMinutes() + 30);
-    return `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+    return `${start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })} - ${end.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}`;
   };
 
   const getCommercialeById = async (id: string) => {
@@ -221,8 +221,8 @@ const available = await getAvailableSlotsByDay(formattedDate, userId);
     const start = selectedSlots[0];
     const end = new Date(selectedSlots[selectedSlots.length - 1]);
     end.setMinutes(end.getMinutes() + 30);
-    return `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end
-      .toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+    return `${start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })} - ${end
+      .toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}`;
   };
 
   const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -346,7 +346,7 @@ if (isReadOnly) return; // Blocca cancellazione
 
     try {
       const timeRange = getTimeRangeFromAppuntamento(selectedAppuntamento);
-      const formattedDate = selectedDate.toLocaleDateString('it-IT');
+      const formattedDate = selectedDate.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 
       // Definisci le date di inizio e fine per .ics
       const startDate = new Date(selectedAppuntamento.orari[0]);
@@ -482,7 +482,7 @@ if (isReadOnly) return; // Blocca cancellazione
                     : 'cursor-pointer text-primary hover:bg-blue-200 border-gray-300'
                 }`}
               >
-                {slot.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                {slot.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}
               </div>
             ))}
           </div>
@@ -494,8 +494,8 @@ if (isReadOnly) return; // Blocca cancellazione
               const start = new Date(app.orari[0]);
               const end = new Date(app.orari[app.orari.length - 1]);
               end.setMinutes(end.getMinutes() + 30);
-              const timeRange = `${start.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })} - ${end
-                .toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}`;
+              const timeRange = `${start.toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })} - ${end
+                .toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })}`;
               return (
                 <div
                   key={app.id}
@@ -564,7 +564,7 @@ if (isReadOnly) return; // Blocca cancellazione
             {selectedAppuntamento.cliente.ruolo && <li><strong>{t('ruolo')}:</strong> {selectedAppuntamento.cliente.ruolo}</li>}
             {selectedAppuntamento.cliente.numero && <li><strong>{t('telefono')}:</strong> {selectedAppuntamento.cliente.numero}</li>}
               <li><strong>{t('orari')}:</strong> {selectedAppuntamento.orari.map((o: string) =>
-                new Date(o).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                new Date(o).toLocaleTimeString('it-IT', { timeZone: 'Europe/Rome', hour: '2-digit', minute: '2-digit' })
               ).join(', ')}</li>
               {invitatoda && (
   <li>

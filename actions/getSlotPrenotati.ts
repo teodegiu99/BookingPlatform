@@ -38,13 +38,13 @@ export async function getAppuntamentiByCommerciale(commercialeId: string) {
 
 export async function getAppuntamentiByDayAndCommerciale(commercialeId: string, date: Date) {
   const all = await getAppuntamentiByCommerciale(commercialeId);
-  const formatted = date.toLocaleDateString('it-IT');
+  const formatted = date.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 
   return all
     .filter(app =>
       app.orari.some((orario: string) => {
         const d = new Date(orario);
-        return d.toLocaleDateString('it-IT') === formatted;
+        return d.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }) === formatted;
       })
     )
     .map(app => ({
