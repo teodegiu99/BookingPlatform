@@ -376,7 +376,7 @@ if (isReadOnly) return; // Blocca cancellazione
         `Appuntamento con ${commerciale?.name || ''} ${commerciale?.cognome || ''} per ${cliente.azienda ?? ''}.`,
         'PITTI FILATI'
       );
-      const icsBase64Cliente = btoa(icsContentCliente);
+      const icsBase64Cliente = btoa(unescape(encodeURIComponent(icsContentCliente)));
 
 
       const promiseCliente = fetch('/api/sendMail', {
@@ -426,7 +426,7 @@ if (isReadOnly) return; // Blocca cancellazione
           `Appuntamento con ${cliente.azienda ?? ''}.<br/>Cliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''}<br/>Email: ${cliente.email ?? 'N/D'}<br/>Note: ${selectedAppuntamento.note ?? 'N/D'}`,
           'PITTI FILATI'
         );
-        const icsBase64Commerciale = btoa(icsContentCommerciale);
+        const icsBase64Commerciale = btoa(unescape(encodeURIComponent(icsContentCommerciale)));
 
         const promiseCommerciale = fetch('/api/sendMail', {
           method: 'POST',
@@ -445,15 +445,34 @@ if (isReadOnly) return; // Blocca cancellazione
       }
 
       // --- 3. Invia tutto ---
-      const results = await Promise.all(promises);
-      const allOk = results.every(res => res.ok);
+      const results = await Promise.all(
+        promises.map(async (promise) => {
+          const response = await promise;
+          if (!response.ok) {
+            try {
+              const data = await response.json();
+              return { ok: false, details: data?.details || data?.error || 'Errore sconosciuto' };
+            } catch {
+              return { ok: false, details: response.statusText || 'Errore sconosciuto' };
+            }
+          }
+
+          return { ok: true, details: null };
+        })
+      );
+
+      const allOk = results.every(result => result.ok);
 
       if (allOk) {
         setLocalMessage({ message: 'Email inviate con successo', type: 'success' });
       } else {
-        const failed = results.filter(res => !res.ok);
-        console.error("Errore invio email:", failed);
-        setLocalMessage({ message: `Errore: ${failed.length} email non inviate.`, type: 'error' });
+        const failed = results.filter(result => !result.ok);
+        const details = failed.map(result => result.details).join(' | ');
+        console.error('Errore invio email:', failed);
+        setLocalMessage({
+          message: `Errore: ${failed.length} email non inviate. ${details}`,
+          type: 'error',
+        });
       }
 
     } catch (error) {
