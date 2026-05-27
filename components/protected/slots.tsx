@@ -353,6 +353,22 @@ if (isReadOnly) return; // Blocca cancellazione
     setIsSending(true);
 
     try {
+      // FIX: Recupera il nome e l'email del creatore originale dello slot (ownerId)
+      const organizerNameRes = await fetch(`/api/users/${selectedAppuntamento.ownerId}`);
+      let organizerName = "Zegna Baruffa";
+      if (organizerNameRes.ok) {
+        const creatorData = await organizerNameRes.json();
+        organizerName = `${creatorData.name ?? ''} ${creatorData.cognome ?? ''}`.trim() || organizerName;
+      }
+      
+      const organizerEmailRes = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ids: [selectedAppuntamento.ownerId] }),
+      });
+      const organizerEmailData = await organizerEmailRes.json();
+      const organizerEmail = organizerEmailData.emails?.[0] || 'noreply@baruffa.com';
+
       const timeRange = getTimeRangeFromAppuntamento(selectedAppuntamento);
       const formattedDate = selectedDate.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 
@@ -369,10 +385,10 @@ if (isReadOnly) return; // Blocca cancellazione
         <ul>
           <li><strong>Date:</strong> ${formattedDate}</li>
           <li><strong>Time:</strong> ${timeRange}</li>
-          <li><strong>Representative:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
+          <li><strong>Representative:</strong> ${organizerName}</li>
         </ul>
         <p>Best regards,<br/>
-           ${commerciale?.name || ''} ${commerciale?.cognome || ''}
+           ${organizerName}
         </p>
       `;
       
@@ -381,10 +397,10 @@ if (isReadOnly) return; // Blocca cancellazione
         startDate,
         endDate,
         `Appuntamento ZEGNA BARUFFA: ${cliente.azienda ?? ''}`,
-        `Appuntamento con ${commerciale?.name || ''} ${commerciale?.cognome || ''} per ${cliente.azienda ?? ''}.`,
+        `Appuntamento con ${organizerName} per ${cliente.azienda ?? ''}.`,
         'PITTI FILATI',
-        `${commerciale?.name || ''} ${commerciale?.cognome || ''}`,
-        commerciale?.email || '',
+        organizerName,
+        organizerEmail,
         `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`,
         cliente.email || ''
       );
@@ -424,7 +440,7 @@ if (isReadOnly) return; // Blocca cancellazione
             <li><strong>Ruolo:</strong> ${cliente.ruolo ?? 'N/D'}</li>
             <li><strong>Data:</strong> ${formattedDate}</li>
             <li><strong>Orario:</strong> ${timeRange}</li>
-            <li><strong>Commerciale Principale:</strong> ${commerciale?.name || ''} ${commerciale?.cognome || ''}</li>
+            <li><strong>Commerciale Principale:</strong> ${organizerName}</li>
             ${selectedAppuntamento.note ? `<li><strong>Note:</strong> ${selectedAppuntamento.note}</li>` : ''}
           </ul>
           <p>Questo è un promemoria automatico.</p>
@@ -437,8 +453,8 @@ if (isReadOnly) return; // Blocca cancellazione
           `APPUNTAMENTO: ${cliente.azienda ?? ''} (${cliente.nome ?? ''} ${cliente.cognome ?? ''})`,
           `Appuntamento con ${cliente.azienda ?? ''}.<br/>Cliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''}<br/>Email: ${cliente.email ?? 'N/D'}<br/>Note: ${selectedAppuntamento.note ?? 'N/D'}`,
           'PITTI FILATI',
-          `${commerciale?.name || ''} ${commerciale?.cognome || ''}`,
-          commerciale?.email || '',
+          organizerName,
+          organizerEmail,
           `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`,
           cliente.email || ''
         );

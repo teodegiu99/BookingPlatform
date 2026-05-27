@@ -25,7 +25,7 @@ const Calendar = async ({ searchParams }: { searchParams: { view?: string } }) =
 
   return (
     <DateProvider>
-      <div className="w-full h-full flex justify-center items-center pt-16">
+      <div className="w-full min-h-screen flex justify-center items-start pt-20 md:pt-28 pb-8">
         
         {/* Banner informativo (Opzionale) */}
         {isExternalView && (

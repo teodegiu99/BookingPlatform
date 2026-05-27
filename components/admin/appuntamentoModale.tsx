@@ -218,19 +218,27 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       }
       const emailsCommerciali = data.emails.filter(Boolean);
 
-      // 2. Recupera l'email dell'organizzatore (Commerciale Principale)
+      // 2. Recupera l'email dell'organizzatore (Commerciale Principale / Creatore dello slot)
       // (Necessario per il campo ORGANIZER del file .ics)
       const organizerRes = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids: [appuntamento.commercialeId] }),
+        body: JSON.stringify({ ids: [appuntamento.ownerId] }),
       });
       const organizerData = await organizerRes.json();
       if (!organizerRes.ok || !organizerData.emails || organizerData.emails.length === 0) {
         throw new Error("Errore nel recupero dell'email dell'organizzatore");
       }
       const organizerEmail = organizerData.emails[0];
-      const organizerName = `${commerciale.name ?? ''} ${commerciale.cognome ?? ''}`;
+      
+      // Recupera anche il nome dell'organizzatore per sicurezza
+      const organizerNameRes = await fetch(`/api/users/${appuntamento.ownerId}`);
+      let organizerName = "Zegna Baruffa";
+      if (organizerNameRes.ok) {
+        const creatorData = await organizerNameRes.json();
+        organizerName = `${creatorData.name ?? ''} ${creatorData.cognome ?? ''}`.trim() || organizerName;
+      }
+
       const location = "Pitti Filati, Fortezza da Basso, Firenze";
 
       // 3. Prepara i dati comuni
