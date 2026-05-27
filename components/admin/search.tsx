@@ -37,7 +37,7 @@ const customStyles = {
     ...base,
     borderRadius: '0.75rem',
     boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-    zIndex: 20,
+    zIndex: 9999,
   }),
 }
 

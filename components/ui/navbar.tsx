@@ -14,7 +14,7 @@ const NavBar = async () => {
 
   if (session?.user?.role === 'ADMIN') {
     return (
-      <div className='fixed top-0 left-0 right-0 flex w-full h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden z-50'>
+      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
         <div className='p-4'><HelpSwitch /></div>
         <div className='flex justify-center items-center'>
           <Image src="/logo-black.svg" width={50} height={50} alt="Logo esteso nero" className="object-contain" />
@@ -27,7 +27,7 @@ const NavBar = async () => {
     );
   } else if (session?.user?.role === 'USER') {
     return (
-      <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
+      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
         <div className='p-4'><HelpSwitch /></div>
         
         <div className='flex justify-center items-center'>
@@ -45,7 +45,7 @@ const NavBar = async () => {
     );
   } else if (session?.user?.role === 'SUSER') {
     return (
-      <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
+      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
         <div className='p-4'><HelpSwitch /></div>
         
         <div className='flex justify-center items-center'>
