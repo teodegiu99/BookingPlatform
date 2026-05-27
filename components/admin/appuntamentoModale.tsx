@@ -368,7 +368,7 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
       <Dialog open={true} onClose={onClose} className="relative z-50">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="bg-white rounded-xl p-6 max-w-md w-full shadow-xl space-y-4">
+          <Dialog.Panel className="bg-white rounded-xl p-4 sm:p-6 max-w-md w-full shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className='flex justify-between items-center'>
               <Dialog.Title className="text-lg font-semibold">{t('dettapp')}</Dialog.Title>
               <button onClick={() => setShowConfirm(true)} className="text-red-600 hover:text-red-800">
@@ -463,35 +463,37 @@ export const AppuntamentoModal: React.FC<Props> = ({ appuntamento, onClose }) =>
             </div>
           </Dialog.Panel>
         </div>
+
+        {/* Modale conferma eliminazione */}
+        {showConfirm && (
+          <Dialog open={true} onClose={() => setShowConfirm(false)} className="relative z-50">
+            <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
+            <div className="fixed inset-0 flex items-center justify-center p-4">
+              <Dialog.Panel className="bg-white rounded-xl p-4 sm:p-6 max-w-sm w-full shadow-xl space-y-4 max-h-[90vh] overflow-y-auto">
+                <Dialog.Title className="text-lg font-semibold">{t('confermaEliminazione')}</Dialog.Title>
+                <p>{t('seiSicuroEliminare')}</p>
+                <div className="flex justify-end space-x-2 pt-4">
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    className="px-4 py-2 border rounded"
+                  >
+                    {t('annulla')}
+                  </button>
+                  <button
+                    onClick={handleDeleteAppuntamento}
+                    disabled={isDeleting}
+                    className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {isDeleting ? t('eliminazioneInCorso') : t('conferma')}
+                  </button>
+                </div>
+              </Dialog.Panel>
+            </div>
+          </Dialog>
+        )}
       </Dialog>
 
-      {/* Modale conferma eliminazione */}
-      {showConfirm && (
-        <Dialog open={true} onClose={() => setShowConfirm(false)} className="relative z-50">
-          <div className="fixed inset-0 bg-black/40" aria-hidden="true" />
-          <div className="fixed inset-0 flex items-center justify-center p-4">
-            <Dialog.Panel className="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl space-y-4">
-              <Dialog.Title className="text-lg font-semibold">{t('confermaEliminazione')}</Dialog.Title>
-              <p>{t('seiSicuroEliminare')}</p>
-              <div className="flex justify-end space-x-2 pt-4">
-                <button
-                  onClick={() => setShowConfirm(false)}
-                  className="px-4 py-2 border rounded"
-                >
-                  {t('annulla')}
-                </button>
-                <button
-                  onClick={handleDeleteAppuntamento}
-                  disabled={isDeleting}
-                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 disabled:opacity-50"
-                >
-                  {isDeleting ? t('eliminazioneInCorso') : t('conferma')}
-                </button>
-              </div>
-            </Dialog.Panel>
-          </div>
-        </Dialog>
-      )}
+
 
       {/* Toast */}
       {toast && (

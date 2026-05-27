@@ -500,8 +500,8 @@ if (isReadOnly) return; // Blocca cancellazione
   };
 
   return (
-    <div className="flex items-center justify-center grow">
-      <div className="border p-10 rounded-xl shadow space-y-10">
+    <div className="flex items-center justify-center grow p-4 sm:p-8">
+      <div className="border p-4 sm:p-10 rounded-xl shadow space-y-10 w-full max-w-5xl">
         <div>
           <h2 className="text-xl font-semibold mb-4">{t('slotdisponibili')}</h2>
           {isReadOnly && <span className="text-sm font-normal text-gray-500 ml-2">(Sola lettura)</span>}
@@ -546,22 +546,22 @@ if (isReadOnly) return; // Blocca cancellazione
        </div>
 
       {isModalOpen && selectedSlots.length > 0 && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 shadow-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-2">{t('slotsel')}</h3>
             <p className="mb-4">{formatTimeRange()}</p>
             <button onClick={addNextSlot} className="mb-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-xl">
               {t('aggiungislot')}
             </button>
-            <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-2 gap-4">
-              <input name="nome" placeholder={t('nome')} className="border rounded p-2" />
-              <input name="cognome" placeholder={t('cognome')} className="border rounded p-2" />
-              <input name="telefono" placeholder={t('telefono')} className="border rounded p-2" />
-              <input name="email" type="email" placeholder="Email *" required className="border rounded p-2" />
-              <input name="azienda" placeholder={t('aziendaast')} required className="border rounded p-2" />
-              <input name="ruolo" placeholder={t('ruolo')} className="border rounded p-2" />
-              <textarea name="note" placeholder={t('note')} className="col-span-2 border rounded p-2" />
-              <div className="col-span-2">
+            <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <input name="nome" placeholder={t('nome')} className="border rounded p-2 w-full" />
+              <input name="cognome" placeholder={t('cognome')} className="border rounded p-2 w-full" />
+              <input name="telefono" placeholder={t('telefono')} className="border rounded p-2 w-full" />
+              <input name="email" type="email" placeholder="Email *" required className="border rounded p-2 w-full" />
+              <input name="azienda" placeholder={t('aziendaast')} required className="border rounded p-2 w-full" />
+              <input name="ruolo" placeholder={t('ruolo')} className="border rounded p-2 w-full" />
+              <textarea name="note" placeholder={t('note')} className="col-span-1 sm:col-span-2 border rounded p-2 w-full" />
+              <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm font-medium mb-1">invitati</label>
                 <Select
                   isMulti
@@ -570,7 +570,7 @@ if (isReadOnly) return; // Blocca cancellazione
                   onChange={(v) => setSelectedInvitati(v as UserOption[])}
                 />
               </div>
-              <div className="col-span-2 flex justify-end gap-2 mt-4">
+              <div className="col-span-1 sm:col-span-2 flex justify-end gap-2 mt-4">
                 <button type="button" onClick={closeModal} className="px-4 py-2 bg-gray-300 rounded-xl">
                   {t('annulla')}
                 </button>
@@ -584,8 +584,8 @@ if (isReadOnly) return; // Blocca cancellazione
       )}
 
       {selectedAppuntamento && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl p-6 shadow-lg max-w-xl w-full">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">{t('dettapp')}</h3>
               <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
@@ -638,8 +638,8 @@ if (isReadOnly) return; // Blocca cancellazione
         </div>
       )}
           {clienteEsistente && (
-      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-        <div className="bg-white rounded-2xl p-6 shadow-lg max-w-lg w-full text-center space-y-4">
+      <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-lg w-full text-center space-y-4">
           <h2 className="text-lg font-semibold">Cliente già presente</h2>
           <p className="text-sm">Vuoi sovrascrivere i dati esistenti con quelli inseriti nel form?</p>
           <div className="flex justify-center gap-4">

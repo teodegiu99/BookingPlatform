@@ -12,7 +12,7 @@ const NavBar = async () => {
   // Recupera il campo estxcomm dalla sessione
   const hasExternalAccess = !!session?.user?.estxcomm;
 
-  if (session?.user.role === 'ADMIN') {
+  if (session?.user?.role === 'ADMIN') {
     return (
       <div className='fixed top-0 left-0 right-0 flex w-full h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden z-50'>
         <div className='p-4'><HelpSwitch /></div>
@@ -25,7 +25,7 @@ const NavBar = async () => {
         </div>
       </div>
     );
-  } else if (session?.user.role === 'USER') {
+  } else if (session?.user?.role === 'USER') {
     return (
       <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
         <div className='p-4'><HelpSwitch /></div>
@@ -43,7 +43,7 @@ const NavBar = async () => {
         </div>
       </div>
     );
-  } else if (session?.user.role === 'SUSER') {
+  } else if (session?.user?.role === 'SUSER') {
     return (
       <div className='absolute flex w-screen h-[7%] justify-between items-center p-2 bg-neutral shadow-lg overflow-hidden'>
         <div className='p-4'><HelpSwitch /></div>

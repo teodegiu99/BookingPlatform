@@ -16,8 +16,8 @@ type AppUser = User & {
 const ConfermaClienteModal = ({ cliente, onConfirm, onCancel }: any) => {
   const { t } = useTranslation();
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-      <div className="bg-white rounded-xl p-6 shadow-lg w-full max-w-md">
+    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-lg font-semibold mb-2">{t('cliente_gia_in_anagrafica')}</h2>
         <p>{t('esiste_gia_un_cliente_con_questa_email')}</p>
         <div className="mt-4 text-sm text-gray-700 space-y-1">
@@ -213,8 +213,8 @@ export const CreaAppuntamentoModal: React.FC<Props> = ({
 
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-6 space-y-4 relative">
+    <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50 p-4">
+      <div className="bg-white rounded-xl shadow-xl w-full max-w-xl p-4 sm:p-6 space-y-4 relative max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold text-center">{t('nuovoappuntamento')}</h2>
 
         {errore && (

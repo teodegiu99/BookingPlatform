@@ -157,10 +157,10 @@ const { data: allAppuntamenti = [], isLoading } = useSWR(
         </div>
       </div>
 
-      <Dialog open={!!selectedApp} onClose={() => setSelectedApp(null)} className="relative z-50">
+      <Dialog open={!!selectedApp} onClose={() => setSelectedApp(null)} className="relative z-50 p-4">
         <div className="fixed inset-0 bg-black/30" aria-hidden="true" />
         <div className="fixed inset-0 flex items-center justify-center p-4">
-          <Dialog.Panel className="w-full max-w-lg rounded-xl bg-white p-6 shadow-lg">
+          <Dialog.Panel className="w-full max-w-lg rounded-xl bg-white p-4 sm:p-6 shadow-lg max-h-[90vh] overflow-y-auto">
             <Dialog.Title className="text-xl font-semibold mb-4">
               {t('dettapp')}
             </Dialog.Title>

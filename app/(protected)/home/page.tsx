@@ -10,7 +10,7 @@ type Props = {
 const Home = async ({ searchParams }: Props) => {
   const session = await auth();
 
-  if (session?.user.role === 'ADMIN') {
+  if (session?.user?.role === 'ADMIN') {
     return (
       <DashboardPage />
     )
