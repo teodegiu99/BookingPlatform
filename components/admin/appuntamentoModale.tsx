@@ -44,6 +44,7 @@ const createIcsContent = (
   const icsData = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
+    'METHOD:REQUEST',
     'PRODID:-//ZegnaBaruffa//PittiFilatiApp//EN',
     'BEGIN:VEVENT',
     `UID:${appId}@zegnabaruffa.com`, // Assicurati che il dominio sia univoco

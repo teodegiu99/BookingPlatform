@@ -52,7 +52,11 @@ const createIcsContent = (
   end: Date,
   summary: string,
   description: string,
-  location: string
+  location: string,
+  organizerName: string,
+  organizerEmail: string,
+  attendeeName: string,
+  attendeeEmail: string
 ): string => {
   const dtStamp = formatIcsDate(new Date()); // Data di creazione
   const dtStart = formatIcsDate(start);
@@ -66,16 +70,20 @@ const createIcsContent = (
   const icsLines = [
     'BEGIN:VCALENDAR',
     'VERSION:2.0',
+    'METHOD:REQUEST',
     'PRODID:-//ZegnaBaruffa//Appuntamento//IT',
     'BEGIN:VEVENT',
-    `UID:${uid}`,
+    `UID:${uid}@zegnabaruffa.com`,
     `DTSTAMP:${dtStamp}`,
     `DTSTART:${dtStart}`,
     `DTEND:${dtEnd}`,
     `SUMMARY:${summary}`,
     `DESCRIPTION:${plainDescription}`,
     `LOCATION:${location}`,
+    `ORGANIZER;CN="${organizerName}":mailto:${organizerEmail}`,
+    `ATTENDEE;CN="${attendeeName}";ROLE=REQ-PARTICIPANT:mailto:${attendeeEmail}`,
     'STATUS:CONFIRMED',
+    'SEQUENCE:0',
     'END:VEVENT',
     'END:VCALENDAR',
   ];
@@ -374,7 +382,11 @@ if (isReadOnly) return; // Blocca cancellazione
         endDate,
         `Appuntamento ZEGNA BARUFFA: ${cliente.azienda ?? ''}`,
         `Appuntamento con ${commerciale?.name || ''} ${commerciale?.cognome || ''} per ${cliente.azienda ?? ''}.`,
-        'PITTI FILATI'
+        'PITTI FILATI',
+        `${commerciale?.name || ''} ${commerciale?.cognome || ''}`,
+        commerciale?.email || '',
+        `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`,
+        cliente.email || ''
       );
       const icsBase64Cliente = btoa(unescape(encodeURIComponent(icsContentCliente)));
 
@@ -424,7 +436,11 @@ if (isReadOnly) return; // Blocca cancellazione
           endDate,
           `APPUNTAMENTO: ${cliente.azienda ?? ''} (${cliente.nome ?? ''} ${cliente.cognome ?? ''})`,
           `Appuntamento con ${cliente.azienda ?? ''}.<br/>Cliente: ${cliente.nome ?? ''} ${cliente.cognome ?? ''}<br/>Email: ${cliente.email ?? 'N/D'}<br/>Note: ${selectedAppuntamento.note ?? 'N/D'}`,
-          'PITTI FILATI'
+          'PITTI FILATI',
+          `${commerciale?.name || ''} ${commerciale?.cognome || ''}`,
+          commerciale?.email || '',
+          `${cliente.nome ?? ''} ${cliente.cognome ?? ''}`,
+          cliente.email || ''
         );
         const icsBase64Commerciale = btoa(unescape(encodeURIComponent(icsContentCommerciale)));
 

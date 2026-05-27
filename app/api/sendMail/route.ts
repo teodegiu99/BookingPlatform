@@ -45,7 +45,7 @@ export async function POST(req: Request) {
     const transporter = createTransporter();
 
     const mailOptions: SendMailOptions = {
-      from: process.env.MAIL_FROM || 'noreply@baruffa.com',
+      from: process.env.MAIL_FROM || process.env.MAIL_USER || 'noreply@baruffa.com',
       to,
       subject,
       html,
@@ -53,6 +53,13 @@ export async function POST(req: Request) {
     };
 
     if (ics && ics.content && ics.filename) {
+      // Imposta icalEvent per consentire a Outlook/M365 di interpretare la mail come invito nativo
+      mailOptions.icalEvent = {
+        filename: ics.filename,
+        method: 'REQUEST',
+        content: Buffer.from(ics.content, 'base64').toString('utf-8'),
+      };
+
       mailOptions.attachments?.push({
         filename: ics.filename,
         content: ics.content,

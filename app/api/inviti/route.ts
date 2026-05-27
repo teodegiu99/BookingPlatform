@@ -25,17 +25,26 @@ export async function POST(req: Request) {
     const invitatiDisponibili: string[] = [];
 
     for (const invitatoId of invitati) {
-      const overlapping = await db.appuntamento.findFirst({
-        where: {
-          commercialeId: invitatoId,
-          orario: {
-            hasSome: orario,
-          },
-        },
+      const user = await db.user.findUnique({
+        where: { id: invitatoId },
+        select: { multipleAppointment: true },
       });
 
-      if (!overlapping) {
+      if (user?.multipleAppointment === true) {
         invitatiDisponibili.push(invitatoId);
+      } else {
+        const overlapping = await db.appuntamento.findFirst({
+          where: {
+            commercialeId: invitatoId,
+            orario: {
+              hasSome: orario,
+            },
+          },
+        });
+
+        if (!overlapping) {
+          invitatiDisponibili.push(invitatoId);
+        }
       }
     }
 

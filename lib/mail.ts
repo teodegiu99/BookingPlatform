@@ -14,7 +14,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const domain = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-const emailFrom = process.env.MAIL_FROM || "noreply@baruffa.com";
+const emailFrom = process.env.MAIL_FROM || process.env.MAIL_USER || "noreply@baruffa.com";
 
 export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
   await transporter.sendMail({

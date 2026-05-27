@@ -248,12 +248,27 @@ export async function createAppuntamento(data: FormData) {
   const orariISO = data.orari.map(d => d.toISOString());
   const allIds = [session.user.id, ...data.invitatiIds];
 
-  const occupati = await db.appuntamento.findMany({
-    where: { commercialeId: { in: allIds }, orario: { hasSome: orariISO } },
-    include: { commerciale: true },
+  const usersToCheck = await db.user.findMany({
+    where: { id: { in: allIds } },
+    select: { id: true, multipleAppointment: true, cognome: true }
   });
-  if (occupati.length)
-    return { success: false, message: `Commerciale ${occupati[0].commerciale.cognome} occupato in orario.` };
+
+  for (const user of usersToCheck) {
+    if (user.multipleAppointment !== true) {
+      const overlapping = await db.appuntamento.findFirst({
+        where: {
+          commercialeId: user.id,
+          orario: { hasSome: orariISO }
+        }
+      });
+      if (overlapping) {
+        return {
+          success: false,
+          message: `Commerciale ${user.cognome ?? ''} occupato in orario.`
+        };
+      }
+    }
+  }
 
   const existingCliente = await db.cliente.findUnique({ where: { email: data.email } });
   if (existingCliente && !data.force) {
