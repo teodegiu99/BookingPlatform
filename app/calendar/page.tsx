@@ -17,9 +17,9 @@ const Calendar = async ({ searchParams }: { searchParams: { view?: string } }) =
   // Allora usiamo l'ID di estxcomm. Altrimenti il tuo.
   const isExternalView = searchParams?.view === 'external';
   
-  const targetUserId = (isExternalView && session?.user.estxcomm) 
-    ? session.user.estxcomm 
-    : session?.user.id;
+  const targetUserId = (isExternalView && session?.user?.estxcomm) 
+    ? session?.user?.estxcomm 
+    : session?.user?.id;
 
   if (!targetUserId) return <div>Errore: Utente non trovato</div>;
 
@@ -34,25 +34,25 @@ const Calendar = async ({ searchParams }: { searchParams: { view?: string } }) =
           </div>
         )}
 
-        <div className="grid grid-cols-3 xl:grid-cols-6 xl:gap-x-8 max-w-[1280px] p-8 gap-x-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-6 lg:gap-x-8 max-w-[1280px] w-full p-4 sm:p-8 gap-y-8">
           {/* Colonna sinistra */}
-          <div className="col-span-1 xl:col-span-2 ">
-            <div className="mb-8">
+          <div className="col-span-1 lg:col-span-1 xl:col-span-2 space-y-8">
+            <div>
               {/* Passiamo targetUserId per vedere i pallini rossi GIUSTI */}
               <CalendarDemo userId={targetUserId} />
             </div>
-            <div className="">
+            <div>
               <NextAppointment userId={targetUserId} />
             </div>
           </div>
 
           {/* Colonna destra */}
-          <div className="col-span-2 xl:col-span-4 ">
-            <div className="mb-8">
+          <div className="col-span-1 lg:col-span-2 xl:col-span-4 space-y-8">
+            <div>
               {/* La ricerca cercherà tra gli appuntamenti del targetUserId */}
               <AppointmentSearch targetUserId={targetUserId} />
             </div>
-            <div className="">
+            <div>
               {/* La lista mostrerà gli slot del targetUserId */}
               <TimeSlotList userId={targetUserId} />            
             </div>

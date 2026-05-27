@@ -19,14 +19,14 @@ export function CalendarDemo({ userId }: { userId?: string }) {
   return (
     <div className="w-full flex items-center justify-center ">
       <div className="flex border flex-col xl:p-10 p-5 rounded-xl shadow-[5px] w-full justify-center items-center">
-        <div className="p-5 text-4xl text-center text-secondary">
+        <div className="p-2 sm:p-5 text-2xl sm:text-4xl text-center text-secondary">
           {formatDate(selectedDate)}
         </div>
         <Calendar
           mode="single"
           selected={selectedDate}
           onSelect={(date) => date && setSelectedDate(date)}
-          className="p-5 text-4xl text-center !rounded-full"
+          className="p-2 sm:p-5 text-xl sm:text-4xl text-center !rounded-full"
           // Passa la prop userId qui!
           userId={userId} 
         />
