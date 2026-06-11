@@ -24,7 +24,7 @@ export default function NavbarClient({ role, hasExternalAccess }: NavbarClientPr
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-4 bg-neutral shadow-lg overflow-visible z-50'>
+    <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-4 bg-neutral shadow-lg overflow-visible z-[100]'>
       
       {/* LEFT SECTION */}
       <div className="flex items-center z-10">

@@ -37,8 +37,8 @@ const customStyles = {
     ...base,
     borderRadius: '0.75rem',
     boxShadow: '0 4px 8px rgba(0,0,0,0.05)',
-    zIndex: 9999,
   }),
+  menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
 }
 
 type Appuntamento = {
@@ -169,6 +169,7 @@ export default function Search() {
           onInputChange={value => setInputValue(value)}
           noOptionsMessage={() => t('noresult')}
           styles={customStyles}
+          menuPortalTarget={typeof window !== 'undefined' ? document.body : null}
         />
       </div>
 
