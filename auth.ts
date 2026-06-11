@@ -12,6 +12,7 @@ export const {
   signIn,
   signOut,
 } = NextAuth({
+  ...authConfig,
   pages:{
     signIn: "/auth/login",
     error: "/auth/error",
@@ -25,6 +26,7 @@ export const {
     },
   },
   callbacks: {
+    ...authConfig.callbacks,
     async signIn({ user, account }) {
       // Allow OAuth without email verification
       if (account?.provider !== "credentials") return true;
@@ -69,5 +71,4 @@ export const {
   },
   adapter: PrismaAdapter(db),
   session: { strategy: "jwt" },
-  ...authConfig,
 });
