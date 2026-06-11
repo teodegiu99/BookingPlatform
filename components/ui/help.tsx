@@ -10,14 +10,14 @@ import { useTranslation } from "@/lib/useTranslation"
 
 
 
-const Help = () => {
+const Help = ({ isMobile }: { isMobile?: boolean }) => {
     const [isOpen, setIsOpen] = useState(false);
   const { t } = useTranslation()
 
   const items = [
-    { title: 'Creare un appuntamento', content: 'Scegli la riga del commerciale e clicca sul riquadro in cui vorresti piazzare l\' appuntamento. Compila i campi richiesti \(Solo la mail e l\'azienda sono obbligatori\) e clicca su invia. Attenzione, una volta creato l\' appuntamento verrà mandata un email di conferma sia al commerciale che al cliente' },
-    { title: 'Impostare il colore di un commerciale', content: 'Clicca sul nome del commerciale e seleziona il colore. Una volta assegnato il colore al commerciale, non sarà più neccessario riperterlo per ogni appuntamento.' },
-    { title: 'Come trovo un appuntamento', content: 'Clicca sulla barra di ricerca, e cerca in base al nome del commerciale, per azienda, nome del cliente o email.' },
+    { title: t('domanda_admin1'), content: t('risposta_admin1') },
+    { title: t('domanda_admin2'), content: t('risposta_admin2') },
+    { title: t('domanda_admin3'), content: t('risposta_admin3') },
   ];
 
   return (
@@ -25,9 +25,9 @@ const Help = () => {
     <div>
     <button
     onClick={() => setIsOpen(true)}
-    className="px-4 py-2 text-primary text-3xl rounded"
+    className={isMobile ? "text-lg font-medium text-gray-800" : "px-4 py-2 text-primary text-3xl rounded"}
   >
-    <IoIosHelpCircleOutline />
+    {isMobile ? t('Guida') : <IoIosHelpCircleOutline />}
   </button>
   </div>
   <Transition appear show={isOpen} as={Fragment}>

@@ -603,12 +603,12 @@ if (isReadOnly) return; // Blocca cancellazione
               <input name="nome" placeholder={t('nome')} defaultValue={editData?.cliente?.nome || ''} className="border rounded p-2 w-full" />
               <input name="cognome" placeholder={t('cognome')} defaultValue={editData?.cliente?.cognome || ''} className="border rounded p-2 w-full" />
               <input name="telefono" placeholder={t('telefono')} defaultValue={editData?.cliente?.numero || ''} className="border rounded p-2 w-full" />
-              <input name="email" type="email" placeholder="Email *" required defaultValue={editData?.cliente?.email || ''} className="border rounded p-2 w-full" />
+              <input name="email" type="email" placeholder={t('email_req')} required defaultValue={editData?.cliente?.email || ''} className="border rounded p-2 w-full" />
               <input name="azienda" placeholder={t('aziendaast')} required defaultValue={editData?.cliente?.azienda || ''} className="border rounded p-2 w-full" />
               <input name="ruolo" placeholder={t('ruolo')} defaultValue={editData?.cliente?.ruolo || ''} className="border rounded p-2 w-full" />
               <textarea name="note" placeholder={t('note')} defaultValue={editData?.note || ''} className="col-span-1 sm:col-span-2 border rounded p-2 w-full" />
               <div className="col-span-1 sm:col-span-2">
-                <label className="block text-sm font-medium mb-1">invitati</label>
+                <label className="block text-sm font-medium mb-1">{t('invitati')}</label>
                 <Select
                   isMulti
                   options={invitatiOptions}
@@ -658,7 +658,7 @@ if (isReadOnly) return; // Blocca cancellazione
               ).join(', ')}</li>
               {invitatoda && (
   <li>
-    <strong>Creato da:</strong> {invitatoda.nome} {invitatoda.cognome}
+    <strong>{t('creato_da')}:</strong> {invitatoda.nome} {invitatoda.cognome}
   </li>
 )}
              {selectedAppuntamento.cliente.nome && <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>}
@@ -695,20 +695,20 @@ if (isReadOnly) return; // Blocca cancellazione
           {clienteEsistente && (
       <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-lg w-full text-center space-y-4">
-          <h2 className="text-lg font-semibold">Cliente già presente</h2>
-          <p className="text-sm">Vuoi sovrascrivere i dati esistenti con quelli inseriti nel form?</p>
+          <h2 className="text-lg font-semibold">{t('cliente_presente')}</h2>
+          <p className="text-sm">{t('sovrascrivi_msg')}</p>
           <div className="flex justify-center gap-4">
             <button
               onClick={() => setClienteEsistente(false)}
               className="px-4 py-2 bg-gray-300 rounded-xl"
             >
-              Annulla
+              {t('annulla')}
             </button>
             <button
               onClick={confermaSovrascrittura}
               className="px-4 py-2 bg-primary text-white rounded-xl"
             >
-              Conferma
+              {t('conferma')}
             </button>
           </div>
         </div>

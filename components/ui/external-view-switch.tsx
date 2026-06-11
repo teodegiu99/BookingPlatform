@@ -3,7 +3,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { PiUserSwitchLight } from "react-icons/pi";
 import { useTranslation } from "@/lib/useTranslation";
 
-export default function ExternalViewSwitch() {
+export default function ExternalViewSwitch({ isMobile }: { isMobile?: boolean }) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { t } = useTranslation();
@@ -17,6 +17,14 @@ export default function ExternalViewSwitch() {
       router.push('/calendar?view=external');
     }
   };
+
+  if (isMobile) {
+    return (
+      <button onClick={toggleView} className="text-lg font-medium text-gray-800">
+        {isExternalView ? t('mio_calendario') : t('altro_calendario')}
+      </button>
+    );
+  }
 
   return (
     <button 

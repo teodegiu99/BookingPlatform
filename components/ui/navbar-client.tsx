@@ -51,12 +51,12 @@ export default function NavbarClient({ role, hasExternalAccess }: NavbarClientPr
 
       {/* MOBILE DROPDOWN MENU */}
       {isOpen && (
-        <div className="absolute top-16 left-0 right-0 bg-neutral shadow-xl flex flex-col items-center gap-y-6 py-6 md:hidden border-t z-40">
-          <div onClick={toggleMenu}><HelpSwitch /></div>
-          {role === 'SUSER' && <div onClick={toggleMenu}><NavSwitch /></div>}
-          {hasExternalAccess && <div onClick={toggleMenu}><ExternalViewSwitch /></div>}
-          <div onClick={toggleMenu}><LanguageSwitcher /></div>
-          <div onClick={toggleMenu}><SignOutButton /></div>
+        <div className="absolute top-16 left-0 right-0 bg-neutral shadow-xl flex flex-col items-center gap-y-6 py-6 md:hidden border-t z-50">
+          <div onClick={toggleMenu}><HelpSwitch isMobile /></div>
+          {role === 'SUSER' && <div onClick={toggleMenu}><NavSwitch isMobile /></div>}
+          {hasExternalAccess && <div onClick={toggleMenu}><ExternalViewSwitch isMobile /></div>}
+          <div onClick={toggleMenu}><LanguageSwitcher isMobile /></div>
+          <div onClick={toggleMenu}><SignOutButton isMobile /></div>
         </div>
       )}
     </div>

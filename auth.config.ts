@@ -38,4 +38,18 @@ export default {
 		}
 	  })
 	],
-  } satisfies NextAuthConfig
+  callbacks: {
+    session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      if (token.role && session.user) {
+        session.user.role = token.role as any;
+      }
+      if (session.user) {
+         session.user.estxcomm = token.estxcomm as string | null;
+      }
+      return session;
+    }
+  }
+} satisfies NextAuthConfig

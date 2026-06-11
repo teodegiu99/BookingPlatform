@@ -9,7 +9,7 @@ import { TfiEmail } from "react-icons/tfi";
 
 
  
-const Helpcom = () => {
+const Helpcom = ({ isMobile }: { isMobile?: boolean }) => {
   
   const { t } = useTranslation()
 
@@ -25,9 +25,9 @@ const Helpcom = () => {
        <div>
        <button
        onClick={() => setIsOpen(true)}
-       className="px-4 py-2 text-primary text-3xl rounded"
+       className={isMobile ? "text-lg font-medium text-gray-800" : "px-4 py-2 text-primary text-3xl rounded"}
      >
-       <IoIosHelpCircleOutline />
+       {isMobile ? t('Guida') : <IoIosHelpCircleOutline />}
      </button>
      </div>
      <Transition appear show={isOpen} as={Fragment}>

@@ -54,31 +54,6 @@ export const {
 
     },
   
-    async session({ token, session }) {
-      if (token.sub && session.user) {
-        session.user.id = token.sub;
-      }
-
-      if (token.role && session.user) {
-        session.user.role = token.role as UserRole;
-      }
-      if (session.user) {
-         // Recuperiamo il valore salvato nel token o facciamo una query se necessario, 
-         // ma idealmente lo passiamo dal token JWT
-         session.user.estxcomm = token.estxcomm as string | null;
-      }
-
-	//   if (session.user) {
-    //     session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
-    //   }
-
-    //   if (session.user) {
-    //     session.user.name = token.name;
-    //     session.user.email = token.email;
-    //     session.user.isOAuth = token.isOAuth as boolean;
-    //   }
-      return session;
-    },
     async jwt({ token }) {
       if (!token.sub) return token;
 
