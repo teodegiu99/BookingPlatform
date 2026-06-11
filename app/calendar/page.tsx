@@ -54,7 +54,7 @@ const Calendar = async ({ searchParams }: { searchParams: { view?: string } }) =
             </div>
             <div>
               {/* La lista mostrerà gli slot del targetUserId */}
-              <TimeSlotList userId={targetUserId} />            
+              <TimeSlotList userId={targetUserId} currentUserId={session?.user?.id} />            
             </div>
           </div>
         </div>

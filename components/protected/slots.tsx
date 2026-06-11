@@ -96,7 +96,7 @@ const createIcsContent = (
 
 export const dynamic = 'force-dynamic';
 
-const TimeSlotList = ({ userId }: { userId: string }) => {
+const TimeSlotList = ({ userId, currentUserId }: { userId: string, currentUserId?: string }) => {
   const { t } = useTranslation();
   const { selectedDate } = useDate();
   const [clienteEsistente, setClienteEsistente] = useState(false);
@@ -113,8 +113,10 @@ const [localMessage, setLocalMessage] = useState<{ message: string; type: 'succe
   const [invitatoda, setInvitatoda] = useState<{ nome: string; cognome: string } | null>(null);
   const [isSending, setIsSending] = useState(false); 
   const [editData, setEditData] = useState<any>(null);
-// Se l'ID passato al componente è diverso dall'ID dell'utente loggato, siamo in "view mode"
-  const isReadOnly = session?.user?.id && session.user.id !== userId;
+
+  // Usiamo currentUserId passato dal Server per evitare ritardi o sessioni non idratate al primo load
+  const activeUserId = currentUserId || session?.user?.id;
+  const isReadOnly = activeUserId && activeUserId !== userId;
     const fetchSlotsData = async () => {
     const formattedDate = selectedDate.toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' });
 const available = await getAvailableSlotsByDay(formattedDate, userId);
@@ -636,7 +638,7 @@ if (isReadOnly) return; // Blocca cancellazione
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">{t('dettapp')}</h3>
               <div className="flex gap-4">
-                {(!isReadOnly && selectedAppuntamento.ownerId === session?.user?.id) && (
+                {(!isReadOnly && selectedAppuntamento.ownerId === activeUserId) && (
                   <button onClick={handleEditClick} className="text-blue-600 hover:text-blue-800" title="Modifica">
                     <FiEdit2 />
                   </button>
