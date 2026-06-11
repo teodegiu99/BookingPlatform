@@ -122,6 +122,7 @@ const available = await getAvailableSlotsByDay(formattedDate, userId);
     const booked = allApp.filter((app) =>
       app.orari.some((str: string) => new Date(str).toLocaleDateString('it-IT', { timeZone: 'Europe/Rome' }) === formattedDate)
     );
+    booked.sort((a: any, b: any) => new Date(a.orari[0]).getTime() - new Date(b.orari[0]).getTime());
     return {
       slots: available.map((s: any) => new Date(s)),
       booked,
@@ -661,6 +662,12 @@ if (isReadOnly) return; // Blocca cancellazione
     <strong>{t('creato_da')}:</strong> {invitatoda.nome} {invitatoda.cognome}
   </li>
 )}
+              {selectedAppuntamento.invitati && selectedAppuntamento.invitati.length > 0 && (
+                <li>
+                  <strong>{t('invitati')}:</strong>{' '}
+                  {selectedAppuntamento.invitati.map((i: any) => `${i.name ?? ''} ${i.cognome ?? ''}`.trim() || i.email).join(', ')}
+                </li>
+              )}
              {selectedAppuntamento.cliente.nome && <li><strong>{t('note')}:</strong> {selectedAppuntamento.note}</li>}
             </ul>
             <div className="flex justify-end gap-2">

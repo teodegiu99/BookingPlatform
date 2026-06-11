@@ -22,6 +22,8 @@ export async function getAppuntamentiByCommerciale(commercialeId: string) {
       select: {
         id: true,
         email: true,
+        name: true,
+        cognome: true,
       },
     });
 
