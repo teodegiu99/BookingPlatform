@@ -1,71 +1,22 @@
-import Image from 'next/image';
-import SignOutButton from '../auth/SignoutBtn';
-import LanguageSwitcher from './langSwitch';
 import { auth } from "@/auth";
-import HelpSwitch from './helpSwitch';
-import NavSwitch from './navswitch';
-import ExternalViewSwitch from './external-view-switch'; // <--- Importa il componente
+import NavbarClient from './navbar-client';
 
 const NavBar = async () => {
   const session = await auth();
 
+  if (process.env.MANUTENZIONE === '1' && session?.user?.role !== 'ADMIN') {
+    return null;
+  }
+
   // Recupera il campo estxcomm dalla sessione
   const hasExternalAccess = !!session?.user?.estxcomm;
+  const role = session?.user?.role;
 
-  if (session?.user?.role === 'ADMIN') {
-    return (
-      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
-        <div className='p-4'><HelpSwitch /></div>
-        <div className='flex justify-center items-center'>
-          <Image src="/logo-black.svg" width={50} height={50} alt="Logo esteso nero" className="object-contain" />
-        </div>
-        <div className='flex justify-center items-center gap-x-4'>
-          <LanguageSwitcher /> 
-          <SignOutButton />
-        </div>
-      </div>
-    );
-  } else if (session?.user?.role === 'USER') {
-    return (
-      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
-        <div className='p-4'><HelpSwitch /></div>
-        
-        <div className='flex justify-center items-center'>
-          <Image src="/logo-black.svg" width={50} height={50} alt="Logo esteso nero" className="object-contain" />
-        </div>
-
-        <div className='flex justify-center items-center gap-x-4'>
-          {/* Mostra il pulsante SOLO se l'utente ha il permesso (estxcomm) */}
-          {hasExternalAccess && <ExternalViewSwitch />}
-          
-          <LanguageSwitcher /> 
-          <SignOutButton />
-        </div>
-      </div>
-    );
-  } else if (session?.user?.role === 'SUSER') {
-    return (
-      <div className='fixed top-0 left-0 right-0 flex w-full h-16 md:h-20 justify-between items-center p-2 sm:p-4 bg-neutral shadow-lg overflow-visible z-50'>
-        <div className='p-4'><HelpSwitch /></div>
-        
-        <div className='flex justify-center items-center'>
-          <Image src="/logo-black.svg" width={50} height={50} alt="Logo esteso nero" className="object-contain" />
-        </div>
-
-        <div className='flex justify-center items-center gap-x-4'>
-          <NavSwitch />
-          
-          {/* Anche i SUSER potrebbero aver bisogno di vedere calendari esterni */}
-          {hasExternalAccess && <ExternalViewSwitch />}
-
-          <LanguageSwitcher /> 
-          <SignOutButton />
-        </div>
-      </div>
-    );
-  } else {  
+  if (!role) {  
     return <div className='hidden'></div>;
   }
+
+  return <NavbarClient role={role} hasExternalAccess={hasExternalAccess} />;
 }
 
 export default NavBar;

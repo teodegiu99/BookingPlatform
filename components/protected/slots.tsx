@@ -7,8 +7,9 @@ import { createAppuntamento } from '@/actions/createAppuntamento';
 import { getAvailableSlotsByDay } from '@/actions/getSlotLiberi';
 import { useSession } from 'next-auth/react';
 import { getAppuntamentiByDayAndCommerciale } from '@/actions/getSlotPrenotati';
-import { FiTrash2 } from 'react-icons/fi';
+import { FiTrash2, FiEdit2 } from 'react-icons/fi';
 import { deleteAppuntamento } from '@/actions/deleteSlot';
+import { updateAppuntamento } from '@/actions/updateAppuntamento';
 import useSWR from 'swr';
 import { useTranslation } from '@/lib/useTranslation';
 import { toast } from 'sonner';
@@ -111,6 +112,7 @@ const [localMessage, setLocalMessage] = useState<{ message: string; type: 'succe
   const [commerciale, setCommerciale] = useState<Commerciale | null>(null);
   const [invitatoda, setInvitatoda] = useState<{ nome: string; cognome: string } | null>(null);
   const [isSending, setIsSending] = useState(false); 
+  const [editData, setEditData] = useState<any>(null);
 // Se l'ID passato al componente è diverso dall'ID dell'utente loggato, siamo in "view mode"
   const isReadOnly = session?.user?.id && session.user.id !== userId;
     const fetchSlotsData = async () => {
@@ -172,12 +174,14 @@ const available = await getAvailableSlotsByDay(formattedDate, userId);
   const openModal = (slot: Date) => {
     setSelectedSlots([slot]);
     setSelectedInvitati([]);
+    setEditData(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedSlots([]);
+    setEditData(null);
   };
 
   useEffect(() => {
@@ -249,6 +253,20 @@ const available = await getAvailableSlotsByDay(formattedDate, userId);
       invitatiIds: selectedInvitati.map((i) => i.value),
     };
   
+    if (editData) {
+      const updatePayload = { ...payload, id: editData.id };
+      const res = await updateAppuntamento(updatePayload);
+      if (!res.success) {
+        setLocalMessage({ message: res.message ?? 'Errore durante la modifica', type: 'error' });
+        return;
+      }
+      formRef.current?.reset();
+      setLocalMessage({ message: 'Appuntamento modificato con successo', type: 'success' });
+      closeModal();
+      mutate();
+      return;
+    }
+
     const res = await createAppuntamento({ ...payload });
   
     if (res.clienteEsistente && !res.success) {
@@ -312,11 +330,21 @@ toast.info(t('sola_lettura_alert'));
     openModal(slot);
   };
 
-const handleBookedClick = (app: any) => {
+ const handleBookedClick = (app: any) => {
      // Decidi tu: vuoi fargli vedere i dettagli ma non cancellare?
      // Se vuoi vedere i dettagli, lascia così. 
      // Se vuoi bloccare anche i dettagli: if (isReadOnly) return;
      setSelectedAppuntamento(app);
+  };
+
+  const handleEditClick = () => {
+    if (isReadOnly) return;
+    if (!selectedAppuntamento) return;
+    setEditData(selectedAppuntamento);
+    setSelectedSlots(selectedAppuntamento.orari.map((o: string) => new Date(o)));
+    setSelectedInvitati(selectedAppuntamento.invitati.map((i: any) => ({ value: i.id, label: i.email })));
+    setIsModalOpen(true);
+    setSelectedAppuntamento(null);
   };
   const handleDeleteAppuntamento = async () => {
 if (isReadOnly) return; // Blocca cancellazione
@@ -566,17 +594,19 @@ if (isReadOnly) return; // Blocca cancellazione
           <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <h3 className="text-lg font-bold mb-2">{t('slotsel')}</h3>
             <p className="mb-4">{formatTimeRange()}</p>
-            <button onClick={addNextSlot} className="mb-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-xl">
-              {t('aggiungislot')}
-            </button>
+            {!editData && (
+              <button onClick={addNextSlot} className="mb-4 px-4 py-2 bg-blue-100 text-blue-700 rounded-xl">
+                {t('aggiungislot')}
+              </button>
+            )}
             <form ref={formRef} onSubmit={handleFormSubmit} className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <input name="nome" placeholder={t('nome')} className="border rounded p-2 w-full" />
-              <input name="cognome" placeholder={t('cognome')} className="border rounded p-2 w-full" />
-              <input name="telefono" placeholder={t('telefono')} className="border rounded p-2 w-full" />
-              <input name="email" type="email" placeholder="Email *" required className="border rounded p-2 w-full" />
-              <input name="azienda" placeholder={t('aziendaast')} required className="border rounded p-2 w-full" />
-              <input name="ruolo" placeholder={t('ruolo')} className="border rounded p-2 w-full" />
-              <textarea name="note" placeholder={t('note')} className="col-span-1 sm:col-span-2 border rounded p-2 w-full" />
+              <input name="nome" placeholder={t('nome')} defaultValue={editData?.cliente?.nome || ''} className="border rounded p-2 w-full" />
+              <input name="cognome" placeholder={t('cognome')} defaultValue={editData?.cliente?.cognome || ''} className="border rounded p-2 w-full" />
+              <input name="telefono" placeholder={t('telefono')} defaultValue={editData?.cliente?.numero || ''} className="border rounded p-2 w-full" />
+              <input name="email" type="email" placeholder="Email *" required defaultValue={editData?.cliente?.email || ''} className="border rounded p-2 w-full" />
+              <input name="azienda" placeholder={t('aziendaast')} required defaultValue={editData?.cliente?.azienda || ''} className="border rounded p-2 w-full" />
+              <input name="ruolo" placeholder={t('ruolo')} defaultValue={editData?.cliente?.ruolo || ''} className="border rounded p-2 w-full" />
+              <textarea name="note" placeholder={t('note')} defaultValue={editData?.note || ''} className="col-span-1 sm:col-span-2 border rounded p-2 w-full" />
               <div className="col-span-1 sm:col-span-2">
                 <label className="block text-sm font-medium mb-1">invitati</label>
                 <Select
@@ -604,9 +634,18 @@ if (isReadOnly) return; // Blocca cancellazione
           <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-lg max-w-xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-lg font-bold">{t('dettapp')}</h3>
-              <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800">
-                <FiTrash2 />
-              </button>
+              <div className="flex gap-4">
+                {(!isReadOnly && selectedAppuntamento.ownerId === session?.user?.id) && (
+                  <button onClick={handleEditClick} className="text-blue-600 hover:text-blue-800" title="Modifica">
+                    <FiEdit2 />
+                  </button>
+                )}
+                {!isReadOnly && (
+                  <button onClick={handleDeleteAppuntamento} className="text-red-600 hover:text-red-800" title="Elimina">
+                    <FiTrash2 />
+                  </button>
+                )}
+              </div>
             </div>
             <ul className="mb-4 space-y-1">
             {selectedAppuntamento.cliente.nome && <li><strong>{t('nome')}:</strong> {selectedAppuntamento.cliente.nome}</li>}

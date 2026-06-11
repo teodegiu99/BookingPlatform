@@ -13,13 +13,25 @@ const { auth } = NextAuth(authConfig);
 //by rewriting, redirecting, modifying the request or response headers,
 //or responding directly.
 
+import { NextResponse } from "next/server";
+
 export default auth((req) => {
   const { nextUrl } = req;
   const isLoggedIn = !!req.auth;
-
+  const role = req.auth?.user?.role;
   const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
   const isPublicRoute = publicRoutes.includes(nextUrl.pathname);
   const isAuthRoute = authRoutes.includes(nextUrl.pathname);
+
+  if (
+    process.env.MANUTENZIONE === '1' && 
+    nextUrl.pathname !== '/manutenzione' &&
+    role !== 'ADMIN' &&
+    !isApiAuthRoute &&
+    !isAuthRoute
+  ) {
+    return NextResponse.rewrite(new URL("/manutenzione", nextUrl));
+  }
 
   if (isApiAuthRoute) {
     return ;

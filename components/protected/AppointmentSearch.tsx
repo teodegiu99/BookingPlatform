@@ -139,7 +139,7 @@ const { data: allAppuntamenti = [], isLoading } = useSWR(
 
   return (
     <>
-      <div className="w-full border shadow-md rounded-xl p-6 grow">
+      <div className="relative z-40 w-full border shadow-md rounded-xl p-6 grow">
         <h3 className="text-xl font-semibold mb-2 text-secondary">{t('cerca')}</h3>
         <div className="flex justify-center items-center w-full">
           <Select
